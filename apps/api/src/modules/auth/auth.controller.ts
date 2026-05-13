@@ -19,7 +19,7 @@ import { ForgotPasswordDto, FirstAccessDto, ResetPasswordDto } from './dto/reset
 import { Public } from './decorators/public.decorator'
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard'
 import { RATE_LIMIT, TOKEN_EXPIRY } from '@repo/config'
-import type { JwtPayload } from '../../common/types/authenticated-request'
+import type { AuthenticatedUser, JwtPayload } from '../../common/types/authenticated-request'
 
 @ApiTags('Authentication')
 @Controller({ path: 'auth', version: '1' })
@@ -39,8 +39,8 @@ export class AuthController {
 
   @Get('me')
   @ApiOperation({ summary: 'Usuário autenticado atual' })
-  async me(@Req() req: Request & { user: JwtPayload }) {
-    return this.authService.getCurrentUser(req.user.sub)
+  async me(@Req() req: Request & { user: AuthenticatedUser }) {
+    return this.authService.getCurrentUser(req.user.id)
   }
 
   @Post('refresh')
