@@ -1,5 +1,4 @@
 'use client'
-
 import { useQuery } from '@tanstack/react-query'
 import { CheckCircle, Clock, Loader2, XCircle } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Badge } from '@repo/ui'
@@ -26,7 +25,10 @@ export function ImportHistory() {
       return res.data.data
     },
     enabled: !!esfId,
+    retry: 1,
     refetchInterval: (query) => {
+      if (query.state.status === 'error') return false
+
       const hasProcessing = query.state.data?.some(
         (i) => i.status === 'processing' || i.status === 'pending',
       )
