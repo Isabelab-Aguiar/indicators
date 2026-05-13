@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common'
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import * as argon2 from 'argon2'
 import { eq } from 'drizzle-orm'
@@ -11,7 +17,8 @@ import { profiles } from '../../database/schema'
 import { TOKEN_EXPIRY } from '@repo/config'
 import type { LoginDto } from './dto/login.dto'
 import type { AuthTokenPayload } from './types/auth-token-payload'
-import { Inject } from '@nestjs/common'
+import type { AuthUser, UserRole } from '@repo/types'
+import { permissionsForRole } from './permissions.map'
 
 type Database = NodePgDatabase<typeof schema>
 
@@ -40,6 +47,31 @@ export class AuthService {
     }
 
     return this.generateTokens(user, user.esf)
+  }
+
+  async getCurrentUser(userId: string): Promise<AuthUser> {
+    const user = await this.db.query.profiles.findFirst({
+      where: eq(profiles.id, userId),
+      with: { esf: true },
+    })
+
+    if (!user) throw new NotFoundException('Usuário não encontrado')
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+      team: user.team,
+      avatarUrl: user.avatarUrl,
+      esfId: user.esf.id,
+      esfName: user.esf.name,
+      esfCode: user.esf.code,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+      permissions: permissionsForRole(user.role as UserRole),
+    }
   }
 
   async refreshTokens(userId: string): Promise<AuthTokenPayload> {

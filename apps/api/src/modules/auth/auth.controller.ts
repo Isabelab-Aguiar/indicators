@@ -1,4 +1,14 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Throttle } from '@nestjs/throttler'
 import type { Request, Response } from 'express'
@@ -25,6 +35,12 @@ export class AuthController {
     const tokens = await this.authService.login(dto)
     this.setRefreshTokenCookie(res, tokens.refreshToken)
     return { accessToken: tokens.accessToken, expiresIn: tokens.expiresIn }
+  }
+
+  @Get('me')
+  @ApiOperation({ summary: 'Usuário autenticado atual' })
+  async me(@Req() req: Request & { user: JwtPayload }) {
+    return this.authService.getCurrentUser(req.user.sub)
   }
 
   @Post('refresh')
