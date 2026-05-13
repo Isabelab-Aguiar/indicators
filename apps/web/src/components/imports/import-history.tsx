@@ -61,25 +61,29 @@ export function ImportHistory() {
               const config = STATUS_CONFIG[item.status]
               const Icon = config.icon
               return (
-                <div
-                  key={item.id}
-                  className="border-border flex items-center justify-between rounded-lg border p-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon
-                      className={`h-4 w-4 shrink-0 ${config.color} ${item.status === 'processing' ? 'animate-spin' : ''}`}
-                    />
-                    <div>
-                      <p className="text-foreground text-sm font-medium">{item.fileName}</p>
-                      <p className="text-muted-foreground text-xs">
-                        {item.processedRecords}/{item.totalRecords} registros ·{' '}
-                        {new Date(item.createdAt).toLocaleString('pt-BR')}
-                      </p>
+                <div key={item.id} className="border-border rounded-lg border p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Icon
+                        className={`h-4 w-4 shrink-0 ${config.color} ${item.status === 'processing' ? 'animate-spin' : ''}`}
+                      />
+                      <div>
+                        <p className="text-foreground text-sm font-medium">{item.fileName}</p>
+                        <p className="text-muted-foreground text-xs">
+                          {item.processedRecords}/{item.totalRecords} registros ·{' '}
+                          {new Date(item.createdAt).toLocaleString('pt-BR')}
+                        </p>
+                      </div>
                     </div>
+                    <Badge variant={config.badge as 'secondary'} className="capitalize">
+                      {item.status}
+                    </Badge>
                   </div>
-                  <Badge variant={config.badge as 'secondary'} className="capitalize">
-                    {item.status}
-                  </Badge>
+                  {item.errorMessage && (
+                    <pre className="text-destructive bg-destructive/5 ml-7 mt-2 whitespace-pre-wrap rounded-md px-3 py-2 font-mono text-xs">
+                      {item.errorMessage}
+                    </pre>
+                  )}
                 </div>
               )
             })}
