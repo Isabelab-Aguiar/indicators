@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { BullModule } from '@nestjs/bullmq'
+import { Redis } from 'ioredis'
 
 import { ImportsController } from './imports.controller'
 import { ImportsService } from './imports.service'
@@ -14,10 +15,11 @@ import { QUEUE_NAMES } from '@repo/config'
         const url = config.redisUrl
         const isTls = url.startsWith('rediss://')
         return {
-          connection: {
-            url,
+          connection: new Redis(url, {
+            maxRetriesPerRequest: null,
+            enableReadyCheck: false,
             ...(isTls && { tls: { rejectUnauthorized: false } }),
-          },
+          }),
         }
       },
       inject: [ApiConfigService],
