@@ -10,9 +10,16 @@ import { QUEUE_NAMES } from '@repo/config'
 @Module({
   imports: [
     BullModule.forRootAsync({
-      useFactory: (config: ApiConfigService) => ({
-        connection: { url: config.redisUrl },
-      }),
+      useFactory: (config: ApiConfigService) => {
+        const url = config.redisUrl
+        const isTls = url.startsWith('rediss://')
+        return {
+          connection: {
+            url,
+            ...(isTls && { tls: { rejectUnauthorized: false } }),
+          },
+        }
+      },
       inject: [ApiConfigService],
     }),
     BullModule.registerQueue({ name: QUEUE_NAMES.IMPORT }),
