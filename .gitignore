@@ -13,5 +13,5 @@ coverage
 Thumbs.db
 .vercel
 .railway
-.claude/scheduled_tasks.lock
+.claude/
 next-env.d.ts
