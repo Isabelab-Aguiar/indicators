@@ -81,4 +81,17 @@ export class ImportsService {
     if (!record) throw new NotFoundException('Importação não encontrada')
     return record
   }
+
+  async remove(id: string, tenant: TenantContextPayload) {
+    const record = await this.findById(id, tenant)
+    if (record.storageKey) {
+      try {
+        await this.storage.delete(record.storageKey)
+      } catch {
+        // Object may already be gone; proceed with DB cleanup either way.
+      }
+    }
+    await this.db.delete(imports).where(eq(imports.id, id))
+    return { deleted: true }
+  }
 }

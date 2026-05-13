@@ -1,5 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3'
 
 import { ApiConfigService } from '../../config/api-config.service'
 
@@ -39,5 +44,10 @@ export class StorageService {
     const chunks: Uint8Array[] = []
     for await (const chunk of result.Body as AsyncIterable<Uint8Array>) chunks.push(chunk)
     return Buffer.concat(chunks)
+  }
+
+  async delete(key: string): Promise<void> {
+    await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }))
+    this.logger.log(`Deleted ${key}`)
   }
 }

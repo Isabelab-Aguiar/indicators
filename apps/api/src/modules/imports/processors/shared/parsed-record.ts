@@ -13,4 +13,10 @@ export interface ParsedRecord {
   daysSinceNursing?: number
   daysSinceDentist?: number
   daysSinceHomeVisit?: number
+  prenatalConsultations?: number
+  consultationsUpTo12Weeks?: number
+  bloodPressureMeasurements?: number
+  weightHeightMeasurements?: number
+  homeVisits?: number
+  dentalAppointments?: number
 }

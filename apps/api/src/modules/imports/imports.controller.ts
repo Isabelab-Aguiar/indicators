@@ -1,6 +1,9 @@
 import {
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Post,
@@ -72,5 +75,16 @@ export class ImportsController {
   @ApiOperation({ summary: 'Status de uma importação' })
   findById(@Param('id', ParseUUIDPipe) id: string, @CurrentTenant() tenant: TenantContextPayload) {
     return this.importsService.findById(id, tenant)
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Roles('admin', 'manager', 'nurse')
+  @ApiOperation({ summary: 'Remover importação (deleta arquivo no R2 e o registro)' })
+  async remove(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentTenant() tenant: TenantContextPayload,
+  ) {
+    await this.importsService.remove(id, tenant)
   }
 }

@@ -23,6 +23,12 @@ const DAYS_DOCTOR = ['dias desde o ultimo atendimento medico'] as const
 const DAYS_NURSING = ['dias desde o ultimo atendimento de enfermagem'] as const
 const DAYS_DENTIST = ['dias desde o ultimo atendimento odontologico'] as const
 const DAYS_VISIT = ['dias desde a ultima visita domiciliar'] as const
+const PRENATAL_COUNT = ['quantidade de atendimentos no pre natal'] as const
+const PRENATAL_12W_COUNT = ['quantidade de atendimentos ate 12 semanas no pre natal'] as const
+const BP_COUNT = ['quantidade de medicoes de pressao arterial'] as const
+const WH_COUNT = ['quantidade de medicoes simultaneas de peso e altura'] as const
+const VISIT_COUNT = ['quantidade de visitas domiciliares no pre natal'] as const
+const DENTAL_COUNT = ['quantidade de atendimentos odontologicos no pre natal'] as const
 
 function normalize(key: string): string {
   return key
@@ -133,6 +139,12 @@ export function extractCsvRecords(buffer: Buffer): ParsedRecord[] {
         daysSinceNursing: parseInteger(pickField(row, DAYS_NURSING)),
         daysSinceDentist: parseInteger(pickField(row, DAYS_DENTIST)),
         daysSinceHomeVisit: parseInteger(pickField(row, DAYS_VISIT)),
+        prenatalConsultations: parseInteger(pickField(row, PRENATAL_COUNT)),
+        consultationsUpTo12Weeks: parseInteger(pickField(row, PRENATAL_12W_COUNT)),
+        bloodPressureMeasurements: parseInteger(pickField(row, BP_COUNT)),
+        weightHeightMeasurements: parseInteger(pickField(row, WH_COUNT)),
+        homeVisits: parseInteger(pickField(row, VISIT_COUNT)),
+        dentalAppointments: parseInteger(pickField(row, DENTAL_COUNT)),
       }
     })
 }
