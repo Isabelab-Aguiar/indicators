@@ -5,6 +5,7 @@ module.exports = [
   { ignores: ['.next/**', 'node_modules/**'] },
   ...nextConfig,
   {
+    files: ['**/*.{ts,tsx}'],
     rules: {
       '@typescript-eslint/no-misused-promises': [
         'error',
