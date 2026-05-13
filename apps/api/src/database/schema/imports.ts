@@ -20,6 +20,7 @@ export const imports = pgTable('imports', {
     .references(() => esfs.id),
   type: importTypeEnum('type').notNull(),
   fileName: text('file_name').notNull(),
+  storageKey: text('storage_key'),
   totalRecords: integer('total_records').notNull().default(0),
   processedRecords: integer('processed_records').notNull().default(0),
   failedRecords: integer('failed_records').notNull().default(0),

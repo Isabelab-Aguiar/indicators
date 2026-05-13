@@ -6,6 +6,7 @@ export interface Import {
   id: string
   type: ImportType
   fileName: string
+  storageKey: string | null
   totalRecords: number
   processedRecords: number
   failedRecords: number

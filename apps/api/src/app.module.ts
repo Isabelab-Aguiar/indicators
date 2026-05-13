@@ -12,6 +12,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module'
 import { ImportsModule } from './modules/imports/imports.module'
 import { AuditModule } from './modules/audit/audit.module'
 import { HealthModule } from './modules/health/health.module'
+import { StorageModule } from './modules/storage/storage.module'
 import { RATE_LIMIT } from '@repo/config'
 
 @Module({
@@ -26,6 +27,7 @@ import { RATE_LIMIT } from '@repo/config'
       },
     ]),
     DatabaseModule,
+    StorageModule,
     AuditModule,
     AuthModule,
     UsersModule,

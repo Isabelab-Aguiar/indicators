@@ -4,7 +4,7 @@ import { Redis } from 'ioredis'
 
 import { ImportsController } from './imports.controller'
 import { ImportsService } from './imports.service'
-import { CsvImportProcessor } from './processors/csv-import.processor'
+import { ImportProcessor } from './processors/import.processor'
 import { ApiConfigService } from '../../config/api-config.service'
 import { QUEUE_NAMES } from '@repo/config'
 
@@ -27,6 +27,6 @@ import { QUEUE_NAMES } from '@repo/config'
     BullModule.registerQueue({ name: QUEUE_NAMES.IMPORT }),
   ],
   controllers: [ImportsController],
-  providers: [ImportsService, CsvImportProcessor],
+  providers: [ImportsService, ImportProcessor],
 })
 export class ImportsModule {}

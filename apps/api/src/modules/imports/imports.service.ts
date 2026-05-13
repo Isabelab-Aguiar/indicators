@@ -8,54 +8,57 @@ import { DATABASE_TOKEN } from '../../database/database.module'
 import { imports } from '../../database/schema'
 import type * as schema from '../../database/schema'
 import type { TenantContextPayload } from '../../common/tenant/tenant-context'
+import { StorageService } from '../storage/storage.service'
 import { QUEUE_NAMES } from '@repo/config'
 
 type Database = NodePgDatabase<typeof schema>
+type ImportType = 'csv' | 'pdf'
+
+const JOB_NAMES = { csv: 'process-csv', pdf: 'process-pdf' } as const
 
 @Injectable()
 export class ImportsService {
   constructor(
     @Inject(DATABASE_TOKEN) private readonly db: Database,
     @InjectQueue(QUEUE_NAMES.IMPORT) private readonly importQueue: Queue,
+    private readonly storage: StorageService,
   ) {}
 
-  async queueCsvImport(file: Express.Multer.File, tenant: TenantContextPayload) {
-    const [record] = await this.db
-      .insert(imports)
-      .values({
-        esfId: tenant.esfId,
-        type: 'csv',
-        fileName: file.originalname,
-        status: 'pending',
-        userId: tenant.userId,
-      })
-      .returning()
-
-    await this.importQueue.add('process-csv', {
-      importId: record.id,
-      fileBuffer: file.buffer.toString('base64'),
-      esfId: tenant.esfId,
-      userId: tenant.userId,
-    })
-
-    return { importId: record.id, status: 'pending' }
+  queueCsvImport(file: Express.Multer.File, tenant: TenantContextPayload) {
+    return this.queueImport('csv', file, tenant)
   }
 
-  async queuePdfImport(file: Express.Multer.File, tenant: TenantContextPayload) {
+  queuePdfImport(file: Express.Multer.File, tenant: TenantContextPayload) {
+    return this.queueImport('pdf', file, tenant)
+  }
+
+  private async queueImport(
+    type: ImportType,
+    file: Express.Multer.File,
+    tenant: TenantContextPayload,
+  ) {
     const [record] = await this.db
       .insert(imports)
       .values({
         esfId: tenant.esfId,
-        type: 'pdf',
+        type,
         fileName: file.originalname,
         status: 'pending',
         userId: tenant.userId,
       })
       .returning()
 
-    await this.importQueue.add('process-pdf', {
+    const storageKey = `imports/${tenant.esfId}/${record.id}.${type}`
+    await this.storage.put(storageKey, file.buffer, file.mimetype)
+
+    await this.db
+      .update(imports)
+      .set({ storageKey, updatedAt: new Date() })
+      .where(eq(imports.id, record.id))
+
+    await this.importQueue.add(JOB_NAMES[type], {
       importId: record.id,
-      fileBuffer: file.buffer.toString('base64'),
+      storageKey,
       esfId: tenant.esfId,
       userId: tenant.userId,
     })
