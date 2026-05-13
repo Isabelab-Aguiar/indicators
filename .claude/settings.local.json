@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(if \\(-not $?\\) { \"Directory is empty or doesn't exist\" })",
+      "PowerShell(Get-ChildItem -Recurse \"C:\\\\Users\\\\Isa\\\\Desktop\\\\projects\\\\indicadores\" -Exclude \"node_modules\",\".next\",\"dist\",\".turbo\" | Where-Object { !$_.PSIsContainer } | Select-Object -ExpandProperty FullName | Sort-Object)",
+      "Bash(pnpm --filter @repo/api db:migrate)",
+      "PowerShell(node -e \"const c=require\\('crypto'\\);console.log\\('ACCESS='+c.randomBytes\\(48\\).toString\\('hex'\\)\\);console.log\\('REFRESH='+c.randomBytes\\(48\\).toString\\('hex'\\)\\)\")"
+    ]
+  }
+}

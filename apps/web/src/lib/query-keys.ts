@@ -1,0 +1,29 @@
+import type { PregnantWomanFilters } from '@repo/types'
+
+export const queryKeys = {
+  auth: {
+    me: () => ['auth', 'me'] as const,
+  },
+  dashboard: {
+    metrics: (esfId: string) => ['dashboard', 'metrics', esfId] as const,
+    microareaStats: (esfId: string) => ['dashboard', 'microarea-stats', esfId] as const,
+  },
+  pregnantWomen: {
+    all: (esfId: string) => ['pregnant-women', esfId] as const,
+    list: (esfId: string, filters: PregnantWomanFilters) =>
+      ['pregnant-women', esfId, 'list', filters] as const,
+    detail: (id: string) => ['pregnant-women', id, 'detail'] as const,
+  },
+  imports: {
+    all: (esfId: string) => ['imports', esfId] as const,
+    detail: (id: string) => ['imports', id, 'detail'] as const,
+  },
+  users: {
+    all: (esfId: string) => ['users', esfId] as const,
+    detail: (id: string) => ['users', id, 'detail'] as const,
+  },
+  esf: {
+    all: () => ['esf'] as const,
+    detail: (id: string) => ['esf', id] as const,
+  },
+} as const

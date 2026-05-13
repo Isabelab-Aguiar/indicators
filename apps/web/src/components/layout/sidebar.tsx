@@ -1,0 +1,100 @@
+'use client'
+
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import {
+  Activity,
+  FileUp,
+  History,
+  LayoutDashboard,
+  LogOut,
+  Settings,
+  User,
+  Users,
+} from 'lucide-react'
+import { motion } from 'framer-motion'
+import { cn } from '@repo/ui'
+import { useAuthStore } from '@/store/auth.store'
+import { useLogout } from '@/hooks/use-auth'
+import { TenantBadge } from './tenant-badge'
+
+const navItems = [
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/gestantes', label: 'Gestantes', icon: Users },
+  { href: '/importar', label: 'Importar', icon: FileUp },
+  { href: '/historico', label: 'Histórico', icon: History },
+]
+
+const bottomItems = [
+  { href: '/perfil', label: 'Perfil', icon: User },
+  { href: '/configuracoes', label: 'Configurações', icon: Settings },
+]
+
+export function Sidebar() {
+  const pathname = usePathname()
+  const user = useAuthStore((s) => s.user)
+  const logout = useLogout()
+
+  return (
+    <aside className="border-sidebar-border bg-sidebar flex h-screen w-[240px] flex-col border-r">
+      <div className="flex items-center gap-2 px-4 py-5">
+        <Activity className="text-primary h-6 w-6" />
+        <span className="text-sidebar-foreground text-sm font-semibold">Indicadores APS</span>
+      </div>
+
+      <div className="px-3 pb-2">
+        <TenantBadge esfName={user?.esfName ?? ''} esfCode={user?.esfCode ?? ''} />
+      </div>
+
+      <nav className="flex-1 space-y-0.5 px-3">
+        {navItems.map((item) => (
+          <NavItem key={item.href} {...item} active={pathname.startsWith(item.href)} />
+        ))}
+      </nav>
+
+      <div className="border-sidebar-border space-y-0.5 border-t px-3 py-3">
+        {bottomItems.map((item) => (
+          <NavItem key={item.href} {...item} active={pathname === item.href} />
+        ))}
+        <button
+          onClick={() => logout.mutate()}
+          className="text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors"
+        >
+          <LogOut className="h-4 w-4" />
+          Sair
+        </button>
+      </div>
+    </aside>
+  )
+}
+
+interface NavItemProps {
+  href: string
+  label: string
+  icon: React.ElementType
+  active: boolean
+}
+
+function NavItem({ href, label, icon: Icon, active }: NavItemProps) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        'relative flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
+        active
+          ? 'bg-sidebar-accent text-sidebar-foreground font-medium'
+          : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground',
+      )}
+    >
+      {active && (
+        <motion.div
+          layoutId="sidebar-indicator"
+          className="bg-primary absolute left-0 top-1 h-[calc(100%-8px)] w-0.5 rounded-full"
+          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+        />
+      )}
+      <Icon className="h-4 w-4 shrink-0" />
+      {label}
+    </Link>
+  )
+}
