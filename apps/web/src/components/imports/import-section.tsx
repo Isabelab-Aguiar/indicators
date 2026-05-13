@@ -25,7 +25,7 @@ export function ImportSection() {
       form.append('file', file)
       const endpoint = file.type === 'application/pdf' ? '/imports/pdf' : '/imports/csv'
       const response = await apiClient.post<{ data: { importId: string } }>(endpoint, form, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 'Content-Type': undefined },
       })
       return response.data.data
     },

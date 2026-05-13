@@ -2,16 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import {
-  Activity,
-  FileUp,
-  History,
-  LayoutDashboard,
-  LogOut,
-  Settings,
-  User,
-  Users,
-} from 'lucide-react'
+import { Activity, FileUp, History, LayoutDashboard, LogOut, User, Users } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@repo/ui'
 import { useAuthStore } from '@/store/auth.store'
@@ -25,10 +16,7 @@ const navItems = [
   { href: '/historico', label: 'Histórico', icon: History },
 ]
 
-const bottomItems = [
-  { href: '/perfil', label: 'Perfil', icon: User },
-  { href: '/configuracoes', label: 'Configurações', icon: Settings },
-]
+const bottomItems = [{ href: '/perfil', label: 'Perfil', icon: User }]
 
 export function Sidebar() {
   const pathname = usePathname()
