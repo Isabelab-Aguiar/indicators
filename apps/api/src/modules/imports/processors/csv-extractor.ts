@@ -1,6 +1,6 @@
 import { parse } from 'csv-parse/sync'
 
-import type { ParsedRecord } from './shared/parsed-record'
+import type { CsvExamResult, ParsedRecord } from './shared/parsed-record'
 
 const CPF_FIELDS = ['cpf', 'cpf do cidadao', 'cpf cidadao'] as const
 const NAME_FIELDS = ['nome', 'name', 'cidadao', 'nome do cidadao', 'nome completo'] as const
@@ -32,6 +32,16 @@ const BP_COUNT = ['quantidade de medicoes de pressao arterial'] as const
 const WH_COUNT = ['quantidade de medicoes simultaneas de peso e altura'] as const
 const VISIT_COUNT = ['quantidade de visitas domiciliares no pre natal'] as const
 const DENTAL_COUNT = ['quantidade de atendimentos odontologicos no pre natal'] as const
+const DTPA_FIELDS = ['dtpa'] as const
+const HIV1_FIELDS = ['exame de hiv no primeiro trimestre'] as const
+const SYPHILIS1_FIELDS = [
+  'exame de sifilis no primeiro trimestre)',
+  'exame de sifilis no primeiro trimestre',
+] as const
+const HEPB1_FIELDS = ['exame de hepatite b no primeiro trimestre'] as const
+const HEPC1_FIELDS = ['exame de hepatite c no primeiro trimestre'] as const
+const HIV3_FIELDS = ['exame de hiv no terceiro trimestre'] as const
+const SYPHILIS3_FIELDS = ['exame de sifilis no terceiro trimestre'] as const
 
 function normalize(key: string): string {
   return key
@@ -53,7 +63,7 @@ function pickField(row: Record<string, string>, candidates: readonly string[]): 
   for (const k of Object.keys(row)) normalized[normalize(k)] = row[k] ?? ''
   for (const c of candidates) {
     const value = normalized[normalize(c)]
-    if (value && !isPlaceholder(value)) return value
+    if (value !== undefined && !isPlaceholder(value)) return value
   }
   return ''
 }
@@ -77,6 +87,20 @@ function parseInteger(value: string): number | undefined {
   if (isPlaceholder(value)) return undefined
   const num = Number(value.trim())
   return isNaN(num) ? undefined : num
+}
+
+function parseExamResult(raw: string): CsvExamResult | undefined {
+  const value = raw.trim().toUpperCase()
+  if (!value || value === '-') return undefined
+  if (value === 'SIM') return 'negative'
+  if (value === 'NAO' || value === 'NÃO') return 'pending'
+  if (value === 'NAO_SE_APLICA' || value === 'NÃO_SE_APLICA') return 'not_performed'
+  return undefined
+}
+
+function parseDtpa(raw: string): boolean | undefined {
+  if (isPlaceholder(raw)) return undefined
+  return true
 }
 
 function detectDelimiter(text: string): ',' | ';' {
@@ -110,7 +134,6 @@ function composeAddress(row: Record<string, string>): string {
 }
 
 export function extractCsvRecords(buffer: Buffer): ParsedRecord[] {
-  // e-SUS exports may be ISO-8859-1; detect by presence of UTF-8 replacement chars
   let text = buffer.toString('utf8').replace(/^\uFEFF/, '')
   if (text.includes('\uFFFD')) {
     text = buffer.toString('latin1').replace(/^\uFEFF/, '')
@@ -156,6 +179,13 @@ export function extractCsvRecords(buffer: Buffer): ParsedRecord[] {
         weightHeightMeasurements: parseInteger(pickField(row, WH_COUNT)),
         homeVisits: parseInteger(pickField(row, VISIT_COUNT)),
         dentalAppointments: parseInteger(pickField(row, DENTAL_COUNT)),
+        dtpaRegistered: parseDtpa(pickField(row, DTPA_FIELDS)),
+        hivExam1stTrimester: parseExamResult(pickField(row, HIV1_FIELDS)),
+        syphilisExam1stTrimester: parseExamResult(pickField(row, SYPHILIS1_FIELDS)),
+        hepatitisBExam1stTrimester: parseExamResult(pickField(row, HEPB1_FIELDS)),
+        hepatitisCExam1stTrimester: parseExamResult(pickField(row, HEPC1_FIELDS)),
+        hivExam3rdTrimester: parseExamResult(pickField(row, HIV3_FIELDS)),
+        syphilisExam3rdTrimester: parseExamResult(pickField(row, SYPHILIS3_FIELDS)),
       }
     })
 }

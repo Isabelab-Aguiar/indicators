@@ -1,3 +1,5 @@
+export type CsvExamResult = 'pending' | 'negative' | 'positive' | 'not_performed'
+
 export interface ParsedRecord {
   name: string
   cpf: string
@@ -19,4 +21,11 @@ export interface ParsedRecord {
   weightHeightMeasurements?: number
   homeVisits?: number
   dentalAppointments?: number
+  dtpaRegistered?: boolean
+  hivExam1stTrimester?: CsvExamResult
+  syphilisExam1stTrimester?: CsvExamResult
+  hepatitisBExam1stTrimester?: CsvExamResult
+  hepatitisCExam1stTrimester?: CsvExamResult
+  hivExam3rdTrimester?: CsvExamResult
+  syphilisExam3rdTrimester?: CsvExamResult
 }

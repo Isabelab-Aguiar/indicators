@@ -3,7 +3,7 @@ import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 
 import { pregnantWomen } from '../../../../database/schema'
 import type * as schema from '../../../../database/schema'
-import type { ParsedRecord } from './parsed-record'
+import type { CsvExamResult, ParsedRecord } from './parsed-record'
 
 type Database = NodePgDatabase<typeof schema>
 
@@ -20,6 +20,16 @@ type CountField = (typeof SUMMED_COUNT_FIELDS)[number]
 
 function sumCount(existing: number, incoming: number | undefined): number {
   return existing + (incoming ?? 0)
+}
+
+function mergeExam(existing: CsvExamResult, incoming: CsvExamResult | undefined): CsvExamResult {
+  if (!incoming) return existing
+  if (existing === 'negative' || existing === 'positive') return existing
+  return incoming
+}
+
+function mergeDtpa(existing: boolean, incoming: boolean | undefined): boolean {
+  return existing || (incoming ?? false)
 }
 
 export async function upsertPregnantWoman(
@@ -58,6 +68,16 @@ export async function upsertPregnantWoman(
     updatedAt: new Date(),
   }
 
+  const examValues = {
+    dtpaRegistered: record.dtpaRegistered ?? false,
+    hivExam1stTrimester: record.hivExam1stTrimester ?? 'pending',
+    syphilisExam1stTrimester: record.syphilisExam1stTrimester ?? 'pending',
+    hepatitisBExam1stTrimester: record.hepatitisBExam1stTrimester ?? 'pending',
+    hepatitisCExam1stTrimester: record.hepatitisCExam1stTrimester ?? 'pending',
+    hivExam3rdTrimester: record.hivExam3rdTrimester ?? 'pending',
+    syphilisExam3rdTrimester: record.syphilisExam3rdTrimester ?? 'pending',
+  } as const
+
   if (existing) {
     const merged: Record<CountField, number> = {
       prenatalConsultations: sumCount(existing.prenatalConsultations, record.prenatalConsultations),
@@ -76,15 +96,39 @@ export async function upsertPregnantWoman(
       homeVisits: sumCount(existing.homeVisits, record.homeVisits),
       dentalAppointments: sumCount(existing.dentalAppointments, record.dentalAppointments),
     }
+
+    const mergedExams = {
+      dtpaRegistered: mergeDtpa(existing.dtpaRegistered, record.dtpaRegistered),
+      hivExam1stTrimester: mergeExam(existing.hivExam1stTrimester, record.hivExam1stTrimester),
+      syphilisExam1stTrimester: mergeExam(
+        existing.syphilisExam1stTrimester,
+        record.syphilisExam1stTrimester,
+      ),
+      hepatitisBExam1stTrimester: mergeExam(
+        existing.hepatitisBExam1stTrimester,
+        record.hepatitisBExam1stTrimester,
+      ),
+      hepatitisCExam1stTrimester: mergeExam(
+        existing.hepatitisCExam1stTrimester,
+        record.hepatitisCExam1stTrimester,
+      ),
+      hivExam3rdTrimester: mergeExam(existing.hivExam3rdTrimester, record.hivExam3rdTrimester),
+      syphilisExam3rdTrimester: mergeExam(
+        existing.syphilisExam3rdTrimester,
+        record.syphilisExam3rdTrimester,
+      ),
+    }
+
     await db
       .update(pregnantWomen)
-      .set({ ...baseValues, ...merged })
+      .set({ ...baseValues, ...merged, ...mergedExams })
       .where(eq(pregnantWomen.id, existing.id))
     return
   }
 
   await db.insert(pregnantWomen).values({
     ...baseValues,
+    ...examValues,
     prenatalConsultations: record.prenatalConsultations ?? 0,
     consultationsUpTo12Weeks: record.consultationsUpTo12Weeks ?? 0,
     bloodPressureMeasurements: record.bloodPressureMeasurements ?? 0,
