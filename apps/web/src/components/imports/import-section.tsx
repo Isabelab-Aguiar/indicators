@@ -1,9 +1,25 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { FileText, Upload, X } from 'lucide-react'
+import { FileText, Trash2, Upload, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui'
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@repo/ui'
 import { cn } from '@repo/ui'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/lib/api-client'
@@ -11,6 +27,7 @@ import { toast } from '@/hooks/use-toast'
 import { useAuthStore } from '@/store/auth.store'
 import { queryKeys } from '@/lib/query-keys'
 import { UPLOAD } from '@repo/config'
+import { useDeleteAllPregnantWomen } from '@/hooks/use-pregnant-women'
 
 export function ImportSection() {
   const [dragOver, setDragOver] = useState(false)
@@ -18,6 +35,7 @@ export function ImportSection() {
   const inputRef = useRef<HTMLInputElement>(null)
   const queryClient = useQueryClient()
   const esfId = useAuthStore((s) => s.user?.esfId ?? '')
+  const deleteAll = useDeleteAllPregnantWomen()
 
   const importMutation = useMutation({
     mutationFn: async (file: File) => {
@@ -54,11 +72,43 @@ export function ImportSection() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-sm font-semibold">Enviar Arquivo</CardTitle>
-        <CardDescription className="text-xs">
-          Suporta CSV e PDF. Máximo 10MB. Os dados serão vinculados automaticamente à sua ESF.
-        </CardDescription>
+      <CardHeader className="flex flex-row items-start justify-between">
+        <div>
+          <CardTitle className="text-sm font-semibold">Enviar Arquivo</CardTitle>
+          <CardDescription className="text-xs">
+            Suporta CSV e PDF. Máximo 10MB. Os dados serão vinculados automaticamente à sua ESF.
+          </CardDescription>
+        </div>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-destructive hover:text-destructive shrink-0 gap-1.5"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Limpar dados
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Remover todos os dados de gestantes?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Todos os registros de gestantes desta ESF serão permanentemente removidos. Esta ação
+                não pode ser desfeita.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive hover:bg-destructive/90"
+                onClick={() => deleteAll.mutate()}
+              >
+                Remover tudo
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardHeader>
       <CardContent>
         <div

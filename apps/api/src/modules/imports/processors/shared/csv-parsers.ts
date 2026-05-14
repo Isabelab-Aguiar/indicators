@@ -30,10 +30,11 @@ export function parseDate(value: string): Date | undefined {
   if (!trimmed || trimmed === '-') return undefined
   const brMatch = trimmed.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
   if (brMatch) {
-    const d = new Date(`${brMatch[3]}-${brMatch[2]}-${brMatch[1]}T00:00:00Z`)
+    const d = new Date(`${brMatch[3]}-${brMatch[2]}-${brMatch[1]}T12:00:00Z`)
     return isNaN(d.getTime()) ? undefined : d
   }
-  const d = new Date(trimmed.length === 10 ? `${trimmed}T00:00:00Z` : trimmed)
+  const iso = trimmed.length === 10 ? `${trimmed}T12:00:00Z` : trimmed
+  const d = new Date(iso)
   return isNaN(d.getTime()) ? undefined : d
 }
 

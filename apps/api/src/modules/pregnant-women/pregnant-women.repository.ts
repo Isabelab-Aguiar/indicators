@@ -111,4 +111,8 @@ export class PregnantWomenRepository {
       .delete(pregnantWomen)
       .where(and(eq(pregnantWomen.id, id), eq(pregnantWomen.esfId, esfId)))
   }
+
+  deleteAllByEsf(esfId: string) {
+    return this.db.delete(pregnantWomen).where(eq(pregnantWomen.esfId, esfId))
+  }
 }

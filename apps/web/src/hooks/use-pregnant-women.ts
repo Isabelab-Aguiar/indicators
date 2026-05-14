@@ -64,3 +64,17 @@ export function useUpdatePregnantWoman(id: string) {
     onError: () => toast({ title: 'Erro ao atualizar dados', variant: 'destructive' }),
   })
 }
+
+export function useDeleteAllPregnantWomen() {
+  const queryClient = useQueryClient()
+  const esfId = useAuthStore((s) => s.user?.esfId ?? '')
+
+  return useMutation({
+    mutationFn: () => apiClient.delete('/pregnant-women'),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.pregnantWomen.all(esfId) })
+      toast({ title: 'Dados removidos com sucesso' })
+    },
+    onError: () => toast({ title: 'Erro ao remover dados', variant: 'destructive' }),
+  })
+}

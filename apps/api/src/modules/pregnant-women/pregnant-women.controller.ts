@@ -58,6 +58,14 @@ export class PregnantWomenController {
     return this.service.update(id, dto, tenant)
   }
 
+  @Delete()
+  @Roles('admin', 'manager')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Remover todas as gestantes da ESF autenticada' })
+  deleteAll(@CurrentTenant() tenant: TenantContextPayload) {
+    return this.service.deleteAll(tenant)
+  }
+
   @Delete(':id')
   @Roles('admin', 'manager')
   @HttpCode(HttpStatus.NO_CONTENT)

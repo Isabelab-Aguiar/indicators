@@ -59,6 +59,10 @@ export class PregnantWomenService {
     await this.repository.delete(id, tenant.esfId)
   }
 
+  async deleteAll(tenant: TenantContextPayload) {
+    await this.repository.deleteAllByEsf(tenant.esfId)
+  }
+
   private classifyBloodPressure(bp: string): 'normal' | 'elevated' | 'high' | 'critical' {
     const [systolicStr, diastolicStr] = bp.split('/')
     const systolic = parseInt(systolicStr ?? '0', 10)
