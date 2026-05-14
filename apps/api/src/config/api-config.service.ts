@@ -34,20 +34,26 @@ export class ApiConfigService {
     return origins.split(',').map((o) => o.trim())
   }
 
-  get r2AccountId(): string {
-    return this.configService.getOrThrow<string>('R2_ACCOUNT_ID')
+  get r2AccountId(): string | undefined {
+    return this.configService.get<string>('R2_ACCOUNT_ID')
   }
 
-  get r2AccessKeyId(): string {
-    return this.configService.getOrThrow<string>('R2_ACCESS_KEY_ID')
+  get r2AccessKeyId(): string | undefined {
+    return this.configService.get<string>('R2_ACCESS_KEY_ID')
   }
 
-  get r2SecretAccessKey(): string {
-    return this.configService.getOrThrow<string>('R2_SECRET_ACCESS_KEY')
+  get r2SecretAccessKey(): string | undefined {
+    return this.configService.get<string>('R2_SECRET_ACCESS_KEY')
   }
 
-  get r2Bucket(): string {
-    return this.configService.getOrThrow<string>('R2_BUCKET')
+  get r2Bucket(): string | undefined {
+    return this.configService.get<string>('R2_BUCKET')
+  }
+
+  get isR2Configured(): boolean {
+    return Boolean(
+      this.r2AccountId && this.r2AccessKeyId && this.r2SecretAccessKey && this.r2Bucket,
+    )
   }
 
   get isProduction(): boolean {

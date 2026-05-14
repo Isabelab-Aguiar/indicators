@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common'
 import {
   DeleteObjectCommand,
   GetObjectCommand,
@@ -11,35 +11,47 @@ import { ApiConfigService } from '../../config/api-config.service'
 @Injectable()
 export class StorageService {
   private readonly logger = new Logger(StorageService.name)
-  private readonly client: S3Client
-  private readonly bucket: string
+  private readonly client: S3Client | null
+  private readonly bucket: string | undefined
 
   constructor(config: ApiConfigService) {
+    if (!config.isR2Configured) {
+      this.logger.warn('R2 storage is not configured — file uploads will be rejected.')
+      this.client = null
+      this.bucket = undefined
+      return
+    }
     this.bucket = config.r2Bucket
     this.client = new S3Client({
       region: 'auto',
       endpoint: `https://${config.r2AccountId}.r2.cloudflarestorage.com`,
       credentials: {
-        accessKeyId: config.r2AccessKeyId,
-        secretAccessKey: config.r2SecretAccessKey,
+        accessKeyId: config.r2AccessKeyId as string,
+        secretAccessKey: config.r2SecretAccessKey as string,
       },
     })
   }
 
+  private requireClient(): { client: S3Client; bucket: string } {
+    if (!this.client || !this.bucket) {
+      throw new ServiceUnavailableException(
+        'Armazenamento R2 não configurado. Defina R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY e R2_BUCKET.',
+      )
+    }
+    return { client: this.client, bucket: this.bucket }
+  }
+
   async put(key: string, body: Buffer, contentType: string): Promise<void> {
-    await this.client.send(
-      new PutObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-        Body: body,
-        ContentType: contentType,
-      }),
+    const { client, bucket } = this.requireClient()
+    await client.send(
+      new PutObjectCommand({ Bucket: bucket, Key: key, Body: body, ContentType: contentType }),
     )
     this.logger.log(`Uploaded ${key} (${body.length} bytes)`)
   }
 
   async getBuffer(key: string): Promise<Buffer> {
-    const result = await this.client.send(new GetObjectCommand({ Bucket: this.bucket, Key: key }))
+    const { client, bucket } = this.requireClient()
+    const result = await client.send(new GetObjectCommand({ Bucket: bucket, Key: key }))
     if (!result.Body) throw new Error(`Empty body for ${key}`)
     const chunks: Uint8Array[] = []
     for await (const chunk of result.Body as AsyncIterable<Uint8Array>) chunks.push(chunk)
@@ -47,7 +59,8 @@ export class StorageService {
   }
 
   async delete(key: string): Promise<void> {
-    await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }))
+    const { client, bucket } = this.requireClient()
+    await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }))
     this.logger.log(`Deleted ${key}`)
   }
 }
