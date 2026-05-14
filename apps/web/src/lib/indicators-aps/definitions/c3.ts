@@ -13,29 +13,58 @@ export const C3: IndicatorDefinition = {
   criteria: [
     {
       id: 'A',
-      points: 25,
-      title: '≥ 6 consultas de pré-natal',
-      description:
-        'Pelo menos 6 consultas realizadas com médico(a) ou enfermeiro(a) durante a gestação.',
+      points: 10,
+      title: '1ª consulta até a 12ª semana',
+      description: 'Consulta médica ou de enfermagem realizada até 12 semanas de gestação.',
     },
     {
       id: 'B',
-      points: 25,
-      title: 'Exames: HIV, sífilis e hepatite B',
-      description:
-        'HIV, sífilis (VDRL) e hepatite B (HBsAg) realizados em pelo menos um trimestre.',
+      points: 9,
+      title: 'Mínimo de 7 consultas no pré-natal',
+      description: 'Consultas presenciais ou remotas por médica(o) ou enfermeira(o).',
     },
     {
       id: 'C',
-      points: 25,
-      title: '≥ 1 consulta odontológica',
-      description: 'Pelo menos um atendimento odontológico registrado durante a gestação.',
+      points: 9,
+      title: 'Mínimo de 7 aferições de pressão arterial',
+      description: 'Registros de PA durante a gestação.',
     },
     {
       id: 'D',
-      points: 25,
+      points: 9,
+      title: 'Mínimo de 7 registros de peso e altura',
+      description: 'Registros simultâneos de peso e altura.',
+    },
+    {
+      id: 'E',
+      points: 9,
+      title: 'Mínimo de 3 visitas domiciliares (ACS/TACS)',
+      description: 'Após a primeira consulta do pré-natal.',
+    },
+    {
+      id: 'F',
+      points: 9,
       title: 'Vacina dTpa registrada',
-      description: 'Vacina dTpa (difteria, tétano e coqueluche) registrada no e-SUS.',
+      description: 'Difteria, tétano e coqueluche acelular a partir da 20ª semana.',
+    },
+    {
+      id: 'G',
+      points: 9,
+      title: 'Testes/exames no 1º trimestre',
+      description: 'Sífilis, HIV e hepatites B e C — todos realizados.',
+    },
+    {
+      id: 'H',
+      points: 9,
+      title: 'Testes/exames no 3º trimestre',
+      description: 'Sífilis e HIV — ambos realizados.',
+    },
+    {
+      id: 'I',
+      points: 9,
+      title: 'Saúde bucal (mín. 1 atividade)',
+      description:
+        'Por cirurgiã(o) dentista ou TSB durante a gestação. (Equivale ao item K da PNAB)',
     },
   ],
 }

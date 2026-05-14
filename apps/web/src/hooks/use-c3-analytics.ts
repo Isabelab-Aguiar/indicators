@@ -9,38 +9,49 @@ import type {
   C3CriterionStat,
   C3Classification,
 } from '@repo/types'
+import { C3_MAX_POINTS } from '@repo/types'
 import { apiClient } from '@/lib/api-client'
 import { queryKeys } from '@/lib/query-keys'
 import { useAuthStore } from '@/store/auth.store'
 
+const EXAM_DONE = (v: string) => v === 'negative' || v === 'positive'
+
 export const C3_CRITERIA_DEF: { id: C3CriterionId; points: number; label: string }[] = [
-  { id: 'A', points: 25, label: '≥ 6 consultas pré-natal' },
-  { id: 'B', points: 25, label: 'Exames HIV / Sífilis / Hep.B' },
-  { id: 'C', points: 25, label: 'Consulta odontológica' },
-  { id: 'D', points: 25, label: 'Vacina dTpa registrada' },
+  { id: 'A', points: 10, label: '1ª consulta até 12ª semana' },
+  { id: 'B', points: 9, label: '≥ 7 consultas pré-natal' },
+  { id: 'C', points: 9, label: '≥ 7 aferições de PA' },
+  { id: 'D', points: 9, label: '≥ 7 registros de peso e altura' },
+  { id: 'E', points: 9, label: '≥ 3 visitas domiciliares' },
+  { id: 'F', points: 9, label: 'Vacina dTpa registrada' },
+  { id: 'G', points: 9, label: 'Exames 1º trimestre (HIV, Síf, HepB, HepC)' },
+  { id: 'H', points: 9, label: 'Exames 3º trimestre (HIV, Sífilis)' },
+  { id: 'I', points: 9, label: '≥ 1 atendimento odontológico' },
 ]
 
 function evaluateCriteria(w: PregnantWoman): C3CriterionId[] {
   const met: C3CriterionId[] = []
-  if (w.prenatalConsultations >= 6) met.push('A')
+  if (w.consultationsUpTo12Weeks >= 1) met.push('A')
+  if (w.prenatalConsultations >= 7) met.push('B')
+  if (w.bloodPressureMeasurements >= 7) met.push('C')
+  if (w.weightHeightMeasurements >= 7) met.push('D')
+  if (w.homeVisits >= 3) met.push('E')
+  if (w.dtpaRegistered) met.push('F')
   if (
-    w.hivExam1stTrimester !== 'pending' &&
-    w.hivExam1stTrimester !== 'not_performed' &&
-    w.syphilisExam1stTrimester !== 'pending' &&
-    w.syphilisExam1stTrimester !== 'not_performed' &&
-    w.hepatitisBExam1stTrimester !== 'pending' &&
-    w.hepatitisBExam1stTrimester !== 'not_performed'
+    EXAM_DONE(w.hivExam1stTrimester) &&
+    EXAM_DONE(w.syphilisExam1stTrimester) &&
+    EXAM_DONE(w.hepatitisBExam1stTrimester) &&
+    EXAM_DONE(w.hepatitisCExam1stTrimester)
   )
-    met.push('B')
-  if (w.dentalAppointments >= 1) met.push('C')
-  if (w.dtpaRegistered) met.push('D')
+    met.push('G')
+  if (EXAM_DONE(w.hivExam3rdTrimester) && EXAM_DONE(w.syphilisExam3rdTrimester)) met.push('H')
+  if (w.dentalAppointments >= 1) met.push('I')
   return met
 }
 
-export function classifyScore(score: number): C3Classification {
-  if (score >= 80) return 'otimo'
-  if (score >= 60) return 'bom'
-  if (score >= 40) return 'suficiente'
+export function classifyScore(pct: number): C3Classification {
+  if (pct >= 80) return 'otimo'
+  if (pct >= 60) return 'bom'
+  if (pct >= 40) return 'suficiente'
   return 'regular'
 }
 
@@ -50,6 +61,7 @@ function buildPatientRow(w: PregnantWoman): C3PatientRow {
     (sum, id) => sum + (C3_CRITERIA_DEF.find((c) => c.id === id)?.points ?? 0),
     0,
   )
+  const pctScore = Math.round((score / C3_MAX_POINTS) * 1000) / 10
   return {
     id: w.id,
     name: w.name,
@@ -57,6 +69,8 @@ function buildPatientRow(w: PregnantWoman): C3PatientRow {
     microarea: w.microarea,
     prenatalConsultations: w.prenatalConsultations,
     consultationsUpTo12Weeks: w.consultationsUpTo12Weeks,
+    bloodPressureMeasurements: w.bloodPressureMeasurements,
+    weightHeightMeasurements: w.weightHeightMeasurements,
     homeVisits: w.homeVisits,
     dentalAppointments: w.dentalAppointments,
     dtpaRegistered: w.dtpaRegistered,
@@ -64,9 +78,12 @@ function buildPatientRow(w: PregnantWoman): C3PatientRow {
     syphilisExam1stTrimester: w.syphilisExam1stTrimester,
     hepatitisBExam1stTrimester: w.hepatitisBExam1stTrimester,
     hepatitisCExam1stTrimester: w.hepatitisCExam1stTrimester,
+    hivExam3rdTrimester: w.hivExam3rdTrimester,
+    syphilisExam3rdTrimester: w.syphilisExam3rdTrimester,
     criteriaMet,
     score,
-    classification: classifyScore(score),
+    pctScore,
+    classification: classifyScore(pctScore),
   }
 }
 
@@ -108,12 +125,12 @@ export function useC3Analytics() {
   const breakdown = useMemo(() => {
     const patients = (query.data ?? []).map(buildPatientRow)
     const total = patients.length
-    const avgScore =
-      total > 0 ? Math.round((patients.reduce((s, p) => s + p.score, 0) / total) * 10) / 10 : 0
+    const avgPct =
+      total > 0 ? Math.round((patients.reduce((s, p) => s + p.pctScore, 0) / total) * 10) / 10 : 0
     return {
       total,
-      avgScore,
-      classification: classifyScore(avgScore),
+      avgScore: avgPct,
+      classification: classifyScore(avgPct),
       criteriaStats: C3_CRITERIA_DEF.map((def) => buildCriteriaStat(patients, def)),
       patients,
     }

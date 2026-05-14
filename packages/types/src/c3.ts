@@ -1,6 +1,8 @@
-export type C3CriterionId = 'A' | 'B' | 'C' | 'D'
+export type C3CriterionId = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I'
 
 export type C3Classification = 'otimo' | 'bom' | 'suficiente' | 'regular'
+
+export const C3_MAX_POINTS = 82
 
 export interface C3CriterionStat {
   id: C3CriterionId
@@ -19,6 +21,8 @@ export interface C3PatientRow {
   microarea: string
   prenatalConsultations: number
   consultationsUpTo12Weeks: number
+  bloodPressureMeasurements: number
+  weightHeightMeasurements: number
   homeVisits: number
   dentalAppointments: number
   dtpaRegistered: boolean
@@ -26,7 +30,10 @@ export interface C3PatientRow {
   syphilisExam1stTrimester: string
   hepatitisBExam1stTrimester: string
   hepatitisCExam1stTrimester: string
+  hivExam3rdTrimester: string
+  syphilisExam3rdTrimester: string
   criteriaMet: C3CriterionId[]
   score: number
+  pctScore: number
   classification: C3Classification
 }
