@@ -30,4 +30,7 @@ export const queryKeys = {
     all: () => ['esf'] as const,
     detail: (id: string) => ['esf', id] as const,
   },
+  audit: {
+    all: (esfId: string) => ['audit', esfId] as const,
+  },
 } as const

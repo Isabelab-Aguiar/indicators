@@ -42,6 +42,9 @@ export class AuditService {
       where: eq(auditLogs.esfId, esfId),
       orderBy: (t, { desc }) => [desc(t.createdAt)],
       limit: 200,
+      with: {
+        user: { columns: { id: true, name: true, email: true, role: true } },
+      },
     })
   }
 }

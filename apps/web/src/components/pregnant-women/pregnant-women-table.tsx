@@ -2,11 +2,12 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Plus, Search, SlidersHorizontal } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button, Input, Badge } from '@repo/ui'
 import { usePregnantWomen } from '@/hooks/use-pregnant-women'
 import { BloodPressureBadge } from './blood-pressure-badge'
+import { PregnantWomenFilters } from './pregnant-women-filters'
 import type { PregnantWomanFilters } from '@repo/types'
 
 export function PregnantWomenTable() {
@@ -31,10 +32,7 @@ export function PregnantWomenTable() {
             leftIcon={<Search className="h-3.5 w-3.5" />}
             className="w-72"
           />
-          <Button variant="outline" size="sm">
-            <SlidersHorizontal className="h-3.5 w-3.5" />
-            Filtros
-          </Button>
+          <PregnantWomenFilters filters={filters} onChange={setFilters} />
         </div>
         <Link href="/gestantes/novo">
           <Button size="sm">

@@ -11,10 +11,17 @@ export type AuditAction =
 
 export type AuditEntity = 'pregnant_women' | 'users' | 'imports' | 'auth' | 'settings'
 
+export interface AuditUser {
+  id: string
+  name: string
+  email: string
+  role: string
+}
+
 export interface AuditLog {
   id: string
-  userId: string
-  userName: string
+  userId: string | null
+  user: AuditUser | null
   action: AuditAction
   entity: AuditEntity
   entityId: string | null
