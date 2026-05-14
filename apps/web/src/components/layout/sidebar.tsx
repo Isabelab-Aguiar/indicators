@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   Activity,
+  BookOpen,
   ChevronDown,
   FileUp,
   History,
@@ -27,7 +28,10 @@ const navItems = [
   { href: '/gestantes', label: 'Gestantes', icon: Users },
   { href: '/importar', label: 'Importar', icon: FileUp },
   { href: '/historico', label: 'Histórico', icon: History },
+  { href: '/boas-praticas', label: 'Boas Práticas', icon: BookOpen },
 ]
+
+const ENABLED_INDICATOR_CODES: ReadonlySet<string> = new Set(['c3'])
 
 const bottomItems = [{ href: '/perfil', label: 'Perfil', icon: User }]
 
@@ -150,7 +154,7 @@ function CollapsibleSection({ label, icon: Icon, baseHref, pathname }: Collapsib
                 Visão geral
               </SubItem>
             </li>
-            {INDICATOR_LIST.map((indicator) => {
+            {INDICATOR_LIST.filter((i) => ENABLED_INDICATOR_CODES.has(i.code)).map((indicator) => {
               const href = `${baseHref}/${indicator.code}`
               return (
                 <li key={indicator.code}>
