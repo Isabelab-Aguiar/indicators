@@ -8,6 +8,7 @@ import { Badge, Card } from '@repo/ui'
 import { useC3Analytics } from '@/hooks/use-c3-analytics'
 import { C1_DEFINITION } from '@/lib/indicators-aps/c1-data'
 import { INDICATOR_LIST } from '@/lib/indicators-aps'
+import { SectionHeader } from './section-header'
 
 interface IndicatorRow {
   code: string
@@ -51,23 +52,12 @@ export function IndicatorsOverview() {
 
   return (
     <section className="space-y-3">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-foreground text-sm font-semibold tracking-tight">
-            Linhas de cuidado APS
-          </h2>
-          <p className="text-muted-foreground text-xs">
-            Status atual por indicador do Previne Brasil
-          </p>
-        </div>
-        <Link
-          href="/indicadores"
-          className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs font-medium transition-colors"
-        >
-          Ver todos
-          <ArrowUpRight className="h-3.5 w-3.5" />
-        </Link>
-      </div>
+      <SectionHeader
+        title="Linhas de cuidado APS"
+        description="Status atual por indicador do Previne Brasil"
+        actionLabel="Ver todos"
+        actionHref="/indicadores"
+      />
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
         {rows.map((row, i) => (
           <IndicatorCard
