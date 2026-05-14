@@ -23,7 +23,13 @@ export const RATE_LIMIT = {
 
 export const UPLOAD = {
   MAX_FILE_SIZE_BYTES: 10 * 1024 * 1024,
-  ALLOWED_MIME_TYPES: ['text/csv', 'application/pdf', 'text/plain'],
+  ALLOWED_MIME_TYPES: [
+    'text/csv',
+    'text/plain',
+    'application/vnd.ms-excel', // .csv no Windows
+    'application/octet-stream', // .csv em alguns navegadores/SO
+    'application/pdf',
+  ],
 } as const
 
 export const QUEUE_NAMES = {
