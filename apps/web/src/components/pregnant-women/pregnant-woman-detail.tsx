@@ -60,8 +60,8 @@ export function PregnantWomanDetail({ id }: Props) {
             { label: 'Telefone', value: data.phone },
             { label: 'Microárea', value: data.microarea },
             { label: 'Endereço', value: data.address },
-            { label: 'Peso', value: data.weight ? `${data.weight} kg` : '—' },
-            { label: 'Altura', value: data.height ? `${data.height} cm` : '—' },
+            { label: 'Peso', value: data.weight ? `${data.weight} kg` : '-' },
+            { label: 'Altura', value: data.height ? `${data.height} cm` : '-' },
           ].map(({ label, value }) => (
             <div key={label}>
               <p className="text-muted-foreground text-xs">{label}</p>

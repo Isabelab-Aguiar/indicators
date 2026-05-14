@@ -10,7 +10,7 @@ const HIGHLIGHTS = [
   {
     icon: ClipboardCheck,
     title: '100 pontos por pessoa',
-    description: 'Cada boa prática é tudo ou nada — cumpriu, soma o peso completo.',
+    description: 'Cada boa prática é tudo ou nada: cumpriu, soma o peso completo.',
   },
   {
     icon: ChartLine,

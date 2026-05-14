@@ -22,7 +22,7 @@ export default function BoasPraticasPage() {
     <div className="flex flex-1 flex-col overflow-hidden">
       <Header
         title="Boas Práticas APS"
-        description="Indicadores oficiais do Previne Brasil — metodologia, critérios e pontuação"
+        description="Indicadores oficiais do Previne Brasil: metodologia, critérios e pontuação"
       />
       <div className="flex-1 overflow-y-auto p-6">
         <div className="mx-auto max-w-6xl space-y-6">

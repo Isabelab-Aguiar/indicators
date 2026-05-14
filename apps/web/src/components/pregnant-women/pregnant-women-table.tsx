@@ -112,7 +112,7 @@ export function PregnantWomenTable() {
                         <td className="text-muted-foreground px-4 py-3">
                           {woman.lastMeasurementDate
                             ? new Date(woman.lastMeasurementDate).toLocaleDateString('pt-BR')
-                            : '—'}
+                            : '-'}
                         </td>
                       </motion.tr>
                     ))}

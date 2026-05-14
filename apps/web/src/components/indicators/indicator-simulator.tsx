@@ -113,7 +113,7 @@ export function IndicatorSimulator({ indicator }: IndicatorSimulatorProps) {
         <CardHeader>
           <CardTitle className="text-sm font-semibold">Parâmetros de avaliação</CardTitle>
           <CardDescription className="text-xs">
-            Faixas oficiais usadas para classificar a pontuação (0–100) por pessoa e por equipe.
+            Faixas oficiais usadas para classificar a pontuação (0 a 100) por pessoa e por equipe.
           </CardDescription>
         </CardHeader>
         <CardContent>

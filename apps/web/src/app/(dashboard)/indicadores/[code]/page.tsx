@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { code } = await params
   if (!isIndicatorCode(code)) return { title: 'Indicador APS' }
   const indicator = INDICATORS[code]
-  return { title: `${indicator.shortLabel} — ${indicator.title}` }
+  return { title: `${indicator.shortLabel} · ${indicator.title}` }
 }
 
 export default async function IndicatorPage({ params }: Props) {
@@ -30,7 +30,7 @@ export default async function IndicatorPage({ params }: Props) {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <Header
-        title={`${indicator.shortLabel} — ${indicator.title}`}
+        title={`${indicator.shortLabel} · ${indicator.title}`}
         description={indicator.subtitle}
       />
       <div className="flex-1 overflow-y-auto p-6">

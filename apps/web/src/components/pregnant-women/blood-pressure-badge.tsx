@@ -23,7 +23,7 @@ const LABEL_MAP: Record<BloodPressureStatus, string> = {
 }
 
 export function BloodPressureBadge({ value, status }: BloodPressureBadgeProps) {
-  if (!value) return <span className="text-muted-foreground">—</span>
+  if (!value) return <span className="text-muted-foreground">-</span>
 
   return (
     <div className="flex items-center gap-1.5">
