@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Header } from '@/components/layout/header'
-import { C3Dashboard } from '@/components/indicators/c3-dashboard'
+import { C3Tabs } from '@/components/indicators/c3-tabs'
 
 export const metadata: Metadata = {
   title: 'C3 · Pré-Natal · Indicadores APS',
@@ -14,7 +14,7 @@ export default function C3IndicadorPage() {
         description="Análise de adesão às boas práticas do pré-natal por critério e gestante"
       />
       <div className="flex-1 overflow-y-auto p-6">
-        <C3Dashboard />
+        <C3Tabs />
       </div>
     </div>
   )

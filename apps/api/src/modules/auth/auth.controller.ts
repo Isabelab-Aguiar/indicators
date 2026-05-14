@@ -92,7 +92,7 @@ export class AuthController {
     res.cookie('refresh_token', token, {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: TOKEN_EXPIRY.REFRESH_TOKEN_DAYS * 24 * 60 * 60 * 1000,
     })
   }
