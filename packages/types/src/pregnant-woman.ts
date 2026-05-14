@@ -1,6 +1,6 @@
 export type BloodPressureStatus = 'normal' | 'elevated' | 'high' | 'critical'
-
 export type ExamResult = 'pending' | 'negative' | 'positive' | 'not_performed'
+export type GestationalRisk = 'habitual' | 'alto_risco'
 
 export interface PregnantWoman {
   id: string
@@ -20,6 +20,17 @@ export interface PregnantWoman {
   daysSinceNursing: number | null
   daysSinceDentist: number | null
   daysSinceHomeVisit: number | null
+  // Pré-natal
+  gestationalRisk: GestationalRisk | null
+  lmp: string | null
+  gestationalAgeWeeks: number | null
+  gestationalAgeDays: number | null
+  expectedDeliveryDate: string | null
+  gestationalAgeEcoWeeks: number | null
+  gestationalAgeEcoDays: number | null
+  expectedDeliveryDateEco: string | null
+  lastPrenatalConsultation: string | null
+  // Contadores
   prenatalConsultations: number
   consultationsUpTo12Weeks: number
   bloodPressureMeasurements: number
@@ -27,6 +38,7 @@ export interface PregnantWoman {
   homeVisits: number
   dentalAppointments: number
   dtpaRegistered: boolean
+  // Exames
   hivExam1stTrimester: ExamResult
   syphilisExam1stTrimester: ExamResult
   hepatitisBExam1stTrimester: ExamResult

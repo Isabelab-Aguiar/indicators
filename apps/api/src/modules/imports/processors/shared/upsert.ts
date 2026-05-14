@@ -64,18 +64,30 @@ export async function upsertPregnantWoman(
     daysSinceNursing: record.daysSinceNursing ?? null,
     daysSinceDentist: record.daysSinceDentist ?? null,
     daysSinceHomeVisit: record.daysSinceHomeVisit ?? null,
+    // Pré-natal — sempre sobrescreve com o valor mais recente do CSV
+    gestationalRisk: record.gestationalRisk ?? null,
+    lmp: record.lmp ?? null,
+    gestationalAgeWeeks: record.gestationalAgeWeeks ?? null,
+    gestationalAgeDays: record.gestationalAgeDays ?? null,
+    expectedDeliveryDate: record.expectedDeliveryDate ?? null,
+    gestationalAgeEcoWeeks: record.gestationalAgeEcoWeeks ?? null,
+    gestationalAgeEcoDays: record.gestationalAgeEcoDays ?? null,
+    expectedDeliveryDateEco: record.expectedDeliveryDateEco ?? null,
+    lastPrenatalConsultation: record.lastPrenatalConsultation ?? null,
     updatedBy: userId,
     updatedAt: new Date(),
   }
 
+  // Fallback 'not_performed': quando o CSV não traz informação do exame,
+  // significa que não há registro — não deve ser tratado como 'pendente'.
   const examValues = {
     dtpaRegistered: record.dtpaRegistered ?? false,
-    hivExam1stTrimester: record.hivExam1stTrimester ?? 'pending',
-    syphilisExam1stTrimester: record.syphilisExam1stTrimester ?? 'pending',
-    hepatitisBExam1stTrimester: record.hepatitisBExam1stTrimester ?? 'pending',
-    hepatitisCExam1stTrimester: record.hepatitisCExam1stTrimester ?? 'pending',
-    hivExam3rdTrimester: record.hivExam3rdTrimester ?? 'pending',
-    syphilisExam3rdTrimester: record.syphilisExam3rdTrimester ?? 'pending',
+    hivExam1stTrimester: record.hivExam1stTrimester ?? 'not_performed',
+    syphilisExam1stTrimester: record.syphilisExam1stTrimester ?? 'not_performed',
+    hepatitisBExam1stTrimester: record.hepatitisBExam1stTrimester ?? 'not_performed',
+    hepatitisCExam1stTrimester: record.hepatitisCExam1stTrimester ?? 'not_performed',
+    hivExam3rdTrimester: record.hivExam3rdTrimester ?? 'not_performed',
+    syphilisExam3rdTrimester: record.syphilisExam3rdTrimester ?? 'not_performed',
   } as const
 
   if (existing) {

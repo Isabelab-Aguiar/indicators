@@ -1,4 +1,5 @@
 export type CsvExamResult = 'pending' | 'negative' | 'positive' | 'not_performed'
+export type CsvGestationalRisk = 'habitual' | 'alto_risco'
 
 export interface ParsedRecord {
   name: string
@@ -15,6 +16,17 @@ export interface ParsedRecord {
   daysSinceNursing?: number
   daysSinceDentist?: number
   daysSinceHomeVisit?: number
+  // Pré-natal
+  gestationalRisk?: CsvGestationalRisk
+  lmp?: Date
+  gestationalAgeWeeks?: number
+  gestationalAgeDays?: number
+  expectedDeliveryDate?: Date
+  gestationalAgeEcoWeeks?: number
+  gestationalAgeEcoDays?: number
+  expectedDeliveryDateEco?: Date
+  lastPrenatalConsultation?: Date
+  // Contadores
   prenatalConsultations?: number
   consultationsUpTo12Weeks?: number
   bloodPressureMeasurements?: number
@@ -22,6 +34,7 @@ export interface ParsedRecord {
   homeVisits?: number
   dentalAppointments?: number
   dtpaRegistered?: boolean
+  // Exames
   hivExam1stTrimester?: CsvExamResult
   syphilisExam1stTrimester?: CsvExamResult
   hepatitisBExam1stTrimester?: CsvExamResult

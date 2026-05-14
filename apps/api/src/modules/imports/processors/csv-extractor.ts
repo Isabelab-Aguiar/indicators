@@ -1,6 +1,6 @@
 import { parse } from 'csv-parse/sync'
 
-import type { CsvExamResult, ParsedRecord } from './shared/parsed-record'
+import type { CsvExamResult, CsvGestationalRisk, ParsedRecord } from './shared/parsed-record'
 
 const CPF_FIELDS = ['cpf', 'cpf do cidadao', 'cpf cidadao'] as const
 const NAME_FIELDS = ['nome', 'name', 'cidadao', 'nome do cidadao', 'nome completo'] as const
@@ -42,6 +42,15 @@ const HEPB1_FIELDS = ['exame de hepatite b no primeiro trimestre'] as const
 const HEPC1_FIELDS = ['exame de hepatite c no primeiro trimestre'] as const
 const HIV3_FIELDS = ['exame de hiv no terceiro trimestre'] as const
 const SYPHILIS3_FIELDS = ['exame de sifilis no terceiro trimestre'] as const
+const GESTATIONAL_RISK_FIELDS = ['risco gestacional'] as const
+const LMP_FIELDS = ['dum'] as const
+const GA_WEEKS_FIELDS = ['ig (dum) (semanas)'] as const
+const GA_DAYS_FIELDS = ['ig (dum) (dias)'] as const
+const EDD_FIELDS = ['dpp (dum)'] as const
+const GA_ECO_WEEKS_FIELDS = ['ig (ecografia obstetrica) (semanas)'] as const
+const GA_ECO_DAYS_FIELDS = ['ig (ecografia obstetrica) (dias)'] as const
+const EDD_ECO_FIELDS = ['dpp (ecografia obstetrica)'] as const
+const LAST_PRENATAL_FIELDS = ['ultima consulta de pre natal'] as const
 
 function normalize(key: string): string {
   return key
@@ -68,12 +77,22 @@ function pickField(row: Record<string, string>, candidates: readonly string[]): 
   return ''
 }
 
-function parseBirthDate(value: string): Date {
+function parseDate(value: string): Date | undefined {
   const trimmed = value.trim()
-  if (!trimmed) return new Date(NaN)
+  if (!trimmed || trimmed === '-') return undefined
+  // DD/MM/YYYY
   const brMatch = trimmed.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
-  if (brMatch) return new Date(`${brMatch[3]}-${brMatch[2]}-${brMatch[1]}T00:00:00Z`)
-  return new Date(trimmed)
+  if (brMatch) {
+    const d = new Date(`${brMatch[3]}-${brMatch[2]}-${brMatch[1]}T00:00:00Z`)
+    return isNaN(d.getTime()) ? undefined : d
+  }
+  // YYYY-MM-DD ou ISO
+  const d = new Date(trimmed.length === 10 ? `${trimmed}T00:00:00Z` : trimmed)
+  return isNaN(d.getTime()) ? undefined : d
+}
+
+function parseBirthDate(value: string): Date {
+  return parseDate(value) ?? new Date(NaN)
 }
 
 function parseDecimal(value: string): number | undefined {
@@ -89,12 +108,27 @@ function parseInteger(value: string): number | undefined {
   return isNaN(num) ? undefined : num
 }
 
+/**
+ * Mapeia os valores do e-SUS para CsvExamResult:
+ * - SIM           → 'negative'       (realizou, resultado negativo)
+ * - NAO           → 'not_performed'  (não realizou o exame)
+ * - NAO_SE_APLICA → 'not_performed'  (não se aplica ao trimestre)
+ * - vazio / '-'   → undefined        (sem informação)
+ */
 function parseExamResult(raw: string): CsvExamResult | undefined {
   const value = raw.trim().toUpperCase()
   if (!value || value === '-') return undefined
   if (value === 'SIM') return 'negative'
-  if (value === 'NAO' || value === 'NÃO') return 'pending'
+  if (value === 'NAO' || value === 'NÃO') return 'not_performed'
   if (value === 'NAO_SE_APLICA' || value === 'NÃO_SE_APLICA') return 'not_performed'
+  return undefined
+}
+
+function parseGestationalRisk(raw: string): CsvGestationalRisk | undefined {
+  const value = raw.trim().toLowerCase()
+  if (!value || value === '-') return undefined
+  if (value === 'habitual') return 'habitual'
+  if (value.includes('alto')) return 'alto_risco'
   return undefined
 }
 
@@ -157,7 +191,7 @@ export function extractCsvRecords(buffer: Buffer): ParsedRecord[] {
     .filter((row) => pickField(row, CPF_FIELDS) !== '')
     .map((row) => {
       const bpDateRaw = pickField(row, BP_DATE_FIELDS)
-      const bpDate = bpDateRaw ? parseBirthDate(bpDateRaw) : undefined
+      const bpDate = bpDateRaw ? parseDate(bpDateRaw) : undefined
       return {
         cpf: pickField(row, CPF_FIELDS),
         name: pickField(row, NAME_FIELDS),
@@ -168,11 +202,22 @@ export function extractCsvRecords(buffer: Buffer): ParsedRecord[] {
         weight: parseDecimal(pickField(row, WEIGHT_FIELDS)),
         height: parseDecimal(pickField(row, HEIGHT_FIELDS)),
         bloodPressure: pickField(row, BP_FIELDS) || undefined,
-        lastMeasurementDate: bpDate && !isNaN(bpDate.getTime()) ? bpDate : undefined,
+        lastMeasurementDate: bpDate,
         daysSinceDoctor: parseInteger(pickField(row, DAYS_DOCTOR)),
         daysSinceNursing: parseInteger(pickField(row, DAYS_NURSING)),
         daysSinceDentist: parseInteger(pickField(row, DAYS_DENTIST)),
         daysSinceHomeVisit: parseInteger(pickField(row, DAYS_VISIT)),
+        // Pré-natal
+        gestationalRisk: parseGestationalRisk(pickField(row, GESTATIONAL_RISK_FIELDS)),
+        lmp: parseDate(pickField(row, LMP_FIELDS)),
+        gestationalAgeWeeks: parseInteger(pickField(row, GA_WEEKS_FIELDS)),
+        gestationalAgeDays: parseInteger(pickField(row, GA_DAYS_FIELDS)),
+        expectedDeliveryDate: parseDate(pickField(row, EDD_FIELDS)),
+        gestationalAgeEcoWeeks: parseInteger(pickField(row, GA_ECO_WEEKS_FIELDS)),
+        gestationalAgeEcoDays: parseInteger(pickField(row, GA_ECO_DAYS_FIELDS)),
+        expectedDeliveryDateEco: parseDate(pickField(row, EDD_ECO_FIELDS)),
+        lastPrenatalConsultation: parseDate(pickField(row, LAST_PRENATAL_FIELDS)),
+        // Contadores
         prenatalConsultations: parseInteger(pickField(row, PRENATAL_COUNT)),
         consultationsUpTo12Weeks: parseInteger(pickField(row, PRENATAL_12W_COUNT)),
         bloodPressureMeasurements: parseInteger(pickField(row, BP_COUNT)),
@@ -180,6 +225,7 @@ export function extractCsvRecords(buffer: Buffer): ParsedRecord[] {
         homeVisits: parseInteger(pickField(row, VISIT_COUNT)),
         dentalAppointments: parseInteger(pickField(row, DENTAL_COUNT)),
         dtpaRegistered: parseDtpa(pickField(row, DTPA_FIELDS)),
+        // Exames
         hivExam1stTrimester: parseExamResult(pickField(row, HIV1_FIELDS)),
         syphilisExam1stTrimester: parseExamResult(pickField(row, SYPHILIS1_FIELDS)),
         hepatitisBExam1stTrimester: parseExamResult(pickField(row, HEPB1_FIELDS)),

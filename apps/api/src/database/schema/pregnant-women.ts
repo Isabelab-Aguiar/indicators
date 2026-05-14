@@ -27,6 +27,8 @@ export const examResultEnum = pgEnum('exam_result', [
   'not_performed',
 ])
 
+export const gestationalRiskEnum = pgEnum('gestational_risk', ['habitual', 'alto_risco'])
+
 export const pregnantWomen = pgTable('pregnant_women', {
   id: uuid('id').primaryKey().defaultRandom(),
   esfId: uuid('esf_id')
@@ -47,6 +49,17 @@ export const pregnantWomen = pgTable('pregnant_women', {
   daysSinceNursing: integer('days_since_nursing'),
   daysSinceDentist: integer('days_since_dentist'),
   daysSinceHomeVisit: integer('days_since_home_visit'),
+  // Dados pré-natal
+  gestationalRisk: gestationalRiskEnum('gestational_risk'),
+  lmp: timestamp('lmp', { withTimezone: true }),
+  gestationalAgeWeeks: integer('gestational_age_weeks'),
+  gestationalAgeDays: integer('gestational_age_days'),
+  expectedDeliveryDate: timestamp('expected_delivery_date', { withTimezone: true }),
+  gestationalAgeEcoWeeks: integer('gestational_age_eco_weeks'),
+  gestationalAgeEcoDays: integer('gestational_age_eco_days'),
+  expectedDeliveryDateEco: timestamp('expected_delivery_date_eco', { withTimezone: true }),
+  lastPrenatalConsultation: timestamp('last_prenatal_consultation', { withTimezone: true }),
+  // Contadores
   prenatalConsultations: integer('prenatal_consultations').notNull().default(0),
   consultationsUpTo12Weeks: integer('consultations_up_to_12_weeks').notNull().default(0),
   bloodPressureMeasurements: integer('blood_pressure_measurements').notNull().default(0),
@@ -54,20 +67,20 @@ export const pregnantWomen = pgTable('pregnant_women', {
   homeVisits: integer('home_visits').notNull().default(0),
   dentalAppointments: integer('dental_appointments').notNull().default(0),
   dtpaRegistered: boolean('dtpa_registered').notNull().default(false),
-  hivExam1stTrimester: examResultEnum('hiv_exam_1st_trimester').notNull().default('pending'),
+  hivExam1stTrimester: examResultEnum('hiv_exam_1st_trimester').notNull().default('not_performed'),
   syphilisExam1stTrimester: examResultEnum('syphilis_exam_1st_trimester')
     .notNull()
-    .default('pending'),
+    .default('not_performed'),
   hepatitisBExam1stTrimester: examResultEnum('hepatitis_b_exam_1st_trimester')
     .notNull()
-    .default('pending'),
+    .default('not_performed'),
   hepatitisCExam1stTrimester: examResultEnum('hepatitis_c_exam_1st_trimester')
     .notNull()
-    .default('pending'),
-  hivExam3rdTrimester: examResultEnum('hiv_exam_3rd_trimester').notNull().default('pending'),
+    .default('not_performed'),
+  hivExam3rdTrimester: examResultEnum('hiv_exam_3rd_trimester').notNull().default('not_performed'),
   syphilisExam3rdTrimester: examResultEnum('syphilis_exam_3rd_trimester')
     .notNull()
-    .default('pending'),
+    .default('not_performed'),
   observations: text('observations'),
   updatedBy: uuid('updated_by').references(() => profiles.id),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),

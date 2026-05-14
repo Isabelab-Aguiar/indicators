@@ -92,6 +92,66 @@ export function PregnantWomanDetail({ id }: Props) {
         </CardContent>
       </Card>
 
+      {/* Card Pré-Natal */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">Acompanhamento Pré-Natal</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {[
+            {
+              label: 'Risco Gestacional',
+              value: data.gestationalRisk
+                ? data.gestationalRisk === 'habitual'
+                  ? 'Habitual'
+                  : 'Alto Risco'
+                : '-',
+            },
+            {
+              label: 'DUM',
+              value: data.lmp ? new Date(data.lmp).toLocaleDateString('pt-BR') : '-',
+            },
+            {
+              label: 'IG (DUM)',
+              value:
+                data.gestationalAgeWeeks != null
+                  ? `${data.gestationalAgeWeeks}sem ${data.gestationalAgeDays ?? 0}d`
+                  : '-',
+            },
+            {
+              label: 'DPP (DUM)',
+              value: data.expectedDeliveryDate
+                ? new Date(data.expectedDeliveryDate).toLocaleDateString('pt-BR')
+                : '-',
+            },
+            {
+              label: 'IG (Ecografia)',
+              value:
+                data.gestationalAgeEcoWeeks != null
+                  ? `${data.gestationalAgeEcoWeeks}sem ${data.gestationalAgeEcoDays ?? 0}d`
+                  : '-',
+            },
+            {
+              label: 'DPP (Ecografia)',
+              value: data.expectedDeliveryDateEco
+                ? new Date(data.expectedDeliveryDateEco).toLocaleDateString('pt-BR')
+                : '-',
+            },
+            {
+              label: 'Última Consulta',
+              value: data.lastPrenatalConsultation
+                ? new Date(data.lastPrenatalConsultation).toLocaleDateString('pt-BR')
+                : '-',
+            },
+          ].map(({ label, value }) => (
+            <div key={label}>
+              <p className="text-muted-foreground text-xs">{label}</p>
+              <p className="text-foreground text-sm font-medium">{value}</p>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle className="text-sm">Exames Laboratoriais</CardTitle>
