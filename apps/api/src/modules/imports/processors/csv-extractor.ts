@@ -15,10 +15,13 @@ const PHONE_FIELDS = [
   'phone',
 ] as const
 const ADDRESS_PARTS = ['rua', 'numero', 'complemento', 'bairro', 'municipio', 'uf', 'cep'] as const
-const WEIGHT_FIELDS = ['ultima medicao de peso', 'peso'] as const
+const WEIGHT_FIELDS = ['ultima medicao de peso', 'ultima medicao de peso e altura', 'peso'] as const
 const HEIGHT_FIELDS = ['ultima medicao de altura', 'altura'] as const
 const BP_FIELDS = ['ultima medicao de pressao arterial', 'pressao arterial'] as const
-const BP_DATE_FIELDS = ['data da ultima medicao de pressao arterial'] as const
+const BP_DATE_FIELDS = [
+  'data da ultima medicao de pressao arterial',
+  'data da ultima medicao de peso e altura',
+] as const
 const DAYS_DOCTOR = ['dias desde o ultimo atendimento medico'] as const
 const DAYS_NURSING = ['dias desde o ultimo atendimento de enfermagem'] as const
 const DAYS_DENTIST = ['dias desde o ultimo atendimento odontologico'] as const
@@ -77,10 +80,14 @@ function parseInteger(value: string): number | undefined {
 }
 
 function detectDelimiter(text: string): ',' | ';' {
-  const firstLine = text.split(/\r?\n/)[0] ?? ''
-  const commas = (firstLine.match(/,/g) ?? []).length
-  const semicolons = (firstLine.match(/;/g) ?? []).length
-  return semicolons > commas ? ';' : ','
+  const lines = text.split(/\r?\n/).slice(0, 40)
+  let totalCommas = 0
+  let totalSemicolons = 0
+  for (const line of lines) {
+    totalCommas += (line.match(/,/g) ?? []).length
+    totalSemicolons += (line.match(/;/g) ?? []).length
+  }
+  return totalSemicolons > totalCommas ? ';' : ','
 }
 
 function findHeaderLine(lines: string[], delimiter: string): number {
@@ -103,7 +110,11 @@ function composeAddress(row: Record<string, string>): string {
 }
 
 export function extractCsvRecords(buffer: Buffer): ParsedRecord[] {
-  const text = buffer.toString('utf8').replace(/^﻿/, '')
+  // e-SUS exports may be ISO-8859-1; detect by presence of UTF-8 replacement chars
+  let text = buffer.toString('utf8').replace(/^\uFEFF/, '')
+  if (text.includes('\uFFFD')) {
+    text = buffer.toString('latin1').replace(/^\uFEFF/, '')
+  }
   const delimiter = detectDelimiter(text)
   const lines = text.split(/\r?\n/)
   const headerIndex = findHeaderLine(lines, delimiter)
