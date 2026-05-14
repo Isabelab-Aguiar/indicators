@@ -7,15 +7,15 @@ import { BloodPressureBadge } from './blood-pressure-badge'
 
 const EXAM_LABEL = {
   pending: 'Pendente',
-  negative: 'Negativo',
-  positive: 'Positivo',
+  negative: 'Realizado',
+  positive: 'Realizado',
   not_performed: 'Não Realizado',
 } as const
 
 const EXAM_VARIANT = {
   pending: 'secondary',
   negative: 'success',
-  positive: 'destructive',
+  positive: 'success',
   not_performed: 'outline',
 } as const
 
@@ -170,9 +170,7 @@ export function PregnantWomanDetail({ id }: Props) {
               className="border-border flex items-center justify-between rounded-lg border px-3 py-2"
             >
               <span className="text-muted-foreground text-xs">{label}</span>
-              <Badge
-                variant={EXAM_VARIANT[value] as 'secondary' | 'success' | 'destructive' | 'outline'}
-              >
+              <Badge variant={EXAM_VARIANT[value] as 'secondary' | 'success' | 'outline'}>
                 {EXAM_LABEL[value]}
               </Badge>
             </div>
