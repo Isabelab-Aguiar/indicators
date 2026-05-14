@@ -146,7 +146,7 @@ export function C3SummaryBar({
 
       <KpiCard
         icon={CheckCircle2}
-        label="Critério A — consultas ≥6"
+        label="Critério A · consultas ≥6"
         value={
           <div>
             <span className="text-foreground text-2xl font-bold tabular-nums">

@@ -51,6 +51,6 @@ export class AuditInterceptor implements NestInterceptor {
     ip: string
     userAgent: string
   }): Promise<void> {
-    // audit service injected via module — see audit.module.ts
+    return
   }
 }

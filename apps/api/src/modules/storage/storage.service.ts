@@ -16,7 +16,7 @@ export class StorageService {
 
   constructor(config: ApiConfigService) {
     if (!config.isR2Configured) {
-      this.logger.warn('R2 storage is not configured — file uploads will be rejected.')
+      this.logger.warn('R2 storage is not configured - file uploads will be rejected.')
       this.client = null
       this.bucket = undefined
       return

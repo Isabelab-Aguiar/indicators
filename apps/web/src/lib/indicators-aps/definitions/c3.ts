@@ -50,13 +50,13 @@ export const C3: IndicatorDefinition = {
       id: 'G',
       points: 9,
       title: 'Testes/exames no 1º trimestre',
-      description: 'Sífilis, HIV e hepatites B e C — todos realizados.',
+      description: 'Sífilis, HIV e hepatites B e C: todos realizados.',
     },
     {
       id: 'H',
       points: 9,
       title: 'Testes/exames no 3º trimestre',
-      description: 'Sífilis e HIV — ambos realizados.',
+      description: 'Sífilis e HIV: ambos realizados.',
     },
     {
       id: 'I',
