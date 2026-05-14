@@ -59,7 +59,7 @@ export class PregnantWomenController {
   }
 
   @Delete()
-  @Roles('admin', 'manager')
+  @Roles('admin', 'manager', 'nurse')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Remover todas as gestantes da ESF autenticada' })
   deleteAll(@CurrentTenant() tenant: TenantContextPayload) {

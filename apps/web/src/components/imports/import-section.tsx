@@ -35,6 +35,8 @@ export function ImportSection() {
   const inputRef = useRef<HTMLInputElement>(null)
   const queryClient = useQueryClient()
   const esfId = useAuthStore((s) => s.user?.esfId ?? '')
+  const userRole = useAuthStore((s) => s.user?.role)
+  const canClearData = userRole === 'admin' || userRole === 'manager' || userRole === 'nurse'
   const deleteAll = useDeleteAllPregnantWomen()
 
   const importMutation = useMutation({
@@ -79,36 +81,38 @@ export function ImportSection() {
             Suporta CSV e PDF. Máximo 10MB. Os dados serão vinculados automaticamente à sua ESF.
           </CardDescription>
         </div>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-destructive hover:text-destructive shrink-0 gap-1.5"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-              Limpar dados
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Remover todos os dados de gestantes?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Todos os registros de gestantes desta ESF serão permanentemente removidos. Esta ação
-                não pode ser desfeita.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction
-                className="bg-destructive hover:bg-destructive/90"
-                onClick={() => deleteAll.mutate()}
+        {canClearData && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-destructive hover:text-destructive shrink-0 gap-1.5"
               >
-                Remover tudo
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+                <Trash2 className="h-3.5 w-3.5" />
+                Limpar dados
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Remover todos os dados de gestantes?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Todos os registros de gestantes desta ESF serão permanentemente removidos. Esta
+                  ação não pode ser desfeita.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-destructive hover:bg-destructive/90"
+                  onClick={() => deleteAll.mutate()}
+                >
+                  Remover tudo
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </CardHeader>
       <CardContent>
         <div
