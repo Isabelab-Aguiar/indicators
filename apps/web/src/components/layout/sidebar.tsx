@@ -1,12 +1,25 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Activity, FileUp, History, LayoutDashboard, LogOut, User, Users } from 'lucide-react'
-import { motion } from 'framer-motion'
+import {
+  Activity,
+  ChevronDown,
+  FileUp,
+  History,
+  LayoutDashboard,
+  LogOut,
+  Stethoscope,
+  User,
+  Users,
+} from 'lucide-react'
+import { AnimatePresence, motion } from 'framer-motion'
+
 import { cn } from '@repo/ui'
 import { useAuthStore } from '@/store/auth.store'
 import { useLogout } from '@/hooks/use-auth'
+import { INDICATOR_LIST } from '@/lib/indicators-aps'
 import { TenantBadge } from './tenant-badge'
 
 const navItems = [
@@ -34,10 +47,16 @@ export function Sidebar() {
         <TenantBadge esfName={user?.esfName ?? ''} esfCode={user?.esfCode ?? ''} />
       </div>
 
-      <nav className="flex-1 space-y-0.5 px-3">
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 pb-3">
         {navItems.map((item) => (
           <NavItem key={item.href} {...item} active={pathname.startsWith(item.href)} />
         ))}
+        <CollapsibleSection
+          label="Linhas de Cuidado"
+          icon={Stethoscope}
+          baseHref="/indicadores"
+          pathname={pathname}
+        />
       </nav>
 
       <div className="border-sidebar-border space-y-0.5 border-t px-3 py-3">
@@ -83,6 +102,94 @@ function NavItem({ href, label, icon: Icon, active }: NavItemProps) {
       )}
       <Icon className="h-4 w-4 shrink-0" />
       {label}
+    </Link>
+  )
+}
+
+interface CollapsibleSectionProps {
+  label: string
+  icon: React.ElementType
+  baseHref: string
+  pathname: string
+}
+
+function CollapsibleSection({ label, icon: Icon, baseHref, pathname }: CollapsibleSectionProps) {
+  const sectionActive = pathname.startsWith(baseHref)
+  const [open, setOpen] = useState(sectionActive)
+
+  return (
+    <div className="space-y-0.5">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={cn(
+          'flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
+          sectionActive
+            ? 'bg-sidebar-accent text-sidebar-foreground font-medium'
+            : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground',
+        )}
+        aria-expanded={open}
+      >
+        <Icon className="h-4 w-4 shrink-0" />
+        <span className="flex-1 text-left">{label}</span>
+        <ChevronDown
+          className={cn('h-3.5 w-3.5 shrink-0 transition-transform', open && 'rotate-180')}
+        />
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.ul
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.18, ease: 'easeOut' }}
+            className="overflow-hidden pl-7"
+          >
+            <li>
+              <SubItem href={baseHref} active={pathname === baseHref}>
+                Visão geral
+              </SubItem>
+            </li>
+            {INDICATOR_LIST.map((indicator) => {
+              const href = `${baseHref}/${indicator.code}`
+              return (
+                <li key={indicator.code}>
+                  <SubItem href={href} active={pathname === href}>
+                    <span className="text-muted-foreground/70 mr-2 font-mono text-[11px] uppercase">
+                      {indicator.shortLabel}
+                    </span>
+                    {indicator.title}
+                  </SubItem>
+                </li>
+              )
+            })}
+          </motion.ul>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+function SubItem({
+  href,
+  active,
+  children,
+}: {
+  href: string
+  active: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        'flex items-center rounded-md px-3 py-1.5 text-xs transition-colors',
+        active
+          ? 'text-sidebar-foreground bg-sidebar-accent font-medium'
+          : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground',
+      )}
+    >
+      {children}
     </Link>
   )
 }
