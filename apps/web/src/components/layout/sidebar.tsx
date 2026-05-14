@@ -1,12 +1,10 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   Activity,
   BookOpen,
-  ChevronDown,
   FileUp,
   History,
   LayoutDashboard,
@@ -15,13 +13,15 @@ import {
   User,
   Users,
 } from 'lucide-react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 import { cn } from '@repo/ui'
 import { useAuthStore } from '@/store/auth.store'
 import { useLogout } from '@/hooks/use-auth'
 import { INDICATOR_LIST } from '@/lib/indicators-aps'
+import { C1_DEFINITION } from '@/lib/indicators-aps/c1-data'
 import { TenantBadge } from './tenant-badge'
+import { CollapsibleSection, type CollapsibleNavEntry } from './sidebar-collapsible-section'
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -31,7 +31,22 @@ const navItems = [
   { href: '/boas-praticas', label: 'Boas Práticas', icon: BookOpen },
 ]
 
-const ENABLED_INDICATOR_CODES: ReadonlySet<string> = new Set(['c3'])
+const ENABLED_INDICATOR_CODES: ReadonlySet<string> = new Set(['c1', 'c3'])
+
+const C1_NAV: CollapsibleNavEntry = {
+  code: C1_DEFINITION.code,
+  shortLabel: C1_DEFINITION.shortLabel,
+  title: C1_DEFINITION.title,
+}
+
+function indicatorNavItems(): CollapsibleNavEntry[] {
+  const others = INDICATOR_LIST.filter((i) => ENABLED_INDICATOR_CODES.has(i.code)).map((i) => ({
+    code: i.code,
+    shortLabel: i.shortLabel,
+    title: i.title,
+  }))
+  return ENABLED_INDICATOR_CODES.has('c1') ? [C1_NAV, ...others] : others
+}
 
 const bottomItems = [{ href: '/perfil', label: 'Perfil', icon: User }]
 
@@ -60,6 +75,7 @@ export function Sidebar() {
           icon={Stethoscope}
           baseHref="/indicadores"
           pathname={pathname}
+          items={indicatorNavItems()}
         />
       </nav>
 
@@ -106,94 +122,6 @@ function NavItem({ href, label, icon: Icon, active }: NavItemProps) {
       )}
       <Icon className="h-4 w-4 shrink-0" />
       {label}
-    </Link>
-  )
-}
-
-interface CollapsibleSectionProps {
-  label: string
-  icon: React.ElementType
-  baseHref: string
-  pathname: string
-}
-
-function CollapsibleSection({ label, icon: Icon, baseHref, pathname }: CollapsibleSectionProps) {
-  const sectionActive = pathname.startsWith(baseHref)
-  const [open, setOpen] = useState(sectionActive)
-
-  return (
-    <div className="space-y-0.5">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className={cn(
-          'flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
-          sectionActive
-            ? 'bg-sidebar-accent text-sidebar-foreground font-medium'
-            : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground',
-        )}
-        aria-expanded={open}
-      >
-        <Icon className="h-4 w-4 shrink-0" />
-        <span className="flex-1 text-left">{label}</span>
-        <ChevronDown
-          className={cn('h-3.5 w-3.5 shrink-0 transition-transform', open && 'rotate-180')}
-        />
-      </button>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.ul
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.18, ease: 'easeOut' }}
-            className="overflow-hidden pl-7"
-          >
-            <li>
-              <SubItem href={baseHref} active={pathname === baseHref}>
-                Visão geral
-              </SubItem>
-            </li>
-            {INDICATOR_LIST.filter((i) => ENABLED_INDICATOR_CODES.has(i.code)).map((indicator) => {
-              const href = `${baseHref}/${indicator.code}`
-              return (
-                <li key={indicator.code}>
-                  <SubItem href={href} active={pathname === href}>
-                    <span className="text-muted-foreground/70 mr-2 font-mono text-[11px] uppercase">
-                      {indicator.shortLabel}
-                    </span>
-                    {indicator.title}
-                  </SubItem>
-                </li>
-              )
-            })}
-          </motion.ul>
-        )}
-      </AnimatePresence>
-    </div>
-  )
-}
-
-function SubItem({
-  href,
-  active,
-  children,
-}: {
-  href: string
-  active: boolean
-  children: React.ReactNode
-}) {
-  return (
-    <Link
-      href={href}
-      className={cn(
-        'flex items-center rounded-md px-3 py-1.5 text-xs transition-colors',
-        active
-          ? 'text-sidebar-foreground bg-sidebar-accent font-medium'
-          : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground',
-      )}
-    >
-      {children}
     </Link>
   )
 }
