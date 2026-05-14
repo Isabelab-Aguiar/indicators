@@ -22,7 +22,7 @@ export class PregnantWomanFiltersDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  @Max(100)
+  @Max(5000)
   pageSize?: number
   @ApiPropertyOptional() @IsOptional() @IsString() sortBy?: string
   @ApiPropertyOptional({ enum: ['asc', 'desc'] })
