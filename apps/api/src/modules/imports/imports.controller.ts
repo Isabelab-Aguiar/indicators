@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Delete,
   Get,
@@ -42,9 +43,13 @@ export class ImportsController {
   })
   @ApiOperation({ summary: 'Importar gestantes via CSV (enfileirado)' })
   importCsv(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: Express.Multer.File | undefined,
     @CurrentTenant() tenant: TenantContextPayload,
   ) {
+    if (!file)
+      throw new BadRequestException(
+        'Arquivo CSV não recebido ou tipo inválido (aceito: .csv, .txt)',
+      )
     return this.importsService.queueCsvImport(file, tenant)
   }
 
@@ -59,9 +64,10 @@ export class ImportsController {
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Importar gestantes via PDF (enfileirado)' })
   importPdf(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: Express.Multer.File | undefined,
     @CurrentTenant() tenant: TenantContextPayload,
   ) {
+    if (!file) throw new BadRequestException('Arquivo PDF não recebido ou tipo inválido')
     return this.importsService.queuePdfImport(file, tenant)
   }
 

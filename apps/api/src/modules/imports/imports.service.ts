@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common'
+import { Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common'
 import { InjectQueue } from '@nestjs/bullmq'
 import type { Queue } from 'bullmq'
 import { and, eq } from 'drizzle-orm'
@@ -49,19 +49,31 @@ export class ImportsService {
       .returning()
 
     const storageKey = `imports/${tenant.esfId}/${record.id}.${type}`
-    await this.storage.put(storageKey, file.buffer, file.mimetype)
 
-    await this.db
-      .update(imports)
-      .set({ storageKey, updatedAt: new Date() })
-      .where(eq(imports.id, record.id))
+    try {
+      await this.storage.put(storageKey, file.buffer, file.mimetype)
 
-    await this.importQueue.add(JOB_NAMES[type], {
-      importId: record.id,
-      storageKey,
-      esfId: tenant.esfId,
-      userId: tenant.userId,
-    })
+      await this.db
+        .update(imports)
+        .set({ storageKey, updatedAt: new Date() })
+        .where(eq(imports.id, record.id))
+
+      await this.importQueue.add(JOB_NAMES[type], {
+        importId: record.id,
+        storageKey,
+        esfId: tenant.esfId,
+        userId: tenant.userId,
+      })
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      await this.db
+        .update(imports)
+        .set({ status: 'failed', errorMessage: message.slice(0, 1000), updatedAt: new Date() })
+        .where(eq(imports.id, record.id))
+      throw err instanceof Error && 'getStatus' in err
+        ? err
+        : new InternalServerErrorException(`Falha ao enfileirar importão: ${message}`)
+    }
 
     return { importId: record.id, status: 'pending' }
   }
