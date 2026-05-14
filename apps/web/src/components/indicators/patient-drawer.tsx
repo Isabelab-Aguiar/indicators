@@ -1,7 +1,9 @@
 'use client'
 
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Users } from 'lucide-react'
+import { X, Users, Search, ExternalLink } from 'lucide-react'
+import Link from 'next/link'
 import { cn } from '@repo/ui'
 import type { C3CriterionStat, C3PatientRow, C3CriterionId } from '@repo/types'
 import { filterByCriterion } from '@/hooks/use-c3-analytics'
@@ -16,22 +18,33 @@ interface PatientDrawerProps {
   onClose: () => void
 }
 
+function PatientAvatar({ name }: { name: string }) {
+  return (
+    <div className="bg-muted text-muted-foreground flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold">
+      {name.charAt(0).toUpperCase()}
+    </div>
+  )
+}
+
 function PatientItem({ patient, achieved }: { patient: C3PatientRow; achieved: boolean }) {
   const cls = CLASSIFICATION_STYLES[patient.classification]
   return (
-    <div className="border-border/50 hover:bg-accent/40 flex items-center gap-3 border-b px-5 py-3 transition-colors last:border-0">
-      <div className="bg-muted text-muted-foreground flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold">
-        {patient.name.charAt(0).toUpperCase()}
-      </div>
+    <div className="border-border/50 hover:bg-accent/40 group flex items-center gap-3 border-b px-5 py-3 transition-colors last:border-0">
+      <PatientAvatar name={patient.name} />
       <div className="min-w-0 flex-1">
         <p className="text-foreground truncate text-sm font-medium">{patient.name}</p>
         <p className="text-muted-foreground text-xs">Microárea {patient.microarea}</p>
       </div>
-      <div className="flex shrink-0 items-center gap-2">
-        <span className="text-muted-foreground text-xs font-semibold tabular-nums">
+      <div className="flex shrink-0 items-center gap-1.5">
+        <span className="text-muted-foreground hidden text-xs font-semibold tabular-nums sm:block">
           {patient.score} pts
         </span>
-        <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-semibold', cls.badge)}>
+        <span
+          className={cn(
+            'hidden rounded-full px-2 py-0.5 text-[10px] font-semibold sm:block',
+            cls.badge,
+          )}
+        >
           {cls.label}
         </span>
         <span
@@ -42,13 +55,50 @@ function PatientItem({ patient, achieved }: { patient: C3PatientRow; achieved: b
         >
           {achieved ? '✓' : '✗'}
         </span>
+        <Link
+          href={`/gestantes/${patient.id}`}
+          onClick={(e) => e.stopPropagation()}
+          className="text-muted-foreground hover:text-foreground hover:bg-accent rounded-md p-1.5 transition-colors"
+          title="Abrir prontuário"
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+    </div>
+  )
+}
+
+function DrawerProgress({ pct, color }: { pct: number; color: CriterionColor }) {
+  return (
+    <div>
+      <div className="mb-1.5 flex items-center justify-between text-[11px] font-medium">
+        <span className="text-muted-foreground">Cobertura do critério</span>
+        <span className={cn('font-bold tabular-nums', color.text)}>{pct}%</span>
+      </div>
+      <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
+        <motion.div
+          className={cn('h-full rounded-full', color.bar)}
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+        />
       </div>
     </div>
   )
 }
 
 export function PatientDrawer({ stat, patients, achieved, color, onClose }: PatientDrawerProps) {
-  const filtered = filterByCriterion(patients, stat.id as C3CriterionId, achieved)
+  const [search, setSearch] = useState('')
+
+  const filtered = useMemo(() => {
+    const base = filterByCriterion(patients, stat.id as C3CriterionId, achieved)
+    if (!search.trim()) return base
+    const q = search.toLowerCase()
+    return base.filter(
+      (p) => p.name.toLowerCase().includes(q) || p.microarea.toLowerCase().includes(q),
+    )
+  }, [patients, stat.id, achieved, search])
+
   const count = achieved ? stat.achieved : stat.notAchieved
   const pct = achieved ? stat.pctAchieved : stat.pctNotAchieved
 
@@ -68,7 +118,7 @@ export function PatientDrawer({ stat, patients, achieved, color, onClose }: Pati
         animate={{ x: 0 }}
         exit={{ x: '100%' }}
         transition={{ type: 'spring', stiffness: 320, damping: 36 }}
-        className="bg-card fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col shadow-2xl"
+        className="bg-card fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col shadow-2xl sm:max-w-lg"
       >
         <div className="border-border flex items-start justify-between gap-4 border-b p-5">
           <div className="space-y-1">
@@ -99,17 +149,15 @@ export function PatientDrawer({ stat, patients, achieved, color, onClose }: Pati
           </button>
         </div>
 
-        <div className="border-border border-b px-5 py-3">
-          <div className="mb-1.5 flex items-center justify-between text-[11px] font-medium">
-            <span className="text-muted-foreground">Cobertura do critério</span>
-            <span className={cn('font-bold tabular-nums', color.text)}>{stat.pctAchieved}%</span>
-          </div>
-          <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
-            <motion.div
-              className={cn('h-full rounded-full', color.bar)}
-              initial={{ width: 0 }}
-              animate={{ width: `${stat.pctAchieved}%` }}
-              transition={{ duration: 0.6, ease: 'easeOut' }}
+        <div className="border-border space-y-3 border-b px-5 py-3">
+          <DrawerProgress pct={stat.pctAchieved} color={color} />
+          <div className="relative">
+            <Search className="text-muted-foreground absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar por nome ou microárea…"
+              className="border-border bg-muted/50 text-foreground placeholder:text-muted-foreground focus:ring-ring w-full rounded-lg border py-2 pl-9 pr-3 text-sm outline-none focus:ring-1"
             />
           </div>
         </div>
@@ -118,7 +166,9 @@ export function PatientDrawer({ stat, patients, achieved, color, onClose }: Pati
           {filtered.length === 0 ? (
             <div className="flex h-40 flex-col items-center justify-center gap-2">
               <Users className="text-muted-foreground h-7 w-7" />
-              <p className="text-muted-foreground text-sm">Nenhuma gestante nesta categoria</p>
+              <p className="text-muted-foreground text-sm">
+                {search ? 'Nenhum resultado encontrado' : 'Nenhuma gestante nesta categoria'}
+              </p>
             </div>
           ) : (
             filtered.map((p, i) => (

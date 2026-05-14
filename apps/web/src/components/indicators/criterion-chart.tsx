@@ -3,18 +3,51 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { TrendingUp, TrendingDown, ChevronRight } from 'lucide-react'
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
 import { cn } from '@repo/ui'
 import type { C3CriterionStat, C3PatientRow } from '@repo/types'
 import type { CriterionColor } from './c3-colors'
+import { DANGER_COLORS } from './c3-colors'
 import { PatientDrawer } from './patient-drawer'
 
-type DrawerState = 'achieved' | 'not-achieved' | null
+type DrawerFilter = 'achieved' | 'not-achieved' | null
 
 interface CriterionChartProps {
   stat: C3CriterionStat
   patients: C3PatientRow[]
   color: CriterionColor
   animationDelay?: number
+}
+
+function CriterionDonut({ pct, hex, hexMuted }: { pct: number; hex: string; hexMuted: string }) {
+  const data = [{ value: pct }, { value: Math.max(0, 100 - pct) }]
+  return (
+    <div className="relative h-[68px] w-[68px] shrink-0">
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            innerRadius={24}
+            outerRadius={32}
+            startAngle={90}
+            endAngle={-270}
+            dataKey="value"
+            strokeWidth={0}
+            isAnimationActive
+            animationDuration={800}
+          >
+            <Cell fill={hex} />
+            <Cell fill={hexMuted} />
+          </Pie>
+        </PieChart>
+      </ResponsiveContainer>
+      <div className="absolute inset-0 flex flex-col items-center justify-center leading-none">
+        <span className="text-foreground text-[13px] font-bold tabular-nums">{pct}%</span>
+      </div>
+    </div>
+  )
 }
 
 interface ActionButtonProps {
@@ -55,13 +88,22 @@ function ActionButton({ label, count, achieved, color, onClick }: ActionButtonPr
   return (
     <button
       onClick={onClick}
-      className="group flex flex-col items-start gap-1.5 rounded-xl border border-transparent bg-red-500/10 p-3.5 text-left transition-all hover:border-red-500/30 active:scale-[0.98]"
+      className={cn(
+        'group flex flex-col items-start gap-1.5 rounded-xl border border-transparent p-3.5 text-left transition-all active:scale-[0.98]',
+        DANGER_COLORS.bg,
+        DANGER_COLORS.border,
+      )}
     >
       <div className="flex w-full items-center justify-between">
-        <TrendingDown className="h-3.5 w-3.5 text-red-500" />
-        <ChevronRight className="h-3 w-3 text-red-500 transition-transform group-hover:translate-x-0.5" />
+        <TrendingDown className={cn('h-3.5 w-3.5', DANGER_COLORS.text)} />
+        <ChevronRight
+          className={cn(
+            'h-3 w-3 transition-transform group-hover:translate-x-0.5',
+            DANGER_COLORS.text,
+          )}
+        />
       </div>
-      <span className="text-2xl font-bold tabular-nums leading-none text-red-600 dark:text-red-400">
+      <span className={cn('text-2xl font-bold tabular-nums leading-none', DANGER_COLORS.text)}>
         {count}
       </span>
       <span className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wide">
@@ -72,11 +114,16 @@ function ActionButton({ label, count, achieved, color, onClick }: ActionButtonPr
 }
 
 export function CriterionChart({ stat, patients, color, animationDelay = 0 }: CriterionChartProps) {
-  const [drawer, setDrawer] = useState<DrawerState>(null)
+  const [drawer, setDrawer] = useState<DrawerFilter>(null)
 
   return (
     <>
-      <div className="border-border bg-card flex flex-col gap-4 rounded-2xl border p-5 transition-shadow hover:shadow-md">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: 'easeOut', delay: animationDelay }}
+        className="border-border bg-card flex flex-col gap-4 rounded-2xl border p-5 transition-shadow hover:shadow-md"
+      >
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <div
@@ -95,22 +142,20 @@ export function CriterionChart({ stat, patients, color, animationDelay = 0 }: Cr
               </p>
             </div>
           </div>
-          <span className={cn('text-2xl font-bold tabular-nums', color.text)}>
-            {stat.pctAchieved}%
-          </span>
+          <CriterionDonut pct={stat.pctAchieved} hex={color.hex} hexMuted={color.hexMuted} />
         </div>
 
         <div className="space-y-1.5">
-          <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
+          <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
             <motion.div
               className={cn('h-full rounded-full', color.bar)}
               initial={{ width: 0 }}
               animate={{ width: `${stat.pctAchieved}%` }}
-              transition={{ duration: 0.7, ease: 'easeOut', delay: animationDelay }}
+              transition={{ duration: 0.7, ease: 'easeOut', delay: animationDelay + 0.1 }}
             />
           </div>
           <div className="text-muted-foreground flex items-center justify-between text-[10px] font-medium tabular-nums">
-            <span>{stat.pctAchieved}% atingiram</span>
+            <span className={cn('font-semibold', color.text)}>{stat.pctAchieved}% atingiram</span>
             <span>{stat.pctNotAchieved}% não atingiram</span>
           </div>
         </div>
@@ -131,7 +176,7 @@ export function CriterionChart({ stat, patients, color, animationDelay = 0 }: Cr
             onClick={() => setDrawer('not-achieved')}
           />
         </div>
-      </div>
+      </motion.div>
 
       {drawer !== null && (
         <PatientDrawer

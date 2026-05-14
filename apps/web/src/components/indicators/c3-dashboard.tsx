@@ -11,19 +11,31 @@ import { PopulationCard } from './population-card'
 
 const indicator = INDICATORS.c3
 
+function ErrorState() {
+  return (
+    <div className="border-border flex h-40 items-center justify-center rounded-2xl border border-dashed">
+      <p className="text-muted-foreground text-sm">Erro ao carregar dados do indicador C3.</p>
+    </div>
+  )
+}
+
+function CriteriaHeader() {
+  return (
+    <div>
+      <p className="text-foreground mb-1 text-sm font-semibold">Adesão por critério</p>
+      <p className="text-muted-foreground mb-4 text-xs">
+        Clique em <strong>Atingiram</strong> ou <strong>Não atingiram</strong> para ver a lista de
+        gestantes filtrada por critério.
+      </p>
+    </div>
+  )
+}
+
 export function C3Dashboard() {
   const { isLoading, isError, breakdown } = useC3Analytics()
 
   if (isLoading) return <C3SkeletonGrid />
-
-  if (isError) {
-    return (
-      <div className="border-border flex h-40 items-center justify-center rounded-2xl border border-dashed">
-        <p className="text-muted-foreground text-sm">Erro ao carregar dados do indicador C3.</p>
-      </div>
-    )
-  }
-
+  if (isError) return <ErrorState />
   if (breakdown.total === 0) return <C3EmptyState />
 
   return (
@@ -43,14 +55,12 @@ export function C3Dashboard() {
         total={breakdown.total}
         avgScore={breakdown.avgScore}
         classification={breakdown.classification}
+        criteriaStats={breakdown.criteriaStats}
+        patients={breakdown.patients}
       />
 
       <div>
-        <p className="text-foreground mb-1 text-sm font-semibold">Adesão por critério</p>
-        <p className="text-muted-foreground mb-4 text-xs">
-          Clique em <strong>Atingiram</strong> ou <strong>Não atingiram</strong> para ver a lista de
-          gestantes filtrada por critério.
-        </p>
+        <CriteriaHeader />
         <C3CriteriaGrid criteriaStats={breakdown.criteriaStats} patients={breakdown.patients} />
       </div>
     </motion.div>
