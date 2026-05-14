@@ -58,8 +58,8 @@ export function parseInteger(value: string): number | undefined {
 export function parseExamResult(raw: string): CsvExamResult | undefined {
   const value = raw.trim().toUpperCase()
   if (!value || value === '-') return undefined
-  if (value === 'SIM') return 'negative'
-  if (value === 'NAO' || value === 'NÃO') return 'not_performed'
+  if (value === 'SIM' || value === 'REALIZADO' || value === 'REALIZADA') return 'positive'
+  if (value === 'NAO' || value === 'NÃO') return 'negative'
   if (value === 'NAO_SE_APLICA' || value === 'NÃO_SE_APLICA') return 'not_performed'
   return undefined
 }
