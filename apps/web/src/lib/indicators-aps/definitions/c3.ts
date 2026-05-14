@@ -7,8 +7,7 @@ export const C3: IndicatorDefinition = {
   subtitle: 'Acesso e acompanhamento efetivo no pré-natal',
   description:
     'Avalia o acesso e o acompanhamento efetivo das gestantes em relação aos episódios de cuidados necessários durante o pré-natal.',
-  population:
-    'Pessoas com condição/problema "gravidez" ativo no PEC vinculadas à equipe no período.',
+  population: 'Gestantes em acompanhamento de pré-natal pela equipe no período avaliado.',
   maxScore: 100,
   criteria: [
     {
