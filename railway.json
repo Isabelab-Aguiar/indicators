@@ -3,7 +3,7 @@
   "build": {
     "builder": "RAILPACK",
     "buildCommand": "pnpm turbo run build --filter=@repo/api",
-    "watchPatterns": ["/apps/api/**"],
+    "watchPatterns": ["apps/api/**"],
     "buildEnvironment": "V3"
   },
   "deploy": {
