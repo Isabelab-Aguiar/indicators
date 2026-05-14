@@ -29,6 +29,7 @@ export interface PregnantWoman {
   gestationalAgeEcoWeeks: number | null
   gestationalAgeEcoDays: number | null
   expectedDeliveryDateEco: string | null
+  interruptionDate: string | null
   lastPrenatalConsultation: string | null
   // Contadores
   prenatalConsultations: number

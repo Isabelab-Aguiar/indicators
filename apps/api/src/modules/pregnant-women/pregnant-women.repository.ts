@@ -83,6 +83,7 @@ export class PregnantWomenRepository {
       ...dto,
       birthDate: new Date(dto.birthDate),
       lastMeasurementDate: dto.lastMeasurementDate ? new Date(dto.lastMeasurementDate) : undefined,
+      interruptionDate: dto.interruptionDate ? new Date(dto.interruptionDate) : undefined,
       weight: dto.weight != null ? String(dto.weight) : undefined,
       height: dto.height != null ? String(dto.height) : undefined,
     }
@@ -90,11 +91,12 @@ export class PregnantWomenRepository {
   }
 
   update(id: string, esfId: string, dto: Partial<CreatePregnantWomanDto> & { updatedBy: string }) {
-    const { birthDate, lastMeasurementDate, weight, height, ...rest } = dto
+    const { birthDate, lastMeasurementDate, interruptionDate, weight, height, ...rest } = dto
     const patch: Partial<NewPregnantWomanRecord> = {
       ...rest,
       ...(birthDate ? { birthDate: new Date(birthDate) } : {}),
       ...(lastMeasurementDate ? { lastMeasurementDate: new Date(lastMeasurementDate) } : {}),
+      ...(interruptionDate ? { interruptionDate: new Date(interruptionDate) } : {}),
       ...(weight != null ? { weight: String(weight) } : {}),
       ...(height != null ? { height: String(height) } : {}),
       updatedAt: new Date(),

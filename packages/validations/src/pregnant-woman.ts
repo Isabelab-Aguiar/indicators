@@ -34,6 +34,7 @@ export const pregnantWomanSchema = z.object({
   hivExam3rdTrimester: examResultEnum.default('pending'),
   syphilisExam3rdTrimester: examResultEnum.default('pending'),
   observations: z.string().max(2000).nullable().optional(),
+  interruptionDate: z.string().datetime({ offset: true }).nullable().optional(),
 })
 
 export const updatePregnantWomanSchema = pregnantWomanSchema.partial().extend({

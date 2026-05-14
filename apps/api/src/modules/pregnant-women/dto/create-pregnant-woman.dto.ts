@@ -101,4 +101,9 @@ export class CreatePregnantWomanDto {
   @IsString()
   @MaxLength(2000)
   observations?: string
+
+  @ApiPropertyOptional({ type: String, format: 'date-time' })
+  @IsOptional()
+  @IsDateString()
+  interruptionDate?: string
 }

@@ -58,6 +58,7 @@ export const pregnantWomen = pgTable('pregnant_women', {
   gestationalAgeEcoWeeks: integer('gestational_age_eco_weeks'),
   gestationalAgeEcoDays: integer('gestational_age_eco_days'),
   expectedDeliveryDateEco: timestamp('expected_delivery_date_eco', { withTimezone: true }),
+  interruptionDate: timestamp('interruption_date', { withTimezone: true }),
   lastPrenatalConsultation: timestamp('last_prenatal_consultation', { withTimezone: true }),
   // Contadores
   prenatalConsultations: integer('prenatal_consultations').notNull().default(0),

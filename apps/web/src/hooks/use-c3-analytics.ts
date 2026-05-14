@@ -112,6 +112,28 @@ async function fetchAllWomen(): Promise<PregnantWoman[]> {
   return res.data.data.data
 }
 
+export interface C3Breakdown {
+  total: number
+  avgScore: number
+  classification: C3Classification
+  criteriaStats: C3CriterionStat[]
+  patients: C3PatientRow[]
+}
+
+export function computeC3Breakdown(women: PregnantWoman[]): C3Breakdown {
+  const patients = women.map(buildPatientRow)
+  const total = patients.length
+  const avgPct =
+    total > 0 ? Math.round((patients.reduce((s, p) => s + p.pctScore, 0) / total) * 10) / 10 : 0
+  return {
+    total,
+    avgScore: avgPct,
+    classification: classifyScore(avgPct),
+    criteriaStats: C3_CRITERIA_DEF.map((def) => buildCriteriaStat(patients, def)),
+    patients,
+  }
+}
+
 export function useC3Analytics() {
   const esfId = useAuthStore((s) => s.user?.esfId ?? '')
 
@@ -122,21 +144,10 @@ export function useC3Analytics() {
     staleTime: 1000 * 60 * 5,
   })
 
-  const breakdown = useMemo(() => {
-    const patients = (query.data ?? []).map(buildPatientRow)
-    const total = patients.length
-    const avgPct =
-      total > 0 ? Math.round((patients.reduce((s, p) => s + p.pctScore, 0) / total) * 10) / 10 : 0
-    return {
-      total,
-      avgScore: avgPct,
-      classification: classifyScore(avgPct),
-      criteriaStats: C3_CRITERIA_DEF.map((def) => buildCriteriaStat(patients, def)),
-      patients,
-    }
-  }, [query.data])
+  const women = useMemo(() => query.data ?? [], [query.data])
+  const breakdown = useMemo(() => computeC3Breakdown(women), [women])
 
-  return { ...query, breakdown }
+  return { ...query, women, breakdown }
 }
 
 export function filterByCriterion(
