@@ -1,5 +1,5 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { randomBytes } from 'crypto'
 import { addHours } from 'date-fns'
@@ -80,6 +80,6 @@ export class UsersService {
     await this.db
       .update(profiles)
       .set({ status: 'inactive', updatedAt: new Date() })
-      .where(eq(profiles.id, id))
+      .where(and(eq(profiles.id, id), eq(profiles.esfId, tenant.esfId)))
   }
 }

@@ -103,7 +103,7 @@ export class ImportsService {
         // Object may already be gone; proceed with DB cleanup either way.
       }
     }
-    await this.db.delete(imports).where(eq(imports.id, id))
+    await this.db.delete(imports).where(and(eq(imports.id, id), eq(imports.esfId, tenant.esfId)))
     return { deleted: true }
   }
 }
