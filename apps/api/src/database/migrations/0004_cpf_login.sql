@@ -1,0 +1,3 @@
+ALTER TABLE "profiles"
+  ADD COLUMN IF NOT EXISTS "cpf" text UNIQUE,
+  ALTER COLUMN "email" DROP NOT NULL;

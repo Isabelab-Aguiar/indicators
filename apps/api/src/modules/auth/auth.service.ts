@@ -31,8 +31,11 @@ export class AuthService {
   ) {}
 
   async login(dto: LoginDto): Promise<AuthTokenPayload> {
+    const isEmail = dto.identifier.includes('@')
     const user = await this.db.query.profiles.findFirst({
-      where: eq(profiles.email, dto.email.toLowerCase()),
+      where: isEmail
+        ? eq(profiles.email, dto.identifier.toLowerCase())
+        : eq(profiles.cpf, dto.identifier.replace(/\D/g, '')),
       with: { esf: true },
     })
 
