@@ -15,7 +15,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <Header title="Dashboard" description="Visão geral dos indicadores da ESF" />
-      <div className="flex-1 space-y-8 overflow-y-auto p-6">
+      <div className="flex-1 space-y-6 overflow-y-auto p-4 sm:space-y-8 sm:p-6">
         <IndicatorsOverview />
 
         <section className="space-y-3">

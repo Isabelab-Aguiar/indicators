@@ -33,7 +33,7 @@ export default async function IndicatorPage({ params }: Props) {
         title={`${indicator.shortLabel} · ${indicator.title}`}
         description={indicator.subtitle}
       />
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6">
         <IndicatorSimulator indicator={indicator} />
       </div>
     </div>

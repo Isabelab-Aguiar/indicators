@@ -9,7 +9,7 @@ export default function ImportarPage() {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <Header title="Importar Dados" description="Importe gestantes via CSV ou PDF" />
-      <div className="flex-1 space-y-6 overflow-y-auto p-6">
+      <div className="flex-1 space-y-6 overflow-y-auto p-4 sm:p-6">
         <ImportSection />
         <ImportHistory />
       </div>

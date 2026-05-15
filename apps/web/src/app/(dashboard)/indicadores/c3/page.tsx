@@ -13,7 +13,7 @@ export default function C3IndicadorPage() {
         title="C3 · Acompanhamento Pré-Natal"
         description="Análise de adesão às boas práticas do pré-natal por critério e gestante"
       />
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6">
         <C3Tabs />
       </div>
     </div>

@@ -14,7 +14,7 @@ export default function C1IndicadorPage() {
         title="C1 · Mais Acesso à APS"
         description="Equilíbrio entre demanda programada e demanda espontânea"
       />
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6">
         <C1Simulator />
       </div>
     </div>

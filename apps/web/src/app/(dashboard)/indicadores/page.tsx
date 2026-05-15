@@ -12,7 +12,7 @@ export default function IndicadoresHubPage() {
         title="Indicadores APS"
         description="Linhas de cuidado avaliadas pelo Previne Brasil (C2 a C7)"
       />
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6">
         <IndicatorHubGrid />
       </div>
     </div>
