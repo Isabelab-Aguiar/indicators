@@ -15,3 +15,6 @@ Thumbs.db
 .railway
 .claude/
 next-env.d.ts
+
+# CSVs baixados localmente (e-SUS, exports)
+/*.csv
