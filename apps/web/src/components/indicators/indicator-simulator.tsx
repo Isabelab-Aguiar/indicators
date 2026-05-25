@@ -83,7 +83,7 @@ export function IndicatorSimulator({ indicator }: IndicatorSimulatorProps) {
           <div className="flex flex-col gap-4">
             <PopulationCard population={indicator.population} />
             <div className="bg-muted/30 rounded-xl p-3">
-              <CriteriaRadar criteria={indicator.criteria} achieved={achieved} />
+              <CriteriaRadar criteria={indicator.criteria ?? []} achieved={achieved} />
             </div>
             <DenominatorField value={denominator} onChange={setDenominator} adherence={adherence} />
           </div>
