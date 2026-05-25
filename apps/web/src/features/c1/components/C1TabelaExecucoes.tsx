@@ -11,6 +11,7 @@ import {
   C1_CLASSIFICACAO_LABELS,
   C1_PAGE_SIZE,
 } from '../constants/c1.constants'
+import { C1ExecucaoCard } from './C1ExecucaoCard'
 
 interface C1TabelaExecucoesProps {
   execucoes: C1Execucao[] | undefined
@@ -19,6 +20,16 @@ interface C1TabelaExecucoesProps {
 
 type SortKey = 'periodo' | 'percentual' | 'total' | 'classificacao'
 type SortDir = 'asc' | 'desc'
+
+const TABLE_COLS = [
+  { key: 'periodo', label: 'Período' },
+  { key: 'programada', label: 'Programadas' },
+  { key: 'espontanea', label: 'Espontâneas' },
+  { key: 'total', label: 'Total' },
+  { key: 'percentual', label: 'C1 (%)' },
+  { key: 'classificacao', label: 'Classificação' },
+  { key: 'alerta', label: 'Alerta' },
+] as const
 
 export function C1TabelaExecucoes({ execucoes, isLoading }: C1TabelaExecucoesProps) {
   const [sortKey, setSortKey] = useState<SortKey>('periodo')
@@ -71,74 +82,77 @@ export function C1TabelaExecucoes({ execucoes, isLoading }: C1TabelaExecucoesPro
           </p>
         )}
         {!isLoading && rows.length > 0 && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead className="border-border border-b">
-                <tr>
-                  {[
-                    { key: 'periodo', label: 'Período' },
-                    { key: 'programada', label: 'Programadas' },
-                    { key: 'espontanea', label: 'Espontâneas' },
-                    { key: 'total', label: 'Total' },
-                    { key: 'percentual', label: 'C1 (%)' },
-                    { key: 'classificacao', label: 'Classificação' },
-                    { key: 'alerta', label: 'Alerta' },
-                  ].map(({ key, label }) => (
-                    <th
-                      key={key}
-                      className="text-muted-foreground cursor-pointer px-4 py-3 text-left font-medium"
-                      onClick={() => toggleSort(key as SortKey)}
-                    >
-                      <span className="flex items-center gap-1">
-                        {label}
-                        <SortIcon k={key as SortKey} />
-                      </span>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {paginated.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="border-border hover:bg-muted/30 border-b transition-colors"
-                  >
-                    <td className="text-foreground px-4 py-3 font-mono font-medium">
-                      {row.periodo}
-                    </td>
-                    <td className="px-4 py-3 tabular-nums">
-                      {row.programada.toLocaleString('pt-BR')}
-                    </td>
-                    <td className="px-4 py-3 tabular-nums">
-                      {row.espontanea.toLocaleString('pt-BR')}
-                    </td>
-                    <td className="px-4 py-3 tabular-nums">{row.total.toLocaleString('pt-BR')}</td>
-                    <td className="px-4 py-3 font-bold tabular-nums">
-                      {Number(row.percentual).toFixed(1)}%
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={cn(
-                          'rounded-full px-2.5 py-0.5 text-xs font-semibold',
-                          C1_CLASSIFICACAO_BADGE[row.classificacao],
-                        )}
+          <>
+            <div className="hidden sm:block">
+              <table className="w-full text-xs">
+                <thead className="border-border border-b">
+                  <tr>
+                    {TABLE_COLS.map(({ key, label }) => (
+                      <th
+                        key={key}
+                        className="text-muted-foreground cursor-pointer px-4 py-3 text-left font-medium"
+                        onClick={() => toggleSort(key as SortKey)}
                       >
-                        {C1_CLASSIFICACAO_LABELS[row.classificacao]}
-                      </span>
-                    </td>
-                    <td className="max-w-[180px] px-4 py-3">
-                      {row.alerta ? (
-                        <span className="text-destructive text-[11px]">
-                          {C1_ALERTA_LABELS[row.alerta]}
+                        <span className="flex items-center gap-1">
+                          {label}
+                          <SortIcon k={key as SortKey} />
                         </span>
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
-                    </td>
+                      </th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {paginated.map((row) => (
+                    <tr
+                      key={row.id}
+                      className="border-border hover:bg-muted/30 border-b transition-colors"
+                    >
+                      <td className="text-foreground px-4 py-3 font-mono font-medium">
+                        {row.periodo}
+                      </td>
+                      <td className="px-4 py-3 tabular-nums">
+                        {row.programada.toLocaleString('pt-BR')}
+                      </td>
+                      <td className="px-4 py-3 tabular-nums">
+                        {row.espontanea.toLocaleString('pt-BR')}
+                      </td>
+                      <td className="px-4 py-3 tabular-nums">
+                        {row.total.toLocaleString('pt-BR')}
+                      </td>
+                      <td className="px-4 py-3 font-bold tabular-nums">
+                        {Number(row.percentual).toFixed(1)}%
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={cn(
+                            'rounded-full px-2.5 py-0.5 text-xs font-semibold',
+                            C1_CLASSIFICACAO_BADGE[row.classificacao],
+                          )}
+                        >
+                          {C1_CLASSIFICACAO_LABELS[row.classificacao]}
+                        </span>
+                      </td>
+                      <td className="max-w-[180px] px-4 py-3">
+                        {row.alerta ? (
+                          <span className="text-destructive text-[11px]">
+                            {C1_ALERTA_LABELS[row.alerta]}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="divide-border divide-y px-4 pb-2 sm:hidden">
+              {paginated.map((row) => (
+                <C1ExecucaoCard key={row.id} row={row} />
+              ))}
+            </div>
+
             {totalPages > 1 && (
               <div className="text-muted-foreground flex items-center justify-between px-4 py-3 text-xs">
                 <span>
@@ -162,7 +176,7 @@ export function C1TabelaExecucoes({ execucoes, isLoading }: C1TabelaExecucoesPro
                 </div>
               </div>
             )}
-          </div>
+          </>
         )}
       </CardContent>
     </Card>
