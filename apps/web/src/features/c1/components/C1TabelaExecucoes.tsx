@@ -11,7 +11,6 @@ import {
   C1_CLASSIFICACAO_LABELS,
   C1_PAGE_SIZE,
 } from '../constants/c1.constants'
-import { C1ExecucaoCard } from './C1ExecucaoCard'
 
 interface C1TabelaExecucoesProps {
   execucoes: C1Execucao[] | undefined
@@ -20,16 +19,6 @@ interface C1TabelaExecucoesProps {
 
 type SortKey = 'periodo' | 'percentual' | 'total' | 'classificacao'
 type SortDir = 'asc' | 'desc'
-
-const TABLE_COLS = [
-  { key: 'periodo', label: 'Período' },
-  { key: 'programada', label: 'Programadas' },
-  { key: 'espontanea', label: 'Espontâneas' },
-  { key: 'total', label: 'Total' },
-  { key: 'percentual', label: 'C1 (%)' },
-  { key: 'classificacao', label: 'Classificação' },
-  { key: 'alerta', label: 'Alerta' },
-] as const
 
 export function C1TabelaExecucoes({ execucoes, isLoading }: C1TabelaExecucoesProps) {
   const [sortKey, setSortKey] = useState<SortKey>('periodo')
@@ -83,11 +72,64 @@ export function C1TabelaExecucoes({ execucoes, isLoading }: C1TabelaExecucoesPro
         )}
         {!isLoading && rows.length > 0 && (
           <>
-            <div className="hidden sm:block">
+            {/* Mobile: card list */}
+            <div className="divide-border divide-y sm:hidden">
+              {paginated.map((row) => (
+                <div key={row.id} className="space-y-2 px-4 py-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-foreground font-mono text-sm font-semibold">
+                      {row.periodo}
+                    </span>
+                    <span
+                      className={cn(
+                        'rounded-full px-2.5 py-0.5 text-xs font-semibold',
+                        C1_CLASSIFICACAO_BADGE[row.classificacao],
+                      )}
+                    >
+                      {C1_CLASSIFICACAO_LABELS[row.classificacao]}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                    <span className="text-muted-foreground">
+                      C1:{' '}
+                      <strong className="text-foreground tabular-nums">
+                        {Number(row.percentual).toFixed(1)}%
+                      </strong>
+                    </span>
+                    <span className="text-muted-foreground">
+                      Prog:{' '}
+                      <strong className="text-foreground tabular-nums">
+                        {row.programada.toLocaleString('pt-BR')}
+                      </strong>
+                    </span>
+                    <span className="text-muted-foreground">
+                      Espon:{' '}
+                      <strong className="text-foreground tabular-nums">
+                        {row.espontanea.toLocaleString('pt-BR')}
+                      </strong>
+                    </span>
+                  </div>
+                  {row.alerta && (
+                    <p className="text-destructive text-[11px]">{C1_ALERTA_LABELS[row.alerta]}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop: table */}
+            <div className="hidden overflow-x-auto sm:block">
               <table className="w-full text-xs">
                 <thead className="border-border border-b">
                   <tr>
-                    {TABLE_COLS.map(({ key, label }) => (
+                    {[
+                      { key: 'periodo', label: 'Período' },
+                      { key: 'programada', label: 'Programadas' },
+                      { key: 'espontanea', label: 'Espontâneas' },
+                      { key: 'total', label: 'Total' },
+                      { key: 'percentual', label: 'C1 (%)' },
+                      { key: 'classificacao', label: 'Classificação' },
+                      { key: 'alerta', label: 'Alerta' },
+                    ].map(({ key, label }) => (
                       <th
                         key={key}
                         className="text-muted-foreground cursor-pointer px-4 py-3 text-left font-medium"
@@ -147,14 +189,8 @@ export function C1TabelaExecucoes({ execucoes, isLoading }: C1TabelaExecucoesPro
               </table>
             </div>
 
-            <div className="divide-border divide-y px-4 pb-2 sm:hidden">
-              {paginated.map((row) => (
-                <C1ExecucaoCard key={row.id} row={row} />
-              ))}
-            </div>
-
             {totalPages > 1 && (
-              <div className="text-muted-foreground flex items-center justify-between px-4 py-3 text-xs">
+              <div className="border-border text-muted-foreground flex items-center justify-between border-t px-4 py-3 text-xs">
                 <span>
                   Página {page + 1} de {totalPages}
                 </span>
