@@ -90,24 +90,26 @@ export function IndicatorSimulator({ indicator }: IndicatorSimulatorProps) {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-semibold">Boas práticas</CardTitle>
-          <CardDescription className="text-xs">
-            Clique para simular o cumprimento e ver a pontuação total atualizada em tempo real.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-3 md:grid-cols-2">
-          {indicator.criteria.map((criterion) => (
-            <CriterionCard
-              key={criterion.id}
-              criterion={criterion}
-              achieved={achieved.has(criterion.id)}
-              onToggle={() => toggle(criterion.id)}
-            />
-          ))}
-        </CardContent>
-      </Card>
+      {indicator.criteria && indicator.criteria.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-semibold">Boas práticas</CardTitle>
+            <CardDescription className="text-xs">
+              Clique para simular o cumprimento e ver a pontuação total atualizada em tempo real.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-3 md:grid-cols-2">
+            {indicator.criteria.map((criterion) => (
+              <CriterionCard
+                key={criterion.id}
+                criterion={criterion}
+                achieved={achieved.has(criterion.id)}
+                onToggle={() => toggle(criterion.id)}
+              />
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

@@ -45,5 +45,6 @@ export function computeScore(
   indicator: IndicatorDefinition,
   achieved: ReadonlySet<string>,
 ): number {
+  if (!indicator.criteria) return 0
   return indicator.criteria.reduce((total, c) => (achieved.has(c.id) ? total + c.points : total), 0)
 }
