@@ -63,7 +63,7 @@ export class AuthService {
     return {
       id: user.id,
       name: user.name,
-      email: user.email,
+      email: user.email ?? '',
       role: user.role,
       status: user.status,
       team: user.team,
@@ -120,12 +120,12 @@ export class AuthService {
   }
 
   private generateTokens(
-    user: { id: string; email: string; role: string },
+    user: { id: string; email: string | null; role: string },
     esf: { id: string; name: string; code: string },
   ): AuthTokenPayload {
     const payload = {
       sub: user.id,
-      email: user.email,
+      email: user.email ?? '',
       role: user.role,
       esfId: esf.id,
       esfName: esf.name,

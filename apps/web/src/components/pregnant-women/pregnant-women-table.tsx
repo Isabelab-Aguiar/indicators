@@ -23,19 +23,19 @@ export function PregnantWomenTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-1 items-center gap-2">
           <Input
             placeholder="Buscar por nome ou CPF..."
             value={search}
             onChange={handleSearchChange}
             leftIcon={<Search className="h-3.5 w-3.5" />}
-            className="w-72"
+            className="w-full sm:w-64"
           />
           <PregnantWomenFilters filters={filters} onChange={setFilters} />
         </div>
-        <Link href="/gestantes/novo">
-          <Button size="sm">
+        <Link href="/gestantes/novo" className="sm:shrink-0">
+          <Button size="sm" className="w-full sm:w-auto">
             <Plus className="h-3.5 w-3.5" />
             Nova gestante
           </Button>
@@ -50,10 +50,10 @@ export function PregnantWomenTable() {
                 <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium">
                   Nome
                 </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium">
+                <th className="text-muted-foreground hidden px-4 py-3 text-left text-xs font-medium sm:table-cell">
                   CPF
                 </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium">
+                <th className="text-muted-foreground hidden px-4 py-3 text-left text-xs font-medium md:table-cell">
                   Microárea
                 </th>
                 <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium">
@@ -62,7 +62,7 @@ export function PregnantWomenTable() {
                 <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium">
                   Consultas
                 </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium">
+                <th className="text-muted-foreground hidden px-4 py-3 text-left text-xs font-medium md:table-cell">
                   Última Medição
                 </th>
               </tr>
@@ -72,11 +72,24 @@ export function PregnantWomenTable() {
                 {isLoading
                   ? Array.from({ length: 8 }).map((_, i) => (
                       <tr key={i} className="border-border/50 border-b">
-                        {Array.from({ length: 6 }).map((__, j) => (
-                          <td key={j} className="px-4 py-3">
-                            <div className="bg-muted h-3.5 w-24 animate-pulse rounded" />
-                          </td>
-                        ))}
+                        <td className="px-4 py-3">
+                          <div className="bg-muted h-3.5 w-32 animate-pulse rounded" />
+                        </td>
+                        <td className="hidden px-4 py-3 sm:table-cell">
+                          <div className="bg-muted h-3.5 w-24 animate-pulse rounded" />
+                        </td>
+                        <td className="hidden px-4 py-3 md:table-cell">
+                          <div className="bg-muted h-3.5 w-16 animate-pulse rounded" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="bg-muted h-3.5 w-20 animate-pulse rounded" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="bg-muted h-3.5 w-8 animate-pulse rounded" />
+                        </td>
+                        <td className="hidden px-4 py-3 md:table-cell">
+                          <div className="bg-muted h-3.5 w-24 animate-pulse rounded" />
+                        </td>
                       </tr>
                     ))
                   : data?.data.map((woman) => (
@@ -94,8 +107,10 @@ export function PregnantWomenTable() {
                             {woman.name}
                           </Link>
                         </td>
-                        <td className="text-muted-foreground px-4 py-3 font-mono">{woman.cpf}</td>
-                        <td className="px-4 py-3">
+                        <td className="text-muted-foreground hidden px-4 py-3 font-mono sm:table-cell">
+                          {woman.cpf}
+                        </td>
+                        <td className="hidden px-4 py-3 md:table-cell">
                           <Badge variant="secondary">{woman.microarea}</Badge>
                         </td>
                         <td className="px-4 py-3">
@@ -107,7 +122,7 @@ export function PregnantWomenTable() {
                         <td className="text-muted-foreground px-4 py-3">
                           {woman.prenatalConsultations}
                         </td>
-                        <td className="text-muted-foreground px-4 py-3">
+                        <td className="text-muted-foreground hidden px-4 py-3 md:table-cell">
                           {woman.lastMeasurementDate
                             ? new Date(woman.lastMeasurementDate).toLocaleDateString('pt-BR')
                             : '-'}

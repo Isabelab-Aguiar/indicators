@@ -1,6 +1,6 @@
 'use client'
 
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
+import { motion, useSpring, useTransform } from 'framer-motion'
 import { useEffect, useState } from 'react'
 
 import { cn } from '@repo/ui'
@@ -10,14 +10,17 @@ interface C1GaugeProps {
   percent: number
 }
 
-const SIZE = 320
+const VW = 320
+const VH = 184
+const CX = VW / 2
+const CY = VW / 2
 const RADIUS = 130
 const STROKE = 22
-const CENTER = SIZE / 2
+const NEEDLE_LEN = RADIUS - STROKE / 2 - 6
 
 function polarToCartesian(angleDeg: number): { x: number; y: number } {
   const rad = ((angleDeg - 180) * Math.PI) / 180
-  return { x: CENTER + RADIUS * Math.cos(rad), y: CENTER + RADIUS * Math.sin(rad) }
+  return { x: CX + RADIUS * Math.cos(rad), y: CY + RADIUS * Math.sin(rad) }
 }
 
 function arcPath(startPct: number, endPct: number): string {
@@ -31,55 +34,57 @@ export function C1Gauge({ percent }: C1GaugeProps) {
   const clamped = Math.max(0, Math.min(100, percent))
   const classification = classifyC1(clamped)
   const angle = useSpring(clamped * 1.8 - 90, { stiffness: 90, damping: 18 })
-  const counter = useMotionValue(0)
-  const [display, setDisplay] = useState(0)
+  const needleTransform = useTransform(angle, (a) => `rotate(${a}, ${CX}, ${CY})`)
+  const [display, setDisplay] = useState(clamped)
 
   useEffect(() => {
     angle.set(clamped * 1.8 - 90)
     const start = performance.now()
-    const from = counter.get()
+    const from = display
     const tick = (now: number) => {
       const t = Math.min((now - start) / 700, 1)
       const eased = 1 - Math.pow(1 - t, 3)
-      const next = from + (clamped - from) * eased
-      counter.set(next)
-      setDisplay(next)
+      setDisplay(from + (clamped - from) * eased)
       if (t < 1) requestAnimationFrame(tick)
     }
     requestAnimationFrame(tick)
-  }, [clamped, angle, counter])
-
-  const rotation = useTransform(angle, (a) => `rotate(${a}deg)`)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clamped])
 
   return (
-    <div className="relative flex flex-col items-center" style={{ width: SIZE }}>
-      <svg width={SIZE} height={SIZE / 2 + 24} viewBox={`0 0 ${SIZE} ${SIZE / 2 + 24}`}>
+    <div className="flex w-full max-w-[320px] flex-col items-center">
+      <svg viewBox={`0 0 ${VW} ${VH}`} className="w-full" aria-hidden="true">
         <path d={arcPath(0, 100)} fill="none" strokeWidth={STROKE} className="stroke-muted/40" />
         {C1_BANDS.map((band, i) => (
           <BandArc key={`${band.key}-${i}`} band={band} />
         ))}
+        <motion.g transform={needleTransform}>
+          <line
+            x1={CX}
+            y1={CY}
+            x2={CX}
+            y2={CY - NEEDLE_LEN}
+            strokeWidth={3}
+            strokeLinecap="round"
+            className="stroke-foreground"
+          />
+        </motion.g>
+        <circle
+          cx={CX}
+          cy={CY}
+          r={7}
+          strokeWidth={2.5}
+          className="fill-background stroke-foreground"
+        />
         <line
-          x1={CENTER}
-          y1={CENTER + STROKE / 2 + 8}
-          x2={CENTER}
-          y2={CENTER + STROKE / 2 + 8 - 6}
+          x1={CX}
+          y1={CY + STROKE / 2 + 8}
+          x2={CX}
+          y2={CY + STROKE / 2 + 2}
           strokeWidth={1.5}
           className="stroke-muted-foreground/60"
         />
       </svg>
-      <motion.div
-        className="pointer-events-none absolute left-1/2 top-0"
-        style={{
-          width: 0,
-          height: SIZE / 2,
-          translateX: '-50%',
-          rotate: rotation,
-          transformOrigin: '50% 100%',
-        }}
-      >
-        <div className="bg-foreground absolute -top-1 left-1/2 h-[calc(100%-22px)] w-[3px] -translate-x-1/2 rounded-full" />
-        <div className="bg-background border-foreground absolute left-1/2 top-0 h-4 w-4 -translate-x-1/2 -translate-y-1 rounded-full border-[2.5px]" />
-      </motion.div>
       <div className="mt-2 flex flex-col items-center">
         <span className={cn('text-5xl font-bold tabular-nums', classification.band.text)}>
           {display.toFixed(1)}

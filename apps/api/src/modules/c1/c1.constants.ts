@@ -1,0 +1,12 @@
+export const C1_THRESHOLDS = {
+  OTIMO_MIN: 50,
+  OTIMO_MAX: 70,
+  BOM_MIN: 30,
+  BOM_MAX: 50,
+  SUFICIENTE_MIN: 10,
+  SUFICIENTE_MAX: 30,
+  ALERTA_ACIMA: 70,
+  ALERTA_ABAIXO: 10,
+} as const
+
+export const C1_URGENCIA_ALERTA_PCT = 30

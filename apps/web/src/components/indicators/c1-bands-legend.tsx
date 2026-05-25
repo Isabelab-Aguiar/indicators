@@ -10,7 +10,7 @@ interface C1BandsLegendProps {
 export function C1BandsLegend({ percent }: C1BandsLegendProps) {
   const active = classifyC1(percent).band
   return (
-    <div className="grid gap-2 sm:grid-cols-5">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
       {C1_BANDS.map((band, i) => {
         const isActive = band.min === active.min && band.max === active.max
         return (

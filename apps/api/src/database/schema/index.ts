@@ -1,4 +1,5 @@
 export * from './audit-logs'
+export * from './c1.schema'
 export * from './esfs'
 export * from './imports'
 export * from './invite-tokens'

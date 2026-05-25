@@ -9,7 +9,9 @@ export default function NovaGestantePage() {
     <div className="flex flex-1 flex-col overflow-hidden">
       <Header title="Nova gestante" description="Cadastrar gestante manualmente" />
       <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-        <PregnantWomanForm />
+        <div className="max-w-2xl">
+          <PregnantWomanForm />
+        </div>
       </div>
     </div>
   )

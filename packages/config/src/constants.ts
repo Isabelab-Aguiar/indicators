@@ -36,6 +36,7 @@ export const QUEUE_NAMES = {
   IMPORT: 'import',
   NOTIFICATIONS: 'notifications',
   AUDIT: 'audit',
+  C1_PDF_IMPORT: 'c1-pdf-import',
 } as const
 
 export const CACHE_TTL = {

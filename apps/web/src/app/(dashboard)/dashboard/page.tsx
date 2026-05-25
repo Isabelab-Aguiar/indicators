@@ -33,7 +33,7 @@ export default function DashboardPage() {
             actionLabel="Ver detalhes"
             actionHref="/indicadores/c3"
           />
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.4fr_1fr]">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr]">
             <C3ComplianceChart />
             <C3ClassificationDonut />
           </div>

@@ -48,7 +48,7 @@ export function PregnantWomanDetail({ id }: Props) {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+          <CardTitle className="flex flex-wrap items-start justify-between gap-2 sm:flex-nowrap sm:items-center">
             <span>{data.name}</span>
             <BloodPressureBadge value={data.bloodPressure} status={data.bloodPressureStatus} />
           </CardTitle>

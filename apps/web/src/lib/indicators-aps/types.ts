@@ -1,4 +1,4 @@
-export type IndicatorCode = 'c2' | 'c3' | 'c4' | 'c5' | 'c6' | 'c7'
+export type IndicatorCode = 'c1' | 'c2' | 'c3' | 'c4' | 'c5' | 'c6' | 'c7'
 
 export type Classification = 'otimo' | 'bom' | 'suficiente' | 'regular'
 
@@ -9,6 +9,12 @@ export interface Criterion {
   description: string
 }
 
+export interface PercentageBand {
+  label: string
+  range: string
+  description: string
+}
+
 export interface IndicatorDefinition {
   code: IndicatorCode
   shortLabel: string
@@ -16,8 +22,9 @@ export interface IndicatorDefinition {
   subtitle: string
   description: string
   population: string
-  maxScore: 100
-  criteria: Criterion[]
+  maxScore?: number
+  criteria?: Criterion[]
+  bands?: PercentageBand[]
 }
 
 export interface ClassificationInfo {

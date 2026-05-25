@@ -33,7 +33,7 @@ export function MobileNav({ open, pathname, onClose }: MobileNavProps) {
 
   const indicatorItems = [
     { code: C1_DEFINITION.code, shortLabel: C1_DEFINITION.shortLabel, title: C1_DEFINITION.title },
-    ...INDICATOR_LIST.filter((i) => ENABLED_CODES.has(i.code) && i.code !== 'c1').map((i) => ({
+    ...INDICATOR_LIST.filter((i) => ENABLED_CODES.has(i.code)).map((i) => ({
       code: i.code,
       shortLabel: i.shortLabel,
       title: i.title,

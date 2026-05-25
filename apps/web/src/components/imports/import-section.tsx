@@ -74,7 +74,7 @@ export function ImportSection() {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-start justify-between">
+      <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <CardTitle className="text-sm font-semibold">Enviar Arquivo</CardTitle>
           <CardDescription className="text-xs">

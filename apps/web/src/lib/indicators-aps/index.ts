@@ -4,6 +4,7 @@ export type {
   Criterion,
   IndicatorCode,
   IndicatorDefinition,
+  PercentageBand,
 } from './types'
 
 export { INDICATORS, INDICATOR_LIST } from './definitions'

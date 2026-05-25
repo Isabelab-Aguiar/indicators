@@ -13,6 +13,7 @@ import { ImportsModule } from './modules/imports/imports.module'
 import { AuditModule } from './modules/audit/audit.module'
 import { HealthModule } from './modules/health/health.module'
 import { StorageModule } from './modules/storage/storage.module'
+import { C1Module } from './modules/c1/c1.module'
 import { RATE_LIMIT } from '@repo/config'
 
 @Module({
@@ -35,6 +36,7 @@ import { RATE_LIMIT } from '@repo/config'
     PregnantWomenModule,
     DashboardModule,
     ImportsModule,
+    C1Module,
     HealthModule,
   ],
 })

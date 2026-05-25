@@ -48,8 +48,8 @@ export function C1Simulator() {
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <Card className="border-border/60 from-card via-card to-muted/20 overflow-hidden bg-gradient-to-br">
-        <CardHeader className="flex flex-row items-start justify-between gap-4 pb-4">
-          <div className="space-y-1">
+        <CardHeader className="flex flex-col gap-3 pb-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 space-y-1">
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="rounded-md font-mono uppercase">
                 {C1_DEFINITION.shortLabel}
@@ -65,7 +65,7 @@ export function C1Simulator() {
               {C1_DEFINITION.description}
             </CardDescription>
           </div>
-          <Button variant="outline" size="sm" onClick={reset}>
+          <Button variant="outline" size="sm" onClick={reset} className="shrink-0 self-start">
             <RotateCcw className="h-3.5 w-3.5" />
             Restaurar exemplo
           </Button>

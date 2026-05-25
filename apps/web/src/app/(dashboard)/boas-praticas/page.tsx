@@ -7,6 +7,7 @@ import { PracticeToc } from '@/components/indicators/practice-toc'
 import { INDICATOR_LIST } from '@/lib/indicators-aps'
 
 const ACCENT: Record<string, string> = {
+  c1: 'from-indigo-500/40 to-indigo-500/0',
   c2: 'from-sky-500/40 to-sky-500/0',
   c3: 'from-rose-500/40 to-rose-500/0',
   c4: 'from-violet-500/40 to-violet-500/0',
