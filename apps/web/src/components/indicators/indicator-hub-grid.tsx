@@ -45,7 +45,7 @@ export function IndicatorHubGrid() {
                   {indicator.subtitle}
                 </CardDescription>
                 <div className="text-muted-foreground mt-4 flex items-center gap-3 text-[11px] font-medium tabular-nums">
-                  <span>{indicator.criteria.length} boas práticas</span>
+                  <span>{indicator.criteria?.length ?? 0} boas práticas</span>
                   <span>·</span>
                   <span>100 pts</span>
                 </div>
