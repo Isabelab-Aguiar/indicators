@@ -5,8 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useC1Analytics } from '../hooks/useC1Analytics'
 import { useC1Execucoes } from '../hooks/useC1Execucoes'
 import { C1Header } from './C1Header'
-import { C1KpiCards } from './C1KpiCards'
-import { C1GaugeSection } from './C1GaugeSection'
+import { C1HeroCard } from './C1HeroCard'
 import { C1Analytics } from './C1Analytics'
 import { C1TabelaExecucoes } from './C1TabelaExecucoes'
 import { C1Insights } from './C1Insights'
@@ -62,14 +61,10 @@ export function C1Dashboard() {
               key="visao-geral"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="space-y-5"
+              className="space-y-4"
             >
-              <C1KpiCards analytics={analytics} isLoading={analyticsLoading} />
-
-              <div className="grid gap-5 lg:grid-cols-[380px_1fr]">
-                <C1GaugeSection analytics={analytics} isLoading={analyticsLoading} />
-                <C1Insights analytics={analytics} isLoading={analyticsLoading} />
-              </div>
+              <C1HeroCard analytics={analytics} isLoading={analyticsLoading} />
+              <C1Insights analytics={analytics} isLoading={analyticsLoading} />
             </motion.div>
           )}
 

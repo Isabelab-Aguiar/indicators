@@ -8,6 +8,7 @@ import { C1_BANDS, classifyC1, type C1Band } from '@/lib/indicators-aps/c1-data'
 
 interface C1GaugeProps {
   percent: number
+  hideValue?: boolean
 }
 
 const VW = 320
@@ -30,7 +31,7 @@ function arcPath(startPct: number, endPct: number): string {
   return `M ${start.x} ${start.y} A ${RADIUS} ${RADIUS} 0 ${largeArc} 1 ${end.x} ${end.y}`
 }
 
-export function C1Gauge({ percent }: C1GaugeProps) {
+export function C1Gauge({ percent, hideValue = false }: C1GaugeProps) {
   const clamped = Math.max(0, Math.min(100, percent))
   const classification = classifyC1(clamped)
   const angle = useSpring(clamped * 1.8 - 90, { stiffness: 90, damping: 18 })
@@ -85,15 +86,17 @@ export function C1Gauge({ percent }: C1GaugeProps) {
           className="stroke-muted-foreground/60"
         />
       </svg>
-      <div className="mt-2 flex flex-col items-center">
-        <span className={cn('text-5xl font-bold tabular-nums', classification.band.text)}>
-          {display.toFixed(1)}
-          <span className="text-2xl">%</span>
-        </span>
-        <span className="text-muted-foreground mt-1 text-[10px] font-semibold uppercase tracking-[0.12em]">
-          C1 simulado
-        </span>
-      </div>
+      {!hideValue && (
+        <div className="mt-2 flex flex-col items-center">
+          <span className={cn('text-5xl font-bold tabular-nums', classification.band.text)}>
+            {display.toFixed(1)}
+            <span className="text-2xl">%</span>
+          </span>
+          <span className="text-muted-foreground mt-1 text-[10px] font-semibold uppercase tracking-[0.12em]">
+            C1 simulado
+          </span>
+        </div>
+      )}
     </div>
   )
 }
