@@ -2,15 +2,7 @@
 
 import { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import {
-  Users,
-  TrendingUp,
-  Award,
-  AlertTriangle,
-  Activity,
-  CheckCircle2,
-  Syringe,
-} from 'lucide-react'
+import { Users, TrendingUp, Award, AlertTriangle, Activity, Syringe } from 'lucide-react'
 import { cn } from '@repo/ui'
 import type { C7Classification, C7CriterionStat, C7PatientRow } from '@repo/types'
 import { CLASSIFICATION_STYLES } from './c3-colors'
@@ -86,11 +78,9 @@ export function C7SummaryBar({
     const pending = patients.filter((p) => p.pendingCriteria.length > 0).length
     const statA = criteriaStats.find((s) => s.id === 'A')
     const statB = criteriaStats.find((s) => s.id === 'B')
-    const statD = criteriaStats.find((s) => s.id === 'D')
     const coverageA = statA ? statA.pctAchieved : 0
     const coverageB = statB ? statB.pctAchieved : 0
-    const coverageD = statD ? statD.pctAchieved : 0
-    return { pending, coverageA, coverageB, coverageD }
+    return { pending, coverageA, coverageB }
   }, [patients, criteriaStats])
 
   return (
