@@ -11,7 +11,7 @@ import { useLogout } from '@/hooks/use-auth'
 import { INDICATOR_LIST } from '@/lib/indicators-aps'
 import { NAV_ITEMS, BOTTOM_NAV_ITEMS } from '@/lib/nav-config'
 
-const ENABLED_CODES: ReadonlySet<string> = new Set(['c1', 'c3'])
+const ENABLED_CODES: ReadonlySet<string> = new Set(['c1', 'c3', 'c5', 'c6', 'c7'])
 
 interface MobileNavProps {
   open: boolean

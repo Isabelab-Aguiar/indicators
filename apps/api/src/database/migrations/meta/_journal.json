@@ -15,6 +15,13 @@
       "when": 1778714977888,
       "tag": "0001_freezing_lockheed",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780151195661,
+      "tag": "0002_brainy_red_hulk",
+      "breakpoints": true
     }
   ]
 }

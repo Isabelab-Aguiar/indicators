@@ -1,5 +1,6 @@
 export * from './audit-logs'
 export * from './c1.schema'
+export * from './c5.schema'
 export * from './c6.schema'
 export * from './c7.schema'
 export * from './esfs'

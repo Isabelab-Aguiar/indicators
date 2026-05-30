@@ -18,20 +18,9 @@ export const queryKeys = {
     all: (esfId: string) => ['c3', esfId] as const,
     breakdown: (esfId: string) => ['c3', esfId, 'breakdown'] as const,
   },
-  imports: {
-    all: (esfId: string) => ['imports', esfId] as const,
-    detail: (id: string) => ['imports', id, 'detail'] as const,
-  },
-  users: {
-    all: (esfId: string) => ['users', esfId] as const,
-    detail: (id: string) => ['users', id, 'detail'] as const,
-  },
-  esf: {
-    all: () => ['esf'] as const,
-    detail: (id: string) => ['esf', id] as const,
-  },
-  audit: {
-    all: (esfId: string) => ['audit', esfId] as const,
+  c5: {
+    all: (esfId: string) => ['c5', esfId] as const,
+    breakdown: (esfId: string) => ['c5', esfId, 'breakdown'] as const,
   },
   c6: {
     all: (esfId: string) => ['c6', esfId] as const,
@@ -47,5 +36,20 @@ export const queryKeys = {
     execucao: (id: string) => ['c1', 'execucao', id] as const,
     analytics: (esfId: string) => ['c1', esfId, 'analytics'] as const,
     importacao: (id: string) => ['c1', 'importacao', id] as const,
+  },
+  imports: {
+    all: (esfId: string) => ['imports', esfId] as const,
+    detail: (id: string) => ['imports', id, 'detail'] as const,
+  },
+  users: {
+    all: (esfId: string) => ['users', esfId] as const,
+    detail: (id: string) => ['users', id, 'detail'] as const,
+  },
+  esf: {
+    all: () => ['esf'] as const,
+    detail: (id: string) => ['esf', id] as const,
+  },
+  audit: {
+    all: (esfId: string) => ['audit', esfId] as const,
   },
 } as const
