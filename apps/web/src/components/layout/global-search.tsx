@@ -17,7 +17,6 @@ import {
 
 import { usePregnantWomen } from '@/hooks/use-pregnant-women'
 import { INDICATOR_LIST } from '@/lib/indicators-aps'
-import { C1_DEFINITION } from '@/lib/indicators-aps/c1-data'
 
 import {
   EmptyHint,
@@ -37,19 +36,12 @@ const STATIC_TARGETS: NavTarget[] = [
 ]
 
 function indicatorTargets(): NavTarget[] {
-  const c1: NavTarget = {
-    label: `${C1_DEFINITION.shortLabel} · ${C1_DEFINITION.title}`,
-    href: `/indicadores/${C1_DEFINITION.code}`,
-    icon: Stethoscope,
-    group: 'Linhas de cuidado',
-  }
-  const others: NavTarget[] = INDICATOR_LIST.map((indicator) => ({
+  return INDICATOR_LIST.map((indicator) => ({
     label: `${indicator.shortLabel} · ${indicator.title}`,
     href: `/indicadores/${indicator.code}`,
     icon: Stethoscope,
     group: 'Linhas de cuidado',
   }))
-  return [c1, ...others]
 }
 
 interface GlobalSearchProps {

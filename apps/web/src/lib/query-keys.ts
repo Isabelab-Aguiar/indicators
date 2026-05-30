@@ -33,6 +33,10 @@ export const queryKeys = {
   audit: {
     all: (esfId: string) => ['audit', esfId] as const,
   },
+  c7: {
+    all: (esfId: string) => ['c7', esfId] as const,
+    breakdown: (esfId: string) => ['c7', esfId, 'breakdown'] as const,
+  },
   c1: {
     all: (esfId: string) => ['c1', esfId] as const,
     execucoes: (esfId: string, filters?: object) => ['c1', esfId, 'execucoes', filters] as const,

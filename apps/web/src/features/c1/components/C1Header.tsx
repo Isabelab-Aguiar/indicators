@@ -44,7 +44,7 @@ export function C1Header() {
               </Badge>
             )}
           </div>
-          <h1 className="text-foreground text-lg font-semibold">C1 — Mais Acesso à APS</h1>
+          <h1 className="text-foreground text-lg font-semibold">C1 Mais Acesso à APS</h1>
           <p className="text-muted-foreground mt-0.5 text-xs">
             Avalia o equilíbrio entre demanda programada e demanda espontânea da equipe APS.
           </p>
