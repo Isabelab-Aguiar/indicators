@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { FileText, Upload, X } from 'lucide-react'
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input } from '@repo/ui'
+
 import { cn } from '@repo/ui'
 import { toast } from '@/hooks/use-toast'
 import { UPLOAD } from '@repo/config'
@@ -17,17 +18,13 @@ interface PendingFile {
   fileName: string
 }
 
-interface C1ImportacaoPdfProps {
-  onClose: () => void
-}
-
 function validatePdfFile(file: File): string | null {
   if (file.size > UPLOAD.MAX_FILE_SIZE_BYTES) return `${file.name}: muito grande (máx. 10MB)`
   if (file.type !== 'application/pdf') return `${file.name}: apenas PDFs são aceitos`
   return null
 }
 
-export function C1ImportacaoPdf({ onClose }: C1ImportacaoPdfProps) {
+export function C1ImportacaoPdf() {
   const [dragOver, setDragOver] = useState(false)
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([])
   const [periodo, setPeriodo] = useState('')
@@ -72,17 +69,12 @@ export function C1ImportacaoPdf({ onClose }: C1ImportacaoPdfProps) {
   const unqueued = pendingFiles.filter((f) => !f.importacaoId)
 
   return (
-    <Card className="border-primary/30">
-      <CardHeader className="flex flex-row items-start justify-between gap-4">
-        <div>
-          <CardTitle className="text-sm font-semibold">Importar PDF e-SUS</CardTitle>
-          <CardDescription className="text-xs">
-            Relatório de Atendimento Individual. Máximo 10MB por arquivo.
-          </CardDescription>
-        </div>
-        <Button variant="ghost" size="icon" onClick={onClose} className="shrink-0">
-          <X className="h-4 w-4" />
-        </Button>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm font-semibold">Importar PDF e-SUS</CardTitle>
+        <CardDescription className="text-xs">
+          Relatório de Atendimento Individual. Máximo 10MB por arquivo.
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-3 sm:grid-cols-2">

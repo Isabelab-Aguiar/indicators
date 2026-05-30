@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronRight, Download, RefreshCw, Upload } from 'lucide-react'
+import { ChevronRight, Download, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 import { Badge, Button } from '@repo/ui'
 import { useAuthStore } from '@/store/auth.store'
@@ -8,11 +8,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '@/lib/query-keys'
 import { useC1ExportarCsv } from '../hooks/useC1ExportarCsv'
 
-interface C1HeaderProps {
-  onImportClick: () => void
-}
-
-export function C1Header({ onImportClick }: C1HeaderProps) {
+export function C1Header() {
   const user = useAuthStore((s) => s.user)
   const queryClient = useQueryClient()
   const esfId = user?.esfId ?? ''
@@ -58,10 +54,6 @@ export function C1Header({ onImportClick }: C1HeaderProps) {
           <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={handleRefresh}>
             <RefreshCw className="h-3.5 w-3.5" />
             Atualizar
-          </Button>
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={onImportClick}>
-            <Upload className="h-3.5 w-3.5" />
-            Importar PDF e-SUS
           </Button>
           <Button
             variant="outline"

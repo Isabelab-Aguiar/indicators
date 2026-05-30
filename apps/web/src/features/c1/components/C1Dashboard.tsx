@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useC1Analytics } from '../hooks/useC1Analytics'
 import { useC1Execucoes } from '../hooks/useC1Execucoes'
 import { C1Header } from './C1Header'
@@ -13,11 +13,10 @@ import { C1Insights } from './C1Insights'
 import { C1ImportacaoPdf } from './C1ImportacaoPdf'
 import { C1SimuladorSection } from './C1SimuladorSection'
 
-const SECTION_TABS = ['Visão Geral', 'Analytics', 'Histórico', 'Simulador'] as const
+const SECTION_TABS = ['Visão Geral', 'Importar', 'Analytics', 'Histórico', 'Simulador'] as const
 type SectionTab = (typeof SECTION_TABS)[number]
 
 export function C1Dashboard() {
-  const [showImport, setShowImport] = useState(false)
   const [activeSection, setActiveSection] = useState<SectionTab>('Visão Geral')
   const [year, setYear] = useState(new Date().getFullYear())
   const [quadrimestre, setQuadrimestre] = useState<number | null>(null)
@@ -29,22 +28,10 @@ export function C1Dashboard() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <C1Header onImportClick={() => setShowImport((v) => !v)} />
+      <C1Header />
 
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-7xl space-y-5 p-4 sm:p-6">
-          <AnimatePresence>
-            {showImport && (
-              <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-              >
-                <C1ImportacaoPdf onClose={() => setShowImport(false)} />
-              </motion.div>
-            )}
-          </AnimatePresence>
-
           <div className="border-border flex flex-wrap items-center justify-between gap-2 border-b pb-3">
             <div className="flex flex-wrap gap-1">
               {SECTION_TABS.map((tab) => (
@@ -61,12 +48,14 @@ export function C1Dashboard() {
                 </button>
               ))}
             </div>
-            <C1Filters
-              year={year}
-              quadrimestre={quadrimestre}
-              onYearChange={setYear}
-              onQuadrimestreChange={setQuadrimestre}
-            />
+            {activeSection !== 'Importar' && activeSection !== 'Simulador' && (
+              <C1Filters
+                year={year}
+                quadrimestre={quadrimestre}
+                onYearChange={setYear}
+                onQuadrimestreChange={setQuadrimestre}
+              />
+            )}
           </div>
 
           {activeSection === 'Visão Geral' && (
@@ -78,6 +67,12 @@ export function C1Dashboard() {
             >
               <C1HeroCard execucoes={execucoes} isLoading={execucoesLoading} periodo={periodo} />
               <C1Insights analytics={analytics} isLoading={analyticsLoading} />
+            </motion.div>
+          )}
+
+          {activeSection === 'Importar' && (
+            <motion.div key="importar" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <C1ImportacaoPdf />
             </motion.div>
           )}
 
