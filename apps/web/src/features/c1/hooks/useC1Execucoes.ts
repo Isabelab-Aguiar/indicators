@@ -15,7 +15,7 @@ export function useC1Execucoes(filters?: C1ExecucoesFilters) {
   const esfId = useAuthStore((s) => s.user?.esfId ?? '')
 
   return useQuery({
-    queryKey: queryKeys.c1.execucoes(esfId),
+    queryKey: queryKeys.c1.execucoes(esfId, filters),
     queryFn: async () => {
       const params: Record<string, string> = {}
       if (filters?.periodo) params.periodo = filters.periodo

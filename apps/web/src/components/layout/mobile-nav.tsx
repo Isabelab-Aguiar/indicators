@@ -9,7 +9,6 @@ import { cn } from '@repo/ui'
 import { useAuthStore } from '@/store/auth.store'
 import { useLogout } from '@/hooks/use-auth'
 import { INDICATOR_LIST } from '@/lib/indicators-aps'
-import { C1_DEFINITION } from '@/lib/indicators-aps/c1-data'
 import { NAV_ITEMS, BOTTOM_NAV_ITEMS } from '@/lib/nav-config'
 
 const ENABLED_CODES: ReadonlySet<string> = new Set(['c1', 'c3'])
@@ -31,14 +30,11 @@ export function MobileNav({ open, pathname, onClose }: MobileNavProps) {
     .join('')
     .toUpperCase()
 
-  const indicatorItems = [
-    { code: C1_DEFINITION.code, shortLabel: C1_DEFINITION.shortLabel, title: C1_DEFINITION.title },
-    ...INDICATOR_LIST.filter((i) => ENABLED_CODES.has(i.code)).map((i) => ({
-      code: i.code,
-      shortLabel: i.shortLabel,
-      title: i.title,
-    })),
-  ]
+  const indicatorItems = INDICATOR_LIST.filter((i) => ENABLED_CODES.has(i.code)).map((i) => ({
+    code: i.code,
+    shortLabel: i.shortLabel,
+    title: i.title,
+  }))
 
   return (
     <AnimatePresence>

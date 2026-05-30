@@ -9,26 +9,18 @@ import { cn } from '@repo/ui'
 import { useAuthStore } from '@/store/auth.store'
 import { useLogout } from '@/hooks/use-auth'
 import { INDICATOR_LIST } from '@/lib/indicators-aps'
-import { C1_DEFINITION } from '@/lib/indicators-aps/c1-data'
 import { NAV_ITEMS, BOTTOM_NAV_ITEMS } from '@/lib/nav-config'
 import { TenantBadge } from './tenant-badge'
 import { CollapsibleSection, type CollapsibleNavEntry } from './sidebar-collapsible-section'
 
 const ENABLED_INDICATOR_CODES: ReadonlySet<string> = new Set(['c1', 'c3'])
 
-const C1_NAV: CollapsibleNavEntry = {
-  code: C1_DEFINITION.code,
-  shortLabel: C1_DEFINITION.shortLabel,
-  title: C1_DEFINITION.title,
-}
-
 function indicatorNavItems(): CollapsibleNavEntry[] {
-  const others = INDICATOR_LIST.filter((i) => ENABLED_INDICATOR_CODES.has(i.code)).map((i) => ({
+  return INDICATOR_LIST.filter((i) => ENABLED_INDICATOR_CODES.has(i.code)).map((i) => ({
     code: i.code,
     shortLabel: i.shortLabel,
     title: i.title,
   }))
-  return ENABLED_INDICATOR_CODES.has('c1') ? [C1_NAV, ...others] : others
 }
 
 export function Sidebar() {

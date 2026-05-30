@@ -3,13 +3,14 @@
 import { Card, CardContent } from '@repo/ui'
 import { cn } from '@repo/ui'
 import { C1Gauge } from '@/components/indicators/c1-gauge'
-import type { C1AnalyticsData } from '../types/c1.types'
+import type { C1Execucao } from '../types/c1.types'
 import { C1_CLASSIFICACAO_BADGE, C1_CLASSIFICACAO_LABELS } from '../constants/c1.constants'
 import { classificarC1 } from '../services/c1-calculator'
 
 interface C1HeroCardProps {
-  analytics: C1AnalyticsData | undefined
+  execucoes: C1Execucao[] | undefined
   isLoading: boolean
+  periodo?: string
 }
 
 function StatItem({ label, value }: { label: string; value: string }) {
@@ -21,19 +22,25 @@ function StatItem({ label, value }: { label: string; value: string }) {
   )
 }
 
-export function C1HeroCard({ analytics, isLoading }: C1HeroCardProps) {
+export function C1HeroCard({ execucoes, isLoading, periodo }: C1HeroCardProps) {
   if (isLoading) {
     return <div className="bg-muted h-56 animate-pulse rounded-xl" />
   }
 
-  const percentual = analytics?.tendencia.atual ?? 0
-  const variacao = analytics?.tendencia.variacao
-  const programada = analytics?.distribuicao.programada ?? 0
-  const espontanea = analytics?.distribuicao.espontanea ?? 0
+  const atual = execucoes?.[0]
+  const anterior = execucoes?.[1]
+
+  const percentual = atual ? Number(atual.percentual) : 0
+  const variacao =
+    atual && anterior
+      ? Math.round((Number(atual.percentual) - Number(anterior.percentual)) * 100) / 100
+      : null
+  const programada = atual?.programada ?? 0
+  const espontanea = atual?.espontanea ?? 0
   const total = programada + espontanea
-  const classificacao = analytics?.tendencia.atual != null ? classificarC1(percentual) : null
+  const classificacao = atual ? classificarC1(percentual) : null
   const variacaoPositiva = variacao != null && variacao >= 0
-  const hasData = analytics?.tendencia.atual != null
+  const subtitulo = periodo ?? atual?.periodo ?? 'Período atual'
 
   return (
     <Card className="overflow-hidden">
@@ -53,10 +60,10 @@ export function C1HeroCard({ analytics, isLoading }: C1HeroCardProps) {
                 </span>
               )}
               <p className="text-foreground text-5xl font-bold tabular-nums tracking-tight">
-                {hasData ? `${percentual.toFixed(1)}%` : '—'}
+                {atual ? `${percentual.toFixed(1)}%` : '—'}
               </p>
               <div className="flex items-center gap-2 text-sm">
-                <span className="text-muted-foreground">Percentual C1 · Período atual</span>
+                <span className="text-muted-foreground">Percentual C1 · {subtitulo}</span>
                 {variacao != null && (
                   <span
                     className={cn(
