@@ -14,6 +14,7 @@ import { AuditModule } from './modules/audit/audit.module'
 import { HealthModule } from './modules/health/health.module'
 import { StorageModule } from './modules/storage/storage.module'
 import { C1Module } from './modules/c1/c1.module'
+import { C4Module } from './modules/c4/c4.module'
 import { C5Module } from './modules/c5/c5.module'
 import { C6Module } from './modules/c6/c6.module'
 import { C7Module } from './modules/c7/c7.module'
@@ -40,6 +41,7 @@ import { RATE_LIMIT } from '@repo/config'
     DashboardModule,
     ImportsModule,
     C1Module,
+    C4Module,
     C5Module,
     C6Module,
     C7Module,

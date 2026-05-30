@@ -6,7 +6,7 @@ import { ArrowUpRight, Lock } from 'lucide-react'
 import { cn } from '@repo/ui'
 import { INDICATOR_LIST } from '@/lib/indicators-aps'
 
-const ENABLED_CODES = new Set(['c1', 'c3', 'c5', 'c6', 'c7'])
+const ENABLED_CODES = new Set(['c1', 'c3', 'c4', 'c5', 'c6', 'c7'])
 
 const CODE_NUMBER: Record<string, string> = {
   c1: '01',

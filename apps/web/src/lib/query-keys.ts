@@ -18,6 +18,10 @@ export const queryKeys = {
     all: (esfId: string) => ['c3', esfId] as const,
     breakdown: (esfId: string) => ['c3', esfId, 'breakdown'] as const,
   },
+  c4: {
+    all: (esfId: string) => ['c4', esfId] as const,
+    breakdown: (esfId: string) => ['c4', esfId, 'breakdown'] as const,
+  },
   c5: {
     all: (esfId: string) => ['c5', esfId] as const,
     breakdown: (esfId: string) => ['c5', esfId, 'breakdown'] as const,
