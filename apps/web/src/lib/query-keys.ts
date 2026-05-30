@@ -14,6 +14,10 @@ export const queryKeys = {
       ['pregnant-women', esfId, 'list', filters] as const,
     detail: (id: string) => ['pregnant-women', id, 'detail'] as const,
   },
+  c2: {
+    all: (esfId: string) => ['c2', esfId] as const,
+    breakdown: (esfId: string) => ['c2', esfId, 'breakdown'] as const,
+  },
   c3: {
     all: (esfId: string) => ['c3', esfId] as const,
     breakdown: (esfId: string) => ['c3', esfId, 'breakdown'] as const,
