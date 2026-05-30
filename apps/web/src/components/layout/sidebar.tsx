@@ -13,7 +13,15 @@ import { NAV_ITEMS, BOTTOM_NAV_ITEMS } from '@/lib/nav-config'
 import { TenantBadge } from './tenant-badge'
 import { CollapsibleSection, type CollapsibleNavEntry } from './sidebar-collapsible-section'
 
-const ENABLED_INDICATOR_CODES: ReadonlySet<string> = new Set(['c1', 'c3', 'c5', 'c6', 'c7'])
+const ENABLED_INDICATOR_CODES: ReadonlySet<string> = new Set([
+  'c1',
+  'c2',
+  'c3',
+  'c4',
+  'c5',
+  'c6',
+  'c7',
+])
 
 function indicatorNavItems(): CollapsibleNavEntry[] {
   return INDICATOR_LIST.filter((i) => ENABLED_INDICATOR_CODES.has(i.code)).map((i) => ({
