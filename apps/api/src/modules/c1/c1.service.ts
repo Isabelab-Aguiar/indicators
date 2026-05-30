@@ -15,6 +15,10 @@ import type * as schema from '../../database/schema'
 import { c1Execucoes, c1Importacoes } from '../../database/schema'
 import { StorageService } from '../storage/storage.service'
 import { C1AnalyticsService } from './c1-analytics.service'
+import { C1CsvParserService } from './c1-csv-parser.service'
+import { C1ConsolidationService } from './c1-consolidation.service'
+import { C1CalculatorService } from './c1-calculator.service'
+import { C1ClassificationService } from './c1-classification.service'
 import type { TenantContextPayload } from '../../common/tenant/tenant-context'
 import { QUEUE_NAMES } from '@repo/config'
 import type { C1FilterDto } from './dto/c1-filter.dto'
@@ -28,6 +32,10 @@ export class C1Service {
     @InjectQueue(QUEUE_NAMES.C1_PDF_IMPORT) private readonly queue: Queue,
     private readonly storage: StorageService,
     private readonly analytics: C1AnalyticsService,
+    private readonly csvParser: C1CsvParserService,
+    private readonly consolidation: C1ConsolidationService,
+    private readonly calculator: C1CalculatorService,
+    private readonly classification: C1ClassificationService,
   ) {}
 
   async importarPdf(file: Express.Multer.File, periodo: string, tenant: TenantContextPayload) {
@@ -71,6 +79,39 @@ export class C1Service {
     }
 
     return { importacaoId: importacao.id, status: 'pendente' }
+  }
+
+  async importarCsv(file: Express.Multer.File, tenant: TenantContextPayload) {
+    const parsed = this.csvParser.parse(file.buffer)
+    const consolidated = this.consolidation.consolidate([parsed])
+    const calcResult = this.calculator.calculate(consolidated)
+    const classResult = this.classification.classify(calcResult.percentual)
+
+    const [importacao] = await this.db
+      .insert(c1Importacoes)
+      .values({
+        esfId: tenant.esfId,
+        periodo: parsed.periodo,
+        arquivoNome: file.originalname,
+        arquivoUrl: '',
+        status: 'concluido',
+      })
+      .returning()
+
+    await this.db.insert(c1Execucoes).values({
+      importacaoId: importacao.id,
+      esfId: tenant.esfId,
+      periodo: parsed.periodo,
+      programada: calcResult.programada,
+      espontanea: calcResult.espontanea,
+      total: calcResult.total,
+      percentual: String(calcResult.percentual),
+      classificacao: classResult.classificacao,
+      alerta: classResult.alerta,
+      breakdownJson: consolidated.breakdown,
+    })
+
+    return { importacaoId: importacao.id, status: 'concluido' }
   }
 
   async findAllExecucoes(tenant: TenantContextPayload, filters: C1FilterDto) {

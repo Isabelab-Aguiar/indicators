@@ -17,9 +17,13 @@ interface PendingFile {
   fileName: string
 }
 
-function validatePdfFile(file: File): string | null {
+const ACCEPTED_TYPES = ['application/pdf', 'text/csv', 'application/vnd.ms-excel', '']
+
+function validateFile(file: File): string | null {
   if (file.size > UPLOAD.MAX_FILE_SIZE_BYTES) return `${file.name}: muito grande (máx. 10MB)`
-  if (file.type !== 'application/pdf') return `${file.name}: apenas PDFs são aceitos`
+  const ext = file.name.split('.').pop()?.toLowerCase()
+  if (!ACCEPTED_TYPES.includes(file.type) && ext !== 'csv' && ext !== 'pdf')
+    return `${file.name}: apenas PDF ou CSV são aceitos`
   return null
 }
 
@@ -32,7 +36,7 @@ export function C1ImportacaoPdf() {
   function handleFiles(fileList: FileList | null) {
     if (!fileList) return
     for (const file of Array.from(fileList)) {
-      const error = validatePdfFile(file)
+      const error = validateFile(file)
       if (error) {
         toast({ title: error, variant: 'destructive' })
         continue
@@ -66,9 +70,9 @@ export function C1ImportacaoPdf() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm font-semibold">Importar PDF e-SUS</CardTitle>
+        <CardTitle className="text-sm font-semibold">Importar dados e-SUS</CardTitle>
         <CardDescription className="text-xs">
-          Relatório de Atendimento Individual exportado do e-SUS. Máximo 10MB por arquivo.
+          Relatório de Atendimento Individual em PDF ou CSV. Máximo 10MB por arquivo.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -95,13 +99,15 @@ export function C1ImportacaoPdf() {
             ref={inputRef}
             type="file"
             className="hidden"
-            accept="application/pdf"
+            accept=".pdf,.csv,application/pdf,text/csv"
             multiple
             onChange={(e) => handleFiles(e.target.files)}
           />
           <Upload className="text-muted-foreground mb-2 h-7 w-7" />
           <p className="text-foreground text-sm font-medium">Arraste ou clique para selecionar</p>
-          <p className="text-muted-foreground mt-1 text-xs">PDFs até 10MB (múltiplos aceitos)</p>
+          <p className="text-muted-foreground mt-1 text-xs">
+            PDF ou CSV · máx. 10MB · múltiplos aceitos
+          </p>
         </div>
         <AnimatePresence>
           {pendingFiles.length > 0 && (

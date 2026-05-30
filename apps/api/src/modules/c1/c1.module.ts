@@ -8,6 +8,7 @@ import { C1CalculatorService } from './c1-calculator.service'
 import { C1ClassificationService } from './c1-classification.service'
 import { C1NormalizationService } from './c1-normalization.service'
 import { C1PdfParserService } from './c1-pdf-parser.service'
+import { C1CsvParserService } from './c1-csv-parser.service'
 import { C1ConsolidationService } from './c1-consolidation.service'
 import { C1AnalyticsService } from './c1-analytics.service'
 import { QUEUE_NAMES } from '@repo/config'
@@ -22,6 +23,7 @@ import { QUEUE_NAMES } from '@repo/config'
     C1ClassificationService,
     C1NormalizationService,
     C1PdfParserService,
+    C1CsvParserService,
     C1ConsolidationService,
     C1AnalyticsService,
   ],

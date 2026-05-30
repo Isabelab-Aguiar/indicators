@@ -57,6 +57,24 @@ export class C1Controller {
     return this.c1Service.importarPdf(file, periodo ?? 'Não identificado', tenant)
   }
 
+  @Post('importar-csv')
+  @Roles('admin', 'manager', 'nurse')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      limits: { fileSize: UPLOAD.MAX_FILE_SIZE_BYTES },
+    }),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Importar CSV e-SUS para cálculo C1' })
+  importarCsv(
+    @UploadedFile() file: Express.Multer.File | undefined,
+    @CurrentTenant() tenant: TenantContextPayload,
+  ) {
+    if (!file) throw new BadRequestException('Arquivo CSV não recebido')
+    return this.c1Service.importarCsv(file, tenant)
+  }
+
   @Get('execucoes')
   @ApiOperation({ summary: 'Listar execuções C1 com filtros' })
   @ApiQuery({ name: 'periodo', required: false })
