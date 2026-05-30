@@ -10,7 +10,6 @@ import { toast } from '@/hooks/use-toast'
 import { UPLOAD } from '@repo/config'
 import { useC1ImportarPdf } from '../hooks/useC1ImportarPdf'
 import { C1StatusPoll } from './C1StatusPoll'
-import { C1_PERIODO_PADRAO } from '../constants/c1.constants'
 
 interface PendingFile {
   file: File
@@ -24,11 +23,7 @@ function validatePdfFile(file: File): string | null {
   return null
 }
 
-interface C1ImportacaoPdfProps {
-  periodo?: string
-}
-
-export function C1ImportacaoPdf({ periodo }: C1ImportacaoPdfProps) {
+export function C1ImportacaoPdf() {
   const [dragOver, setDragOver] = useState(false)
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
@@ -54,10 +49,7 @@ export function C1ImportacaoPdf({ periodo }: C1ImportacaoPdfProps) {
     const unqueued = pendingFiles.filter((f) => f.importacaoId === null)
     for (const pending of unqueued) {
       try {
-        const result = await importar.mutateAsync({
-          file: pending.file,
-          periodo: periodo ?? C1_PERIODO_PADRAO,
-        })
+        const result = await importar.mutateAsync(pending.file)
         setPendingFiles((prev) =>
           prev.map((f) =>
             f.fileName === pending.fileName ? { ...f, importacaoId: result.importacaoId } : f,
@@ -76,15 +68,10 @@ export function C1ImportacaoPdf({ periodo }: C1ImportacaoPdfProps) {
       <CardHeader>
         <CardTitle className="text-sm font-semibold">Importar PDF e-SUS</CardTitle>
         <CardDescription className="text-xs">
-          Relatório de Atendimento Individual. Máximo 10MB por arquivo.
+          Relatório de Atendimento Individual exportado do e-SUS. Máximo 10MB por arquivo.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {periodo && (
-          <p className="text-muted-foreground text-xs">
-            Período selecionado: <span className="text-foreground font-medium">{periodo}</span>
-          </p>
-        )}
         <div
           onDrop={(e) => {
             e.preventDefault()

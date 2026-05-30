@@ -10,8 +10,7 @@ export function useC1ImportarPdf() {
   const esfId = useAuthStore((s) => s.user?.esfId ?? '')
 
   return useMutation({
-    mutationFn: ({ file, periodo }: { file: File; periodo: string }) =>
-      c1Api.importarPdf(file, periodo).then((r) => r.data),
+    mutationFn: (file: File) => c1Api.importarPdf(file).then((r) => r.data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.c1.all(esfId) })
     },

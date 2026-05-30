@@ -48,7 +48,7 @@ export function C1Dashboard() {
                 </button>
               ))}
             </div>
-            {activeSection !== 'Simulador' && (
+            {activeSection !== 'Importar' && activeSection !== 'Simulador' && (
               <C1Filters
                 year={year}
                 quadrimestre={quadrimestre}
@@ -72,7 +72,7 @@ export function C1Dashboard() {
 
           {activeSection === 'Importar' && (
             <motion.div key="importar" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <C1ImportacaoPdf periodo={periodo} />
+              <C1ImportacaoPdf />
             </motion.div>
           )}
 

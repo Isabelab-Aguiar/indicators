@@ -18,13 +18,11 @@ export const c1Api = {
   importacaoStatus: (id: string): Promise<{ data: C1Importacao }> =>
     apiClient.get(`/c1/importacoes/${id}`).then((r) => r.data),
 
-  importarPdf: (file: File, periodo: string): Promise<{ data: C1ImportarResponse }> => {
+  importarPdf: (file: File): Promise<{ data: C1ImportarResponse }> => {
     const form = new FormData()
     form.append('file', file)
     return apiClient
-      .post(`/c1/importar-pdf?periodo=${encodeURIComponent(periodo)}`, form, {
-        headers: { 'Content-Type': undefined },
-      })
+      .post('/c1/importar-pdf', form, { headers: { 'Content-Type': undefined } })
       .then((r) => r.data)
   },
 
