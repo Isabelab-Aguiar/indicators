@@ -6,8 +6,10 @@ import { Activity, Calculator, Upload } from 'lucide-react'
 
 import { cn } from '@repo/ui'
 import { INDICATORS } from '@/lib/indicators-aps'
-import { ImportSection } from '@/components/imports/import-section'
+import { useC3Analytics } from '@/hooks/use-c3-analytics'
 import { ImportHistory } from '@/components/imports/import-history'
+import { C3ImportacaoSection } from '@/features/c3/components/C3ImportacaoSection'
+import { C3ExportarCsv } from '@/features/c3/components/C3ExportarCsv'
 import { C3Dashboard } from './c3-dashboard'
 import { IndicatorSimulator } from './indicator-simulator'
 
@@ -20,13 +22,23 @@ const TABS: Array<{ key: TabKey; label: string; icon: React.ElementType }> = [
 ]
 
 export function C3Tabs() {
+  const { breakdown } = useC3Analytics()
+
   return (
     <Tabs.Root defaultValue="analise" className="space-y-6">
-      <Tabs.List className="border-border bg-card inline-flex items-center gap-1 rounded-xl border p-1 shadow-sm">
-        {TABS.map((tab) => (
-          <TabTrigger key={tab.key} value={tab.key} label={tab.label} icon={tab.icon} />
-        ))}
-      </Tabs.List>
+      <div className="flex items-center justify-between gap-4">
+        <Tabs.List className="border-border bg-card inline-flex items-center gap-1 rounded-xl border p-1 shadow-sm">
+          {TABS.map((tab) => (
+            <TabTrigger key={tab.key} value={tab.key} label={tab.label} icon={tab.icon} />
+          ))}
+        </Tabs.List>
+
+        <Tabs.Content value="analise" asChild>
+          <div>
+            <C3ExportarCsv breakdown={breakdown} />
+          </div>
+        </Tabs.Content>
+      </div>
 
       <Tabs.Content value="analise" asChild>
         <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
@@ -40,7 +52,7 @@ export function C3Tabs() {
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
-          <ImportSection />
+          <C3ImportacaoSection />
           <ImportHistory />
         </motion.div>
       </Tabs.Content>
