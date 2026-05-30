@@ -42,9 +42,93 @@ interface CardProps {
   enabled: boolean
 }
 
+function CardInner({
+  indicator,
+  enabled,
+}: {
+  indicator: CardProps['indicator']
+  enabled: boolean
+}) {
+  return (
+    <>
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <span className="text-muted-foreground/40 font-mono text-[11px] font-medium tabular-nums tracking-widest">
+          {CODE_NUMBER[indicator.code] ?? indicator.shortLabel}
+        </span>
+        {enabled ? (
+          <ArrowUpRight
+            className={cn(
+              'text-muted-foreground/30 h-4 w-4 shrink-0 transition-all duration-200',
+              'group-hover:text-foreground group-hover:-translate-y-0.5 group-hover:translate-x-0.5',
+            )}
+          />
+        ) : (
+          <Lock className="text-muted-foreground/20 h-3.5 w-3.5 shrink-0" />
+        )}
+      </div>
+
+      <div className="flex flex-1 flex-col gap-2">
+        <p
+          className={cn(
+            'text-[15px] font-semibold leading-snug tracking-tight',
+            enabled ? 'text-foreground' : 'text-muted-foreground/50',
+          )}
+        >
+          {indicator.title}
+        </p>
+        <p
+          className={cn(
+            'line-clamp-2 text-xs leading-relaxed',
+            enabled ? 'text-muted-foreground' : 'text-muted-foreground/40',
+          )}
+        >
+          {indicator.subtitle}
+        </p>
+      </div>
+
+      <div className="mt-6 flex items-center gap-3">
+        <span
+          className={cn(
+            'font-mono text-[10px] font-semibold uppercase tracking-widest',
+            enabled ? 'text-muted-foreground/60' : 'text-muted-foreground/30',
+          )}
+        >
+          {indicator.shortLabel}
+        </span>
+        <span className="text-muted-foreground/20 text-[10px]">·</span>
+        <span
+          className={cn(
+            'text-[10px] tabular-nums',
+            enabled ? 'text-muted-foreground/60' : 'text-muted-foreground/30',
+          )}
+        >
+          {indicator.criteria?.length ?? 0} critérios
+        </span>
+        <span className="text-muted-foreground/20 text-[10px]">·</span>
+        <span
+          className={cn(
+            'text-[10px] tabular-nums',
+            enabled ? 'text-muted-foreground/60' : 'text-muted-foreground/30',
+          )}
+        >
+          {indicator.maxScore ?? 100} pts
+        </span>
+        {!enabled && (
+          <>
+            <span className="text-muted-foreground/20 text-[10px]">·</span>
+            <span className="text-muted-foreground/40 text-[10px]">em breve</span>
+          </>
+        )}
+      </div>
+    </>
+  )
+}
+
 function IndicatorCard({ indicator, index, enabled }: CardProps) {
-  const Wrapper = enabled ? Link : 'div'
-  const wrapperProps = enabled ? { href: `/indicadores/${indicator.code}` as const } : {}
+  const baseClass = cn(
+    'group relative flex h-full min-h-[200px] flex-col bg-card p-6 transition-colors duration-200',
+    enabled ? 'cursor-pointer hover:bg-accent/40' : 'cursor-default',
+  )
 
   return (
     <motion.div
@@ -52,84 +136,15 @@ function IndicatorCard({ indicator, index, enabled }: CardProps) {
       animate={{ opacity: 1 }}
       transition={{ delay: index * 0.05, duration: 0.35 }}
     >
-      <Wrapper
-        {...(wrapperProps as object)}
-        className={cn(
-          'bg-card group relative flex h-full min-h-[200px] flex-col p-6 transition-colors duration-200',
-          enabled ? 'hover:bg-accent/40 cursor-pointer' : 'cursor-default',
-        )}
-      >
-        <div className="mb-6 flex items-start justify-between gap-4">
-          <span className="text-muted-foreground/40 font-mono text-[11px] font-medium tabular-nums tracking-widest">
-            {CODE_NUMBER[indicator.code] ?? indicator.shortLabel}
-          </span>
-
-          {enabled ? (
-            <ArrowUpRight
-              className={cn(
-                'text-muted-foreground/30 h-4 w-4 shrink-0 transition-all duration-200',
-                'group-hover:text-foreground group-hover:-translate-y-0.5 group-hover:translate-x-0.5',
-              )}
-            />
-          ) : (
-            <Lock className="text-muted-foreground/20 h-3.5 w-3.5 shrink-0" />
-          )}
+      {enabled ? (
+        <Link href={`/indicadores/${indicator.code}`} className={baseClass}>
+          <CardInner indicator={indicator} enabled={enabled} />
+        </Link>
+      ) : (
+        <div className={baseClass}>
+          <CardInner indicator={indicator} enabled={enabled} />
         </div>
-
-        <div className="flex flex-1 flex-col gap-2">
-          <p
-            className={cn(
-              'text-[15px] font-semibold leading-snug tracking-tight',
-              enabled ? 'text-foreground' : 'text-muted-foreground/50',
-            )}
-          >
-            {indicator.title}
-          </p>
-          <p
-            className={cn(
-              'line-clamp-2 text-xs leading-relaxed',
-              enabled ? 'text-muted-foreground' : 'text-muted-foreground/40',
-            )}
-          >
-            {indicator.subtitle}
-          </p>
-        </div>
-
-        <div className="mt-6 flex items-center gap-3">
-          <span
-            className={cn(
-              'font-mono text-[10px] font-semibold uppercase tracking-widest',
-              enabled ? 'text-muted-foreground/60' : 'text-muted-foreground/30',
-            )}
-          >
-            {indicator.shortLabel}
-          </span>
-          <span className="text-muted-foreground/20 text-[10px]">·</span>
-          <span
-            className={cn(
-              'text-[10px] tabular-nums',
-              enabled ? 'text-muted-foreground/60' : 'text-muted-foreground/30',
-            )}
-          >
-            {indicator.criteria?.length ?? 0} critérios
-          </span>
-          <span className="text-muted-foreground/20 text-[10px]">·</span>
-          <span
-            className={cn(
-              'text-[10px] tabular-nums',
-              enabled ? 'text-muted-foreground/60' : 'text-muted-foreground/30',
-            )}
-          >
-            {indicator.maxScore ?? 100} pts
-          </span>
-          {!enabled && (
-            <>
-              <span className="text-muted-foreground/20 text-[10px]">·</span>
-              <span className="text-muted-foreground/40 text-[10px]">em breve</span>
-            </>
-          )}
-        </div>
-      </Wrapper>
+      )}
     </motion.div>
   )
 }
