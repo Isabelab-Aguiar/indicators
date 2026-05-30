@@ -131,7 +131,7 @@ export function C7SummaryBar({
 
       <KpiCard
         icon={Activity}
-        label="Critério A · rastreio colo"
+        label="Critério A (rastreio colo)"
         value={
           <div>
             <span className="text-foreground text-2xl font-bold tabular-nums">
@@ -146,7 +146,7 @@ export function C7SummaryBar({
 
       <KpiCard
         icon={Syringe}
-        label="Critério B · vacina HPV"
+        label="Critério B (vacina HPV)"
         value={
           <div>
             <span className="text-foreground text-2xl font-bold tabular-nums">

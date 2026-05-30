@@ -131,7 +131,7 @@ export function C6SummaryBar({
 
       <KpiCard
         icon={Activity}
-        label="Sem visita ACS · C"
+        label="Sem visita ACS (C)"
         value={
           <div>
             <span className="text-foreground text-2xl font-bold tabular-nums">
@@ -147,7 +147,7 @@ export function C6SummaryBar({
 
       <KpiCard
         icon={Syringe}
-        label="Sem vacina Influenza · D"
+        label="Sem vacina Influenza (D)"
         value={
           <div>
             <span className="text-foreground text-2xl font-bold tabular-nums">
