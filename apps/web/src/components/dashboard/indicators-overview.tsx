@@ -1,143 +1,114 @@
 'use client'
 
-import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { ArrowUpRight, Sparkles } from 'lucide-react'
-
-import { Badge, Card } from '@repo/ui'
 import { useC3Analytics } from '@/hooks/use-c3-analytics'
-import { C1_DEFINITION } from '@/lib/indicators-aps/c1-data'
-import { INDICATOR_LIST } from '@/lib/indicators-aps'
+import { useC5Analytics } from '@/hooks/use-c5-analytics'
+import { useC6Analytics } from '@/hooks/use-c6-analytics'
+import { useC7Analytics } from '@/hooks/use-c7-analytics'
+import { useC1Execucoes } from '@/features/c1/hooks/useC1Execucoes'
+import { INDICATORS } from '@/lib/indicators-aps'
 import { SectionHeader } from './section-header'
+import { IndicatorCard, type ScoreState, type IndicatorStatus } from './indicator-card'
 
-interface IndicatorRow {
-  code: string
-  shortLabel: string
-  title: string
-  href: string
-  accent: string
-}
-
-const ACCENTS: Record<string, string> = {
-  c1: 'from-cyan-500/20 to-cyan-500/0 text-cyan-600 dark:text-cyan-400',
-  c2: 'from-sky-500/20 to-sky-500/0 text-sky-600 dark:text-sky-400',
-  c3: 'from-rose-500/20 to-rose-500/0 text-rose-600 dark:text-rose-400',
-  c4: 'from-violet-500/20 to-violet-500/0 text-violet-600 dark:text-violet-400',
-  c5: 'from-amber-500/20 to-amber-500/0 text-amber-600 dark:text-amber-400',
-  c6: 'from-emerald-500/20 to-emerald-500/0 text-emerald-600 dark:text-emerald-400',
-  c7: 'from-pink-500/20 to-pink-500/0 text-pink-600 dark:text-pink-400',
-}
-
-function buildRows(): IndicatorRow[] {
-  const c1: IndicatorRow = {
-    code: C1_DEFINITION.code,
-    shortLabel: C1_DEFINITION.shortLabel,
-    title: C1_DEFINITION.title,
-    href: `/indicadores/${C1_DEFINITION.code}`,
-    accent: ACCENTS.c1 ?? '',
-  }
-  const others = INDICATOR_LIST.map((i) => ({
-    code: i.code,
-    shortLabel: i.shortLabel,
-    title: i.title,
-    href: `/indicadores/${i.code}`,
-    accent: ACCENTS[i.code] ?? '',
-  }))
-  return [c1, ...others]
+function scoreState(isLoading: boolean, total: number): ScoreState {
+  if (isLoading) return 'loading'
+  if (total === 0) return 'no-data'
+  return 'score'
 }
 
 export function IndicatorsOverview() {
+  const c1Execucoes = useC1Execucoes()
   const c3 = useC3Analytics()
-  const rows = buildRows()
+  const c5 = useC5Analytics()
+  const c6 = useC6Analytics()
+  const c7 = useC7Analytics()
+
+  const c1Execs = c1Execucoes.data ?? []
+  const c1AvgPct =
+    c1Execs.length > 0
+      ? Math.round((c1Execs.reduce((s, e) => s + Number(e.percentual), 0) / c1Execs.length) * 10) /
+        10
+      : 0
+
+  const items: IndicatorStatus[] = [
+    {
+      code: 'c1',
+      shortLabel: INDICATORS.c1.shortLabel,
+      title: INDICATORS.c1.title,
+      href: '/indicadores/c1',
+      scoreState: scoreState(c1Execucoes.isLoading, c1Execs.length),
+      score: c1AvgPct,
+      total: c1Execs.length,
+      isPercent: true,
+    },
+    {
+      code: 'c2',
+      shortLabel: INDICATORS.c2.shortLabel,
+      title: INDICATORS.c2.title,
+      href: '/indicadores/c2',
+      scoreState: 'no-data',
+      score: 0,
+      total: 0,
+    },
+    {
+      code: 'c3',
+      shortLabel: INDICATORS.c3.shortLabel,
+      title: INDICATORS.c3.title,
+      href: '/indicadores/c3',
+      scoreState: scoreState(c3.isLoading, c3.breakdown.total),
+      score: c3.breakdown.avgScore,
+      total: c3.breakdown.total,
+    },
+    {
+      code: 'c4',
+      shortLabel: INDICATORS.c4.shortLabel,
+      title: INDICATORS.c4.title,
+      href: '/indicadores/c4',
+      scoreState: 'no-data',
+      score: 0,
+      total: 0,
+    },
+    {
+      code: 'c5',
+      shortLabel: INDICATORS.c5.shortLabel,
+      title: INDICATORS.c5.title,
+      href: '/indicadores/c5',
+      scoreState: scoreState(c5.isLoading, c5.breakdown.total),
+      score: c5.breakdown.avgScore,
+      total: c5.breakdown.total,
+    },
+    {
+      code: 'c6',
+      shortLabel: INDICATORS.c6.shortLabel,
+      title: INDICATORS.c6.title,
+      href: '/indicadores/c6',
+      scoreState: scoreState(c6.isLoading, c6.breakdown.total),
+      score: c6.breakdown.avgScore,
+      total: c6.breakdown.total,
+    },
+    {
+      code: 'c7',
+      shortLabel: INDICATORS.c7.shortLabel,
+      title: INDICATORS.c7.title,
+      href: '/indicadores/c7',
+      scoreState: scoreState(c7.isLoading, c7.breakdown.total),
+      score: c7.breakdown.avgScore,
+      total: c7.breakdown.total,
+    },
+  ]
 
   return (
     <section className="space-y-3">
       <SectionHeader
         title="Linhas de cuidado APS"
-        description="Status atual por indicador do Previne Brasil"
+        description="Score médio por indicador do Previne Brasil"
         actionLabel="Ver todos"
         actionHref="/indicadores"
       />
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
-        {rows.map((row, i) => (
-          <IndicatorCard
-            key={row.code}
-            row={row}
-            index={i}
-            c3Rate={row.code === 'c3' && !c3.isLoading ? c3.breakdown.avgScore : null}
-            isLoading={row.code === 'c3' && c3.isLoading}
-          />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
+        {items.map((item, i) => (
+          <IndicatorCard key={item.code} item={item} index={i} />
         ))}
       </div>
     </section>
-  )
-}
-
-interface IndicatorCardProps {
-  row: IndicatorRow
-  index: number
-  c3Rate: number | null
-  isLoading: boolean
-}
-
-function IndicatorCard({ row, index, c3Rate, isLoading }: IndicatorCardProps) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.03 }}
-    >
-      <Link href={row.href} className="group block h-full">
-        <Card className="border-border/60 relative h-full overflow-hidden p-4 transition-all hover:-translate-y-0.5 hover:shadow-md">
-          <div
-            className={`pointer-events-none absolute inset-0 bg-gradient-to-br opacity-50 ${row.accent}`}
-          />
-          <div className="relative flex h-full flex-col justify-between gap-3">
-            <div className="flex items-center justify-between">
-              <Badge variant="secondary" className="rounded-md font-mono text-[10px] uppercase">
-                {row.shortLabel}
-              </Badge>
-              <ArrowUpRight className="text-muted-foreground/60 group-hover:text-foreground h-3.5 w-3.5 shrink-0 transition-colors" />
-            </div>
-            <div>
-              <p className="text-foreground line-clamp-2 text-xs font-semibold leading-snug">
-                {row.title}
-              </p>
-              <CardStatus c3Rate={c3Rate} code={row.code} isLoading={isLoading} />
-            </div>
-          </div>
-        </Card>
-      </Link>
-    </motion.div>
-  )
-}
-
-function CardStatus({
-  c3Rate,
-  code,
-  isLoading,
-}: {
-  c3Rate: number | null
-  code: string
-  isLoading: boolean
-}) {
-  if (code === 'c3') {
-    if (isLoading) {
-      return <div className="bg-muted mt-2 h-4 w-12 animate-pulse rounded" />
-    }
-    if (c3Rate !== null) {
-      return (
-        <p className="text-foreground mt-2 text-xl font-bold tabular-nums leading-none">
-          {c3Rate.toFixed(1)}
-          <span className="text-muted-foreground text-xs font-semibold"> /100</span>
-        </p>
-      )
-    }
-  }
-  return (
-    <div className="mt-2 inline-flex items-center gap-1">
-      <Sparkles className="text-muted-foreground/60 h-3 w-3" />
-      <span className="text-muted-foreground text-[10px] font-medium">Simulador disponível</span>
-    </div>
   )
 }
