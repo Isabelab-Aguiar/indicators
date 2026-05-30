@@ -1,4 +1,5 @@
 export * from './audit-logs'
+export * from './c2.schema'
 export * from './c4.schema'
 export * from './c1.schema'
 export * from './c5.schema'

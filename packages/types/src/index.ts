@@ -1,6 +1,7 @@
 export * from './api'
 export * from './audit'
 export * from './auth'
+export * from './c2'
 export * from './c3'
 export * from './c4'
 export * from './c5'
