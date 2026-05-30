@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { FileText, Upload, X } from 'lucide-react'
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input } from '@repo/ui'
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui'
 
 import { cn } from '@repo/ui'
 import { toast } from '@/hooks/use-toast'
@@ -24,10 +24,13 @@ function validatePdfFile(file: File): string | null {
   return null
 }
 
-export function C1ImportacaoPdf() {
+interface C1ImportacaoPdfProps {
+  periodo?: string
+}
+
+export function C1ImportacaoPdf({ periodo }: C1ImportacaoPdfProps) {
   const [dragOver, setDragOver] = useState(false)
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([])
-  const [periodo, setPeriodo] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
   const importar = useC1ImportarPdf()
 
@@ -53,7 +56,7 @@ export function C1ImportacaoPdf() {
       try {
         const result = await importar.mutateAsync({
           file: pending.file,
-          periodo: periodo || C1_PERIODO_PADRAO,
+          periodo: periodo ?? C1_PERIODO_PADRAO,
         })
         setPendingFiles((prev) =>
           prev.map((f) =>
@@ -77,19 +80,11 @@ export function C1ImportacaoPdf() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div>
-            <label className="text-foreground mb-1.5 block text-xs font-semibold">
-              Período (ex: 2024-Q1)
-            </label>
-            <Input
-              placeholder="2024-Q1"
-              value={periodo}
-              onChange={(e) => setPeriodo(e.target.value)}
-              className="text-sm"
-            />
-          </div>
-        </div>
+        {periodo && (
+          <p className="text-muted-foreground text-xs">
+            Período selecionado: <span className="text-foreground font-medium">{periodo}</span>
+          </p>
+        )}
         <div
           onDrop={(e) => {
             e.preventDefault()
