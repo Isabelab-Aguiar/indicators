@@ -2,28 +2,21 @@
 
 import * as Tabs from '@radix-ui/react-tabs'
 import { motion } from 'framer-motion'
-import { Activity, Calculator } from 'lucide-react'
+import { Activity, Calculator, Upload } from 'lucide-react'
 
 import { cn } from '@repo/ui'
 import { INDICATORS } from '@/lib/indicators-aps'
+import { ImportSection } from '@/components/imports/import-section'
+import { ImportHistory } from '@/components/imports/import-history'
 import { C3Dashboard } from './c3-dashboard'
 import { IndicatorSimulator } from './indicator-simulator'
 
-type TabKey = 'analise' | 'simulador'
+type TabKey = 'analise' | 'importar' | 'simulador'
 
-const TABS: Array<{ key: TabKey; label: string; description: string; icon: React.ElementType }> = [
-  {
-    key: 'analise',
-    label: 'Análise',
-    description: 'Adesão real das gestantes da sua ESF',
-    icon: Activity,
-  },
-  {
-    key: 'simulador',
-    label: 'Simulador',
-    description: 'Estime a pontuação de uma gestante hipotética',
-    icon: Calculator,
-  },
+const TABS: Array<{ key: TabKey; label: string; icon: React.ElementType }> = [
+  { key: 'analise', label: 'Análise', icon: Activity },
+  { key: 'importar', label: 'Importar', icon: Upload },
+  { key: 'simulador', label: 'Simulador', icon: Calculator },
 ]
 
 export function C3Tabs() {
@@ -31,19 +24,24 @@ export function C3Tabs() {
     <Tabs.Root defaultValue="analise" className="space-y-6">
       <Tabs.List className="border-border bg-card inline-flex items-center gap-1 rounded-xl border p-1 shadow-sm">
         {TABS.map((tab) => (
-          <TabTrigger
-            key={tab.key}
-            value={tab.key}
-            label={tab.label}
-            description={tab.description}
-            icon={tab.icon}
-          />
+          <TabTrigger key={tab.key} value={tab.key} label={tab.label} icon={tab.icon} />
         ))}
       </Tabs.List>
 
       <Tabs.Content value="analise" asChild>
         <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
           <C3Dashboard />
+        </motion.div>
+      </Tabs.Content>
+
+      <Tabs.Content value="importar" asChild>
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          <ImportSection />
+          <ImportHistory />
         </motion.div>
       </Tabs.Content>
 
@@ -59,7 +57,6 @@ export function C3Tabs() {
 interface TabTriggerProps {
   value: TabKey
   label: string
-  description: string
   icon: React.ElementType
 }
 
