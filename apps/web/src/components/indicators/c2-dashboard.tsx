@@ -1,11 +1,12 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { Badge } from '@repo/ui'
 import { INDICATORS } from '@/lib/indicators-aps'
 import { getQuadrimestre, type Quadrimestre } from '@/lib/quadrimestre'
 import { buildBreakdownFromPatients, useC2Analytics } from '@/hooks/use-c2-analytics'
+import { useIndicatorFilters } from '@/providers/indicator-filters-provider'
 import { C2SummaryBar } from './c2-summary-bar'
 import { C2CriteriaGrid } from './c2-criteria-grid'
 import { C2EmptyState, C2SkeletonGrid } from './c2-states'
@@ -36,17 +37,16 @@ function CriteriaHeader() {
 
 export function C2Dashboard() {
   const { isLoading, isError, breakdown } = useC2Analytics()
-
-  const now = useMemo(() => new Date(), [])
-  const [quad, setQuad] = useState<Quadrimestre>(() => getQuadrimestre(now))
-  const [year, setYear] = useState<number>(() => now.getFullYear())
-  const [microarea, setMicroarea] = useState<string>('')
+  const { filters, setMicroareaOptions } = useIndicatorFilters()
+  const { microarea } = filters
 
   const microareaOptions = useMemo(() => {
     const set = new Set<string>()
     for (const p of breakdown.patients) if (p.microarea) set.add(p.microarea)
-    return Array.from(set).sort()
-  }, [breakdown.patients])
+    const opts = Array.from(set).sort()
+    setMicroareaOptions(opts)
+    return opts
+  }, [breakdown.patients, setMicroareaOptions])
 
   const filteredBreakdown = useMemo(() => {
     const patients = breakdown.patients.filter((p) => !microarea || p.microarea === microarea)
@@ -58,26 +58,7 @@ export function C2Dashboard() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-      <div className="flex flex-wrap items-start gap-2">
-        <Badge variant="secondary" className="rounded-md font-mono">
-          C2
-        </Badge>
-        <Badge variant="outline" className="rounded-md text-[11px]">
-          Cuidado no Desenvolvimento Infantil
-        </Badge>
-      </div>
-
       <PopulationCard population={indicator.population} />
-
-      <C2Filters
-        quad={quad}
-        year={year}
-        microarea={microarea}
-        microareaOptions={microareaOptions}
-        onQuadChange={setQuad}
-        onYearChange={setYear}
-        onMicroareaChange={setMicroarea}
-      />
 
       {filteredBreakdown.total === 0 ? (
         <C2EmptyState />

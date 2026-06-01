@@ -1,10 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
+import { useQueryClient } from '@tanstack/react-query'
 import { useC1Analytics } from '../hooks/useC1Analytics'
 import { useC1Execucoes } from '../hooks/useC1Execucoes'
-import { C1Header } from './C1Header'
+import { useC1ExportarCsv } from '../hooks/useC1ExportarCsv'
+import { IndicatorPageHeader } from '@/components/layout/indicator-page-header'
+import { queryKeys } from '@/lib/query-keys'
+import { useAuthStore } from '@/store/auth.store'
 import { C1HeroCard } from './C1HeroCard'
 import { C1Filters } from './C1Filters'
 import { C1Analytics } from './C1Analytics'
@@ -23,12 +27,24 @@ export function C1Dashboard() {
 
   const periodo = quadrimestre !== null ? `${year}-Q${quadrimestre}` : undefined
 
+  const queryClient = useQueryClient()
+  const exportarCsv = useC1ExportarCsv()
   const { data: analytics, isLoading: analyticsLoading } = useC1Analytics()
   const { data: execucoes, isLoading: execucoesLoading } = useC1Execucoes({ periodo })
 
+  const esfId = useAuthStore((s) => s.user?.esfId ?? '')
+  function handleRefresh() {
+    void queryClient.invalidateQueries({ queryKey: queryKeys.c1.all(esfId) })
+  }
+
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <C1Header />
+      <IndicatorPageHeader
+        code="c1"
+        onRefresh={handleRefresh}
+        onExport={() => exportarCsv.mutate()}
+        exportPending={exportarCsv.isPending}
+      />
 
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-7xl space-y-5 p-4 sm:p-6">

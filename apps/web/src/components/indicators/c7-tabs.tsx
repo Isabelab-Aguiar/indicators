@@ -30,12 +30,7 @@ export function C7Tabs() {
             <TabTrigger key={tab.key} value={tab.key} label={tab.label} icon={tab.icon} />
           ))}
         </Tabs.List>
-
-        <Tabs.Content value="analise" asChild>
-          <div>
-            <C7ExportarCsv breakdown={breakdown} />
-          </div>
-        </Tabs.Content>
+        <C7ExportarCsv breakdown={breakdown} />
       </div>
 
       <Tabs.Content value="analise" asChild>

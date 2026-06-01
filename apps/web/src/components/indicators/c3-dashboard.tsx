@@ -1,17 +1,16 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { Badge } from '@repo/ui'
-import type { PregnantWoman } from '@repo/types'
 import { INDICATORS } from '@/lib/indicators-aps'
-import { getQuadrimestre, isoInQuadrimestre, type Quadrimestre } from '@/lib/quadrimestre'
+import { isoInQuadrimestre } from '@/lib/quadrimestre'
 import { computeC3Breakdown, useC3Analytics } from '@/hooks/use-c3-analytics'
+import { useIndicatorFilters } from '@/providers/indicator-filters-provider'
 import { C3SummaryBar } from './c3-summary-bar'
 import { C3CriteriaGrid } from './c3-criteria-grid'
 import { C3EmptyState, C3SkeletonGrid } from './c3-states'
-import { C3Filters } from './c3-filters'
 import { PopulationCard } from './population-card'
+import type { PregnantWoman } from '@repo/types'
 
 const indicator = INDICATORS.c3
 
@@ -37,7 +36,7 @@ function CriteriaHeader() {
 
 function filterElegiveis(
   women: PregnantWoman[],
-  quad: Quadrimestre,
+  quad: number,
   year: number,
   microarea: string,
 ): PregnantWoman[] {
@@ -46,23 +45,20 @@ function filterElegiveis(
     const candidates = [g.expectedDeliveryDate, g.interruptionDate].filter(
       (v): v is string => typeof v === 'string' && v.length > 0,
     )
-    return candidates.some((iso) => isoInQuadrimestre(iso, year, quad))
+    return candidates.some((iso) => isoInQuadrimestre(iso, year, quad as 1 | 2 | 3))
   })
 }
 
 export function C3Dashboard() {
   const { isLoading, isError, women } = useC3Analytics()
+  const { filters, setMicroareaOptions } = useIndicatorFilters()
+  const { quad, year, microarea } = filters
 
-  const now = useMemo(() => new Date(), [])
-  const [quad, setQuad] = useState<Quadrimestre>(() => getQuadrimestre(now))
-  const [year, setYear] = useState<number>(() => now.getFullYear())
-  const [microarea, setMicroarea] = useState<string>('')
-
-  const microareaOptions = useMemo(() => {
+  useMemo(() => {
     const set = new Set<string>()
     for (const g of women) if (g.microarea) set.add(g.microarea)
-    return Array.from(set).sort()
-  }, [women])
+    setMicroareaOptions(Array.from(set).sort())
+  }, [women, setMicroareaOptions])
 
   const elegiveis = useMemo(
     () => filterElegiveis(women, quad, year, microarea),
@@ -76,26 +72,7 @@ export function C3Dashboard() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-      <div className="flex flex-wrap items-start gap-2">
-        <Badge variant="secondary" className="rounded-md font-mono">
-          C3
-        </Badge>
-        <Badge variant="outline" className="rounded-md text-[11px]">
-          Pré-Natal
-        </Badge>
-      </div>
-
       <PopulationCard population={indicator.population} />
-
-      <C3Filters
-        quad={quad}
-        year={year}
-        microarea={microarea}
-        microareaOptions={microareaOptions}
-        onQuadChange={setQuad}
-        onYearChange={setYear}
-        onMicroareaChange={setMicroarea}
-      />
 
       {breakdown.total === 0 ? (
         <C3EmptyState />
@@ -108,7 +85,6 @@ export function C3Dashboard() {
             criteriaStats={breakdown.criteriaStats}
             patients={breakdown.patients}
           />
-
           <div>
             <CriteriaHeader />
             <C3CriteriaGrid criteriaStats={breakdown.criteriaStats} patients={breakdown.patients} />

@@ -30,7 +30,7 @@ const EMPTY_BREAKDOWN: C2Breakdown = {
   patients: [],
 }
 
-async function fetchBreakdown(esfId: string, periodo?: string): Promise<C2Breakdown> {
+async function fetchBreakdown(_esfId: string, periodo?: string): Promise<C2Breakdown> {
   const params = periodo ? `?periodo=${periodo}` : ''
   const res = await apiClient.get<{ data: C2Breakdown }>(`/c2/breakdown${params}`)
   return res.data.data ?? EMPTY_BREAKDOWN

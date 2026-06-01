@@ -1,23 +1,17 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { Badge } from '@repo/ui'
 import { INDICATORS } from '@/lib/indicators-aps'
-import { getQuadrimestre, type Quadrimestre } from '@/lib/quadrimestre'
 import { computeC4Breakdown, useC4Analytics } from '@/hooks/use-c4-analytics'
+import { useIndicatorFilters } from '@/providers/indicator-filters-provider'
 import { C4SummaryBar } from './c4-summary-bar'
 import { C4CriteriaGrid } from './c4-criteria-grid'
 import { C4EmptyState, C4SkeletonGrid } from './c4-states'
-import { C4Filters } from './c4-filters'
 import { PopulationCard } from './population-card'
 import type { C4DiabeticRecord } from '@repo/types'
 
 const indicator = INDICATORS.c4
-
-function buildPeriodo(year: number, quad: Quadrimestre): string {
-  return `${year}-${quad}`
-}
 
 function filterRecords(
   records: C4DiabeticRecord[],
@@ -53,20 +47,17 @@ function CriteriaHeader() {
 
 export function C4Dashboard() {
   const { isLoading, isError, records } = useC4Analytics()
+  const { filters, setMicroareaOptions } = useIndicatorFilters()
+  const { quad, year, microarea } = filters
 
-  const now = useMemo(() => new Date(), [])
-  const [quad, setQuad] = useState<Quadrimestre>(() => getQuadrimestre(now))
-  const [year, setYear] = useState<number>(() => now.getFullYear())
-  const [microarea, setMicroarea] = useState<string>('')
-
-  const microareaOptions = useMemo(() => {
+  useMemo(() => {
     const set = new Set<string>()
     for (const r of records) if (r.microarea) set.add(r.microarea)
-    return Array.from(set).sort()
-  }, [records])
+    setMicroareaOptions(Array.from(set).sort())
+  }, [records, setMicroareaOptions])
 
   const filtered = useMemo(
-    () => filterRecords(records, buildPeriodo(year, quad), microarea),
+    () => filterRecords(records, `${year}-${quad}`, microarea),
     [records, year, quad, microarea],
   )
 
@@ -77,26 +68,7 @@ export function C4Dashboard() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-      <div className="flex flex-wrap items-start gap-2">
-        <Badge variant="secondary" className="rounded-md font-mono">
-          C4
-        </Badge>
-        <Badge variant="outline" className="rounded-md text-[11px]">
-          Cuidado da Pessoa com Diabetes
-        </Badge>
-      </div>
-
       <PopulationCard population={indicator.population} />
-
-      <C4Filters
-        quad={quad}
-        year={year}
-        microarea={microarea}
-        microareaOptions={microareaOptions}
-        onQuadChange={setQuad}
-        onYearChange={setYear}
-        onMicroareaChange={setMicroarea}
-      />
 
       {breakdown.total === 0 ? (
         <C4EmptyState />
