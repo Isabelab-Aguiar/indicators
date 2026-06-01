@@ -1,13 +1,16 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { ChevronRight, Download, RefreshCw } from 'lucide-react'
+import { usePathname } from 'next/navigation'
+import { ChevronRight, Download, Menu, RefreshCw, X } from 'lucide-react'
 import { Badge, Button } from '@repo/ui'
 import { useAuthStore } from '@/store/auth.store'
 import { useQueryClient } from '@tanstack/react-query'
 import type { IndicatorCode } from '@/lib/indicators-aps'
 import { INDICATORS } from '@/lib/indicators-aps'
 import { IndicatorToolbar } from './indicator-toolbar'
+import { MobileNav } from './mobile-nav'
 
 interface IndicatorPageHeaderProps {
   code: IndicatorCode
@@ -29,6 +32,20 @@ export function IndicatorPageHeader({
   const user = useAuthStore((s) => s.user)
   const queryClient = useQueryClient()
   const indicator = INDICATORS[code]
+  const pathname = usePathname()
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  useEffect(() => {
+    setMobileOpen(false)
+  }, [pathname])
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setMobileOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
 
   function handleRefresh() {
     if (onRefresh) {
@@ -41,7 +58,32 @@ export function IndicatorPageHeader({
   return (
     <>
       <div className="border-border bg-background border-b px-4 py-4 sm:px-6">
-        <nav className="text-muted-foreground mb-2 flex items-center gap-1 text-xs">
+        {/* Mobile top bar */}
+        <div className="mb-3 flex items-center justify-between lg:hidden">
+          <button
+            type="button"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-label={mobileOpen ? 'Fechar menu' : 'Abrir menu'}
+            className="text-muted-foreground hover:bg-accent hover:text-foreground flex h-8 w-8 shrink-0 items-center justify-center rounded-md transition-colors"
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+          <nav className="text-muted-foreground flex items-center gap-1 text-xs">
+            <Link href="/dashboard" className="hover:text-foreground transition-colors">
+              Início
+            </Link>
+            <ChevronRight className="h-3 w-3" />
+            <Link href="/indicadores" className="hover:text-foreground transition-colors">
+              Indicadores
+            </Link>
+            <ChevronRight className="h-3 w-3" />
+            <span className="text-foreground font-medium">{indicator.shortLabel}</span>
+          </nav>
+          <div className="w-8" /> {/* spacer para centralizar breadcrumb */}
+        </div>
+
+        {/* Desktop breadcrumb */}
+        <nav className="text-muted-foreground mb-2 hidden items-center gap-1 text-xs lg:flex">
           <Link href="/dashboard" className="hover:text-foreground transition-colors">
             Início
           </Link>
@@ -93,6 +135,8 @@ export function IndicatorPageHeader({
       </div>
 
       {showToolbar && <IndicatorToolbar exportSlot={exportSlot} />}
+
+      <MobileNav open={mobileOpen} pathname={pathname} onClose={() => setMobileOpen(false)} />
     </>
   )
 }

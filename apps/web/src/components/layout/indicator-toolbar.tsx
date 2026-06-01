@@ -18,10 +18,10 @@ export function IndicatorToolbar({ exportSlot }: IndicatorToolbarProps) {
   }
 
   return (
-    <div className="border-border bg-background flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3 sm:px-6">
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="border-border bg-background flex flex-col gap-3 border-b px-4 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-3 sm:px-6">
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-2">
         <Select value={String(filters.year)} onValueChange={(v) => set({ year: Number(v) })}>
-          <SelectTrigger className="h-8 w-[100px] text-xs">
+          <SelectTrigger className="h-8 w-full text-xs sm:w-[100px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -37,7 +37,7 @@ export function IndicatorToolbar({ exportSlot }: IndicatorToolbarProps) {
           value={String(filters.quad)}
           onValueChange={(v) => set({ quad: Number(v) as Quadrimestre })}
         >
-          <SelectTrigger className="h-8 w-[148px] text-xs">
+          <SelectTrigger className="h-8 w-full text-xs sm:w-[148px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -53,7 +53,7 @@ export function IndicatorToolbar({ exportSlot }: IndicatorToolbarProps) {
           value={filters.microarea === '' ? '__all__' : filters.microarea}
           onValueChange={(v) => set({ microarea: v === '__all__' ? '' : v })}
         >
-          <SelectTrigger className="h-8 w-[160px] text-xs">
+          <SelectTrigger className="col-span-2 h-8 w-full text-xs sm:col-span-1 sm:w-[160px]">
             <SelectValue placeholder="Microárea" />
           </SelectTrigger>
           <SelectContent>
@@ -69,7 +69,7 @@ export function IndicatorToolbar({ exportSlot }: IndicatorToolbarProps) {
         </Select>
       </div>
 
-      {exportSlot && <div>{exportSlot}</div>}
+      {exportSlot && <div className="flex justify-end">{exportSlot}</div>}
     </div>
   )
 }
