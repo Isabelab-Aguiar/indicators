@@ -3,8 +3,6 @@ import type { Metadata } from 'next'
 import { Header } from '@/components/layout/header'
 import { CareLinesSummary } from '@/components/dashboard/care-lines-summary'
 import { AllIndicatorsChart } from '@/components/dashboard/all-indicators-chart'
-import { MicroareaChart } from '@/components/dashboard/microarea-chart'
-import { RecentPregnantWomen } from '@/components/dashboard/recent-pregnant-women'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 
@@ -25,21 +23,6 @@ export default function DashboardPage() {
             </p>
           </div>
           <AllIndicatorsChart />
-        </section>
-
-        <section className="space-y-3">
-          <div>
-            <h2 className="text-foreground text-sm font-semibold tracking-tight">
-              Cobertura territorial
-            </h2>
-            <p className="text-muted-foreground text-xs">
-              Distribuicao das gestantes por microarea e ultimas atualizacoes
-            </p>
-          </div>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <MicroareaChart />
-            <RecentPregnantWomen />
-          </div>
         </section>
       </div>
     </div>
