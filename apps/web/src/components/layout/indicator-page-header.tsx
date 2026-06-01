@@ -107,10 +107,12 @@ export function IndicatorPageHeader({
                 </Badge>
               )}
             </div>
-            <h1 className="text-foreground mt-2 text-lg font-semibold">
+            <h1 className="text-foreground mt-2 text-base font-semibold sm:text-lg">
               {indicator.shortLabel} {indicator.title}
             </h1>
-            <p className="text-muted-foreground mt-0.5 text-xs">{indicator.description}</p>
+            <p className="text-muted-foreground mt-0.5 line-clamp-2 text-xs sm:line-clamp-none">
+              {indicator.description}
+            </p>
           </div>
 
           <div className="flex shrink-0 flex-wrap gap-2">
