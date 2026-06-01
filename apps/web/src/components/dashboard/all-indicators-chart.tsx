@@ -65,12 +65,12 @@ export function AllIndicatorsChart() {
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="bg-muted/40 h-[280px] animate-pulse rounded-lg" />
+          <div className="bg-muted/40 h-[220px] animate-pulse rounded-lg" />
         ) : !hasAnyData ? (
           <EmptyState />
         ) : (
           <>
-            <ResponsiveContainer width="100%" height={280}>
+            <ResponsiveContainer width="100%" height={220}>
               <BarChart
                 data={data}
                 layout="vertical"

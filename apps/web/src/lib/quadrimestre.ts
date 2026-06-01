@@ -12,9 +12,9 @@ export const QUADRIMESTRE_LABELS: Record<Quadrimestre, string> = {
 }
 
 export const QUADRIMESTRE_OPTIONS: ReadonlyArray<{ value: Quadrimestre; label: string }> = [
-  { value: 1, label: '1º · Jan a Abr' },
-  { value: 2, label: '2º · Mai a Ago' },
-  { value: 3, label: '3º · Set a Dez' },
+  { value: 1, label: '1º Quad. Jan a Abr' },
+  { value: 2, label: '2º Quad. Mai a Ago' },
+  { value: 3, label: '3º Quad. Set a Dez' },
 ]
 
 export function buildYearOptions(current: number, back = 2, forward = 1): number[] {
