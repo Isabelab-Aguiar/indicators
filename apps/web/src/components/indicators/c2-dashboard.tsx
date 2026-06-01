@@ -2,15 +2,12 @@
 
 import { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { Badge } from '@repo/ui'
 import { INDICATORS } from '@/lib/indicators-aps'
-import { getQuadrimestre, type Quadrimestre } from '@/lib/quadrimestre'
 import { buildBreakdownFromPatients, useC2Analytics } from '@/hooks/use-c2-analytics'
 import { useIndicatorFilters } from '@/providers/indicator-filters-provider'
 import { C2SummaryBar } from './c2-summary-bar'
 import { C2CriteriaGrid } from './c2-criteria-grid'
 import { C2EmptyState, C2SkeletonGrid } from './c2-states'
-import { C2Filters } from './c2-filters'
 import { PopulationCard } from './population-card'
 
 const indicator = INDICATORS.c2
@@ -40,12 +37,10 @@ export function C2Dashboard() {
   const { filters, setMicroareaOptions } = useIndicatorFilters()
   const { microarea } = filters
 
-  const microareaOptions = useMemo(() => {
+  useMemo(() => {
     const set = new Set<string>()
     for (const p of breakdown.patients) if (p.microarea) set.add(p.microarea)
-    const opts = Array.from(set).sort()
-    setMicroareaOptions(opts)
-    return opts
+    setMicroareaOptions(Array.from(set).sort())
   }, [breakdown.patients, setMicroareaOptions])
 
   const filteredBreakdown = useMemo(() => {

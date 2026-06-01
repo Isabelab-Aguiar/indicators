@@ -13,14 +13,6 @@ import type { C6ElderlyRecord } from '@repo/types'
 
 const indicator = INDICATORS.c6
 
-function calcAge(birthDate: string): number {
-  const birth = new Date(birthDate)
-  const today = new Date()
-  const age = today.getFullYear() - birth.getFullYear()
-  const m = today.getMonth() - birth.getMonth()
-  return m < 0 || (m === 0 && today.getDate() < birth.getDate()) ? age - 1 : age
-}
-
 function filterElders(
   elders: C6ElderlyRecord[],
   periodo: string,
