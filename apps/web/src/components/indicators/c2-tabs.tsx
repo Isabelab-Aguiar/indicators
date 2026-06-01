@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import * as Tabs from '@radix-ui/react-tabs'
 import { motion } from 'framer-motion'
 import { Activity, Calculator, Upload } from 'lucide-react'
@@ -10,6 +11,7 @@ import { C2ImportacaoSection } from '@/features/c2/components/C2ImportacaoSectio
 import { C2ExportarCsv } from '@/features/c2/components/C2ExportarCsv'
 import { C2Dashboard } from './c2-dashboard'
 import { IndicatorSimulator } from './indicator-simulator'
+import { IndicatorFilters } from '@/components/layout/indicator-toolbar'
 
 type TabKey = 'analise' | 'importar' | 'simulador'
 
@@ -19,13 +21,15 @@ const TABS: Array<{ key: TabKey; label: string; icon: React.ElementType }> = [
   { key: 'simulador', label: 'Simulador', icon: Calculator },
 ]
 
-interface TabTriggerProps {
+function TabTrigger({
+  value,
+  label,
+  icon: Icon,
+}: {
   value: TabKey
   label: string
   icon: React.ElementType
-}
-
-function TabTrigger({ value, label, icon: Icon }: TabTriggerProps) {
+}) {
   return (
     <Tabs.Trigger
       value={value}
@@ -44,17 +48,26 @@ function TabTrigger({ value, label, icon: Icon }: TabTriggerProps) {
 }
 
 export function C2Tabs() {
+  const [activeTab, setActiveTab] = useState<TabKey>('analise')
   const { breakdown } = useC2Analytics()
 
   return (
-    <Tabs.Root defaultValue="analise" className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
+    <Tabs.Root
+      value={activeTab}
+      onValueChange={(v) => setActiveTab(v as TabKey)}
+      className="space-y-6"
+    >
+      <div className="border-border flex flex-wrap items-center justify-between gap-2 border-b pb-3">
         <Tabs.List className="border-border bg-card inline-flex items-center gap-1 rounded-xl border p-1 shadow-sm">
           {TABS.map((tab) => (
             <TabTrigger key={tab.key} value={tab.key} label={tab.label} icon={tab.icon} />
           ))}
         </Tabs.List>
-        <C2ExportarCsv breakdown={breakdown} />
+        <IndicatorFilters
+          hideOnTabs={['importar', 'simulador']}
+          activeTab={activeTab}
+          exportSlot={activeTab === 'analise' ? <C2ExportarCsv breakdown={breakdown} /> : undefined}
+        />
       </div>
 
       <Tabs.Content value="analise" asChild>

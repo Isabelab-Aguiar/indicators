@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function C7IndicadorPage() {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <IndicatorPageHeader code="c7" showToolbar />
+      <IndicatorPageHeader code="c7" />
       <div className="flex-1 overflow-y-auto p-4 sm:p-6">
         <C7Tabs />
       </div>

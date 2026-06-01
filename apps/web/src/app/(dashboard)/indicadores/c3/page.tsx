@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function C3IndicadorPage() {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <IndicatorPageHeader code="c3" showToolbar />
+      <IndicatorPageHeader code="c3" />
       <div className="flex-1 overflow-y-auto p-4 sm:p-6">
         <C3Tabs />
       </div>
