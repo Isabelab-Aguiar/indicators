@@ -21,7 +21,7 @@ export function gerarCsvC2(breakdown: C2Breakdown): string {
       p.acs,
       p.score.toFixed(1),
       p.classification,
-      ...CRITERIA_IDS.map((id) => (p.criteria[id] ? 'Sim' : 'Não')),
+      ...CRITERIA_IDS.map((id) => (p.criteria[id as keyof typeof p.criteria] ? 'Sim' : 'Não')),
       p.pendingCriteria.join(';'),
     ].join(','),
   )

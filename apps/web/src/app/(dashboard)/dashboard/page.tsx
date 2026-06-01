@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 
 import { Header } from '@/components/layout/header'
-import { DashboardMetrics } from '@/components/dashboard/dashboard-metrics'
 import { CareLinesSummary } from '@/components/dashboard/care-lines-summary'
+import { AllIndicatorsChart } from '@/components/dashboard/all-indicators-chart'
 import { MicroareaChart } from '@/components/dashboard/microarea-chart'
 import { RecentPregnantWomen } from '@/components/dashboard/recent-pregnant-women'
 
@@ -13,19 +13,19 @@ export default function DashboardPage() {
     <div className="flex flex-1 flex-col overflow-hidden">
       <Header title="Dashboard" description="Visao geral dos indicadores da ESF" />
       <div className="flex-1 space-y-8 overflow-y-auto p-4 sm:p-6">
+        <CareLinesSummary />
+
         <section className="space-y-3">
           <div>
             <h2 className="text-foreground text-sm font-semibold tracking-tight">
-              Pre-natal em numeros
+              Desempenho geral
             </h2>
             <p className="text-muted-foreground text-xs">
-              Metricas operacionais agregadas das gestantes da sua ESF
+              Score medio por indicador Previne Brasil todos os eixos
             </p>
           </div>
-          <DashboardMetrics />
+          <AllIndicatorsChart />
         </section>
-
-        <CareLinesSummary />
 
         <section className="space-y-3">
           <div>
