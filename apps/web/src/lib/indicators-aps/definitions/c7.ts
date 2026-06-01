@@ -3,8 +3,8 @@ import type { IndicatorDefinition } from '../types'
 export const C7: IndicatorDefinition = {
   code: 'c7',
   shortLabel: 'C7',
-  title: 'Prevenção do Câncer (Mulher)',
-  subtitle: 'Mulheres de 9 a 69 anos',
+  title: 'Prevenção do Câncer',
+  subtitle: 'Saúde da mulher: 9 a 69 anos',
   description:
     'Avalia ações de prevenção e rastreio do câncer do colo do útero e da mama em mulheres elegíveis.',
   population: 'Mulheres de 9 a 69 anos vinculadas à equipe.',

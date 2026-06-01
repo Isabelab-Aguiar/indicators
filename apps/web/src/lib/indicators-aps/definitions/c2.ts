@@ -19,19 +19,19 @@ export const C2: IndicatorDefinition = {
     {
       id: 'B',
       points: 20,
-      title: '≥ 9 consultas até os 2 anos',
-      description: 'Pelo menos nove consultas com médica(o) ou enfermeira(o) no período.',
+      title: '9 ou mais consultas até os 2 anos',
+      description: 'Pelo menos nove consultas com médico ou enfermeiro no período.',
     },
     {
       id: 'C',
       points: 20,
-      title: '≥ 9 registros de peso e altura',
+      title: '9 ou mais registros de peso e altura',
       description: 'Nove ou mais registros simultâneos de peso e altura.',
     },
     {
       id: 'D',
       points: 20,
-      title: '≥ 2 visitas do ACS',
+      title: '2 ou mais visitas do ACS',
       description: 'Primeira visita até 30 dias e segunda até 6 meses.',
     },
     {

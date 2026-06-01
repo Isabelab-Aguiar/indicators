@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Download, FileText, Upload, X } from 'lucide-react'
+import { FileText, Upload, X } from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui'
 import { cn } from '@repo/ui'
@@ -36,7 +36,7 @@ export function C7ImportacaoSection() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.c7.all(esfId) })
       setSelectedFile(null)
-      toast({ title: 'Arquivo enviado! Dados C7 importados com sucesso.' })
+      toast({ title: 'Dados C7 importados com sucesso.' })
     },
     onError: () => toast({ title: 'Falha ao enviar arquivo', variant: 'destructive' }),
   })
@@ -56,31 +56,14 @@ export function C7ImportacaoSection() {
     if (file) handleFileSelect(file)
   }
 
-  function handleDownloadTemplate() {
-    window.open('/api/v1/c7/import/template', '_blank')
-  }
-
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <CardTitle className="text-sm font-semibold">Importar dados — C7</CardTitle>
-            <CardDescription className="mt-1 text-xs">
-              CSV com colunas: Nome, Idade, A, B, C, D. A coluna Idade é obrigatória para calcular
-              elegibilidade por faixa etária.
-            </CardDescription>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="shrink-0 gap-1.5 text-xs"
-            onClick={handleDownloadTemplate}
-          >
-            <Download className="h-3.5 w-3.5" />
-            Template
-          </Button>
-        </div>
+        <CardTitle className="text-sm font-semibold">Importar dados — C7</CardTitle>
+        <CardDescription className="mt-1 text-xs">
+          Exporte o relatório <strong>Saúde da mulher</strong> do Acompanhamento de Condições de
+          Saúde do e-SUS (faixa etária 9–69 anos, sexo feminino) e importe aqui.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div

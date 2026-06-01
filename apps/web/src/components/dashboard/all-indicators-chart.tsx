@@ -45,10 +45,10 @@ function EmptyState() {
 }
 
 const SCORE_LEGEND = [
-  { color: '#10b981', label: 'Ótimo ≥ 80' },
-  { color: '#3b82f6', label: 'Bom ≥ 60' },
-  { color: '#f59e0b', label: 'Suficiente ≥ 40' },
-  { color: '#ef4444', label: 'Regular < 40' },
+  { color: '#10b981', label: 'Ótimo: 80 ou mais' },
+  { color: '#3b82f6', label: 'Bom: 60 ou mais' },
+  { color: '#f59e0b', label: 'Suficiente: 40 ou mais' },
+  { color: '#ef4444', label: 'Regular: abaixo de 40' },
 ]
 
 export function AllIndicatorsChart() {
@@ -58,7 +58,7 @@ export function AllIndicatorsChart() {
   return (
     <Card className="border-border/60">
       <CardHeader>
-        <CardTitle className="text-sm font-semibold">Visão geral — Todos os indicadores</CardTitle>
+        <CardTitle className="text-sm font-semibold">Visão geral: todos os indicadores</CardTitle>
         <CardDescription className="text-xs">
           Score médio por indicador Previne Brasil
         </CardDescription>

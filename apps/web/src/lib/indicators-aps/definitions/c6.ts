@@ -4,7 +4,7 @@ export const C6: IndicatorDefinition = {
   code: 'c6',
   shortLabel: 'C6',
   title: 'Pessoa Idosa',
-  subtitle: 'Cuidado da pessoa idosa (≥ 60 anos)',
+  subtitle: 'Cuidado da pessoa idosa: 60 anos ou mais',
   description:
     'Avalia o cuidado integral à pessoa idosa quanto a consultas, registros antropométricos, visitas e imunização.',
   population: 'Pessoas com 60 anos ou mais vinculadas à equipe.',
@@ -13,7 +13,7 @@ export const C6: IndicatorDefinition = {
     {
       id: 'A',
       points: 25,
-      title: '≥ 1 consulta em 12 meses',
+      title: '1 ou mais consultas em 12 meses',
       description: 'Consulta médica ou de enfermagem realizada nos últimos 12 meses.',
     },
     {
@@ -25,7 +25,7 @@ export const C6: IndicatorDefinition = {
     {
       id: 'C',
       points: 25,
-      title: '≥ 2 visitas do ACS',
+      title: '2 ou mais visitas do ACS',
       description: 'Duas visitas com intervalo mínimo de 30 dias em 12 meses.',
     },
     {

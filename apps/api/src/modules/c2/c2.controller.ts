@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Controller,
   Get,
-  Header,
   Post,
   Query,
   UploadedFile,
@@ -47,7 +46,7 @@ export class C2Controller {
       },
     },
   })
-  @ApiOperation({ summary: 'Importar CSV de crianças para C2' })
+  @ApiOperation({ summary: 'Importar CSV do e-SUS (Acompanhamento de Condições de Saúde) para C2' })
   importCsv(
     @UploadedFile() file: Express.Multer.File | undefined,
     @Query('periodo') periodo: string,
@@ -55,14 +54,6 @@ export class C2Controller {
   ) {
     if (!file) throw new BadRequestException('Arquivo CSV não recebido')
     if (!periodo) throw new BadRequestException('Parâmetro periodo obrigatório')
-    return this.c2Service.importCsv(file.buffer.toString('utf-8'), periodo, tenant)
-  }
-
-  @Get('import/template')
-  @Header('Content-Type', 'text/csv; charset=utf-8')
-  @Header('Content-Disposition', 'attachment; filename="c2-template.csv"')
-  @ApiOperation({ summary: 'Download do template CSV para importação C2' })
-  getTemplate() {
-    return this.c2Service.getCsvTemplate()
+    return this.c2Service.importCsv(file.buffer.toString('latin1'), periodo, tenant)
   }
 }

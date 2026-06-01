@@ -23,8 +23,4 @@ export class C6Service {
   importCsv(csvContent: string, periodo: string, tenant: TenantContextPayload) {
     return this.importService.importCsv(csvContent, periodo, tenant)
   }
-
-  getCsvTemplate(): string {
-    return this.importService.getTemplate()
-  }
 }

@@ -10,13 +10,8 @@ export const C6_CRITERION_POINTS: Record<C6CriterionId, number> = {
 }
 
 export const C6_CRITERION_LABELS: Record<C6CriterionId, string> = {
-  A: '≥ 1 consulta em 12 meses',
+  A: '1 ou mais consultas em 12 meses',
   B: 'Peso e altura em 12 meses',
-  C: '≥ 2 visitas do ACS (intervalo ≥ 30d)',
+  C: '2 ou mais visitas do ACS com intervalo de 30 dias',
   D: 'Vacina Influenza em 12 meses',
 }
-
-export const C6_CSV_TEMPLATE = `Nome,A,B,C,D
-Antônia Reis,Sim,Sim,Não,Sim
-Manoel Santos,1,1,1,0
-Lurdes Pereira,true,true,false,true`

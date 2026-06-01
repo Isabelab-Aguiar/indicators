@@ -17,13 +17,8 @@ export const C7_ELIGIBILITY_RANGES: Record<C7CriterionId, { minAge: number; maxA
 }
 
 export const C7_CRITERION_LABELS: Record<C7CriterionId, string> = {
-  A: 'Rastreio colo do útero (36m)',
-  B: 'Vacina HPV ≥1 dose',
-  C: 'Saúde sexual e reprodutiva (12m)',
-  D: 'Rastreio mamografia (24m)',
+  A: 'Rastreio do colo do útero em 36 meses',
+  B: 'Vacina HPV: 1 ou mais doses',
+  C: 'Saúde sexual e reprodutiva em 12 meses',
+  D: 'Rastreio de mama em 24 meses',
 }
-
-export const C7_CSV_TEMPLATE = `Nome,Idade,A,B,C,D
-Carla Mendes,32,Sim,Não,Sim,Não
-Beatriz Lima,12,Não,Sim,Não,Não
-Sandra Rocha,58,Sim,Não,Sim,Sim`

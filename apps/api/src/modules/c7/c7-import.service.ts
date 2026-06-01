@@ -1,55 +1,21 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common'
 import { eq, and } from 'drizzle-orm'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
-
 import { DATABASE_TOKEN } from '../../database/database.module'
 import { c7Scores } from '../../database/schema'
 import type * as schema from '../../database/schema'
 import type { TenantContextPayload } from '../../common/tenant/tenant-context'
 import { C7EligibilityService } from './c7-eligibility.service'
-import { C7_CRITERION_POINTS, C7_CSV_TEMPLATE } from './c7.constants'
-import type { C7CriterionId, C7CriteriaResult, C7EligibilityResult } from '@repo/types'
+import { parseEsusCsv, ESUS_COL } from './c7-csv.helpers'
+import {
+  classify,
+  computeScore,
+  deriveEsusCriteria,
+  parseDate,
+  calcAge,
+} from './c7-criteria.helpers'
 
 type Database = NodePgDatabase<typeof schema>
-
-const BOOL_MAP: Record<string, boolean> = {
-  sim: true,
-  yes: true,
-  '1': true,
-  true: true,
-  não: false,
-  nao: false,
-  no: false,
-  '0': false,
-  false: false,
-}
-
-function parseBool(val: string): boolean {
-  return BOOL_MAP[val.toLowerCase().trim()] ?? false
-}
-
-function classify(pct: number): string {
-  if (pct >= 80) return 'otimo'
-  if (pct >= 60) return 'bom'
-  if (pct >= 40) return 'suficiente'
-  return 'regular'
-}
-
-function computeScore(
-  criteria: C7CriteriaResult,
-  eligibility: C7EligibilityResult,
-): { score: number; scoreMax: number; pct: number } {
-  const score = (Object.entries(C7_CRITERION_POINTS) as [C7CriterionId, number][]).reduce(
-    (sum, [id, pts]) => (criteria[id] && eligibility[id] ? sum + pts : sum),
-    0,
-  )
-  const scoreMax = (Object.entries(C7_CRITERION_POINTS) as [C7CriterionId, number][]).reduce(
-    (sum, [id, pts]) => (eligibility[id] ? sum + pts : sum),
-    0,
-  )
-  const pct = scoreMax > 0 ? Math.round((score / scoreMax) * 1000) / 10 : 0
-  return { score, scoreMax, pct }
-}
 
 @Injectable()
 export class C7ImportService {
@@ -58,66 +24,38 @@ export class C7ImportService {
     private readonly eligibilityService: C7EligibilityService,
   ) {}
 
-  getTemplate(): string {
-    return C7_CSV_TEMPLATE
-  }
-
   async importCsv(csvContent: string, periodo: string, tenant: TenantContextPayload) {
-    const lines = csvContent
-      .split('\n')
-      .map((l) => l.trim())
-      .filter(Boolean)
-    if (lines.length < 2) throw new BadRequestException('CSV vazio ou sem dados')
+    const rows = parseEsusCsv(csvContent)
+    if (rows.length === 0) throw new BadRequestException('CSV sem dados de pacientes')
 
-    const header = lines[0].split(',').map((h) => h.trim().toLowerCase())
-    const required = ['nome', 'idade', 'a', 'b', 'c', 'd']
-    for (const col of required) {
-      if (!header.includes(col)) throw new BadRequestException(`Coluna obrigatória ausente: ${col}`)
-    }
-
-    const idxOf = (col: string) => header.indexOf(col)
     const errors: { row: number; field: string; message: string }[] = []
     const warnings: { row: number; message: string }[] = []
     let imported = 0
     let updated = 0
 
-    for (let i = 1; i < lines.length; i++) {
-      const cols = lines[i].split(',').map((c) => c.trim())
-      const nome = cols[idxOf('nome')]?.replace(/^"|"$/g, '')
-      const idadeRaw = cols[idxOf('idade')]
-      const age = parseInt(idadeRaw, 10)
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i]
+      const nome = row[ESUS_COL.NOME]?.trim()
 
       if (!nome) {
-        errors.push({ row: i + 1, field: 'nome', message: 'Nome vazio' })
-        continue
-      }
-      if (isNaN(age) || age < 0 || age > 120) {
-        errors.push({ row: i + 1, field: 'idade', message: 'Idade inválida' })
+        errors.push({ row: i + 1, field: 'Nome', message: 'Nome vazio' })
         continue
       }
 
-      const eligibility = this.eligibilityService.checkEligibility(age)
-      const criteria: C7CriteriaResult = {
-        A: parseBool(cols[idxOf('a')] ?? ''),
-        B: parseBool(cols[idxOf('b')] ?? ''),
-        C: parseBool(cols[idxOf('c')] ?? ''),
-        D: parseBool(cols[idxOf('d')] ?? ''),
+      const birthDate = parseDate(row[ESUS_COL.DATA_NASCIMENTO] ?? '')
+      if (!birthDate) {
+        errors.push({
+          row: i + 1,
+          field: 'Data de nascimento',
+          message: 'Data de nascimento inválida ou ausente',
+        })
+        continue
       }
 
-      const eligibilityIds: C7CriterionId[] = ['A', 'B', 'C', 'D']
-      for (const id of eligibilityIds) {
-        if (criteria[id] && !eligibility[id]) {
-          warnings.push({
-            row: i + 1,
-            message: `Critério ${id} marcado, mas paciente fora da faixa elegível`,
-          })
-        }
-      }
-
-      const birthDate = new Date()
-      birthDate.setFullYear(birthDate.getFullYear() - age)
+      const microarea = row[ESUS_COL.MICROAREA]?.trim() ?? null
       const birthDateStr = birthDate.toISOString().split('T')[0]
-
+      const eligibility = this.eligibilityService.checkEligibility(calcAge(birthDate))
+      const criteria = deriveEsusCriteria(row)
       const { score, scoreMax, pct } = computeScore(criteria, eligibility)
 
       const existing = await this.db.query.c7Scores.findFirst({
@@ -148,6 +86,7 @@ export class C7ImportService {
           esfId: tenant.esfId,
           nome,
           birthDate: birthDateStr,
+          microarea,
           cytologyLast36m: criteria.A,
           hpvVaccineDose1: criteria.B,
           sexualHealthLast12m: criteria.C,

@@ -13,13 +13,13 @@ export const C4: IndicatorDefinition = {
     {
       id: 'A',
       points: 20,
-      title: '≥ 1 consulta em 6 meses',
+      title: '1 ou mais consultas em 6 meses',
       description: 'Consulta médica ou de enfermagem realizada nos últimos 6 meses.',
     },
     {
       id: 'B',
       points: 15,
-      title: '≥ 1 aferição de PA em 6 meses',
+      title: '1 ou mais aferições de PA em 6 meses',
       description: 'Pressão arterial aferida e registrada nos últimos 6 meses.',
     },
     {
@@ -31,7 +31,7 @@ export const C4: IndicatorDefinition = {
     {
       id: 'D',
       points: 20,
-      title: '≥ 2 visitas do ACS',
+      title: '2 ou mais visitas do ACS',
       description: 'Duas visitas com intervalo mínimo de 30 dias em 12 meses.',
     },
     {

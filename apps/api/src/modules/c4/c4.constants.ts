@@ -12,15 +12,10 @@ export const C4_CRITERION_POINTS: Record<C4CriterionId, number> = {
 }
 
 export const C4_CRITERION_LABELS: Record<C4CriterionId, string> = {
-  A: '≥ 1 consulta nos últimos 6 meses',
-  B: '≥ 1 aferição de PA nos últimos 6 meses',
+  A: '1 ou mais consultas nos últimos 6 meses',
+  B: '1 ou mais aferições de PA nos últimos 6 meses',
   C: 'Peso e altura registrados em 12 meses',
-  D: '≥ 2 visitas do ACS (intervalo ≥ 30d)',
+  D: '2 ou mais visitas do ACS com intervalo de 30 dias',
   E: 'Hemoglobina Glicada solicitada em 12 meses',
   F: 'Avaliação dos pés realizada em 12 meses',
 }
-
-export const C4_CSV_TEMPLATE = `Nome,A,B,C,D,E,F
-Carlos Oliveira,Sim,Sim,Sim,Não,Sim,Não
-Maria Lima,1,1,0,1,1,0
-José Ferreira,true,true,true,false,true,true`

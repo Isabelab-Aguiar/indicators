@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Controller,
   Get,
-  Header,
   Post,
   Query,
   UploadedFile,
@@ -23,7 +22,7 @@ export class C4Controller {
   constructor(private readonly c4Service: C4Service) {}
 
   @Get('breakdown')
-  @ApiOperation({ summary: 'Breakdown C4 por paciente diabetico' })
+  @ApiOperation({ summary: 'Breakdown C4 por paciente diabético' })
   @ApiQuery({ name: 'periodo', required: false })
   getBreakdown(@CurrentTenant() tenant: TenantContextPayload, @Query('periodo') periodo?: string) {
     return this.c4Service.getBreakdown(tenant, periodo)
@@ -47,7 +46,7 @@ export class C4Controller {
       },
     },
   })
-  @ApiOperation({ summary: 'Importar CSV de diabeticos para C4' })
+  @ApiOperation({ summary: 'Importar CSV do e-SUS (Acompanhamento de Condições de Saúde) para C4' })
   importCsv(
     @UploadedFile() file: Express.Multer.File | undefined,
     @Query('periodo') periodo: string,
@@ -55,7 +54,7 @@ export class C4Controller {
   ) {
     if (!file) throw new BadRequestException('Arquivo CSV não recebido')
     if (!periodo) throw new BadRequestException('Parâmetro periodo obrigatório')
-    return this.c4Service.importCsv(file.buffer.toString('utf-8'), periodo, tenant)
+    return this.c4Service.importCsv(file.buffer.toString('latin1'), periodo, tenant)
   }
 
   @Get('patients')
@@ -63,13 +62,5 @@ export class C4Controller {
   @ApiQuery({ name: 'periodo', required: false })
   getPatients(@CurrentTenant() tenant: TenantContextPayload, @Query('periodo') periodo?: string) {
     return this.c4Service.getPatients(tenant, periodo)
-  }
-
-  @Get('import/template')
-  @Header('Content-Type', 'text/csv; charset=utf-8')
-  @Header('Content-Disposition', 'attachment; filename="c4-template.csv"')
-  @ApiOperation({ summary: 'Download do template CSV para importação C4' })
-  getTemplate() {
-    return this.c4Service.getCsvTemplate()
   }
 }

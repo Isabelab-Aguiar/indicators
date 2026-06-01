@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Controller,
   Get,
-  Header,
   Post,
   Query,
   UploadedFile,
@@ -11,7 +10,6 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express'
 import { ApiBody, ApiConsumes, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
 import { memoryStorage } from 'multer'
-
 import { C6Service } from './c6.service'
 import { CurrentTenant } from '../../common/tenant/current-tenant.decorator'
 import type { TenantContextPayload } from '../../common/tenant/tenant-context'
@@ -48,7 +46,7 @@ export class C6Controller {
       },
     },
   })
-  @ApiOperation({ summary: 'Importar CSV de idosos para C6' })
+  @ApiOperation({ summary: 'Importar CSV do e-SUS (Acompanhamento de Condições de Saúde) para C6' })
   importCsv(
     @UploadedFile() file: Express.Multer.File | undefined,
     @Query('periodo') periodo: string,
@@ -56,8 +54,7 @@ export class C6Controller {
   ) {
     if (!file) throw new BadRequestException('Arquivo CSV não recebido')
     if (!periodo) throw new BadRequestException('Parâmetro periodo obrigatório')
-    const csvContent = file.buffer.toString('utf-8')
-    return this.c6Service.importCsv(csvContent, periodo, tenant)
+    return this.c6Service.importCsv(file.buffer.toString('latin1'), periodo, tenant)
   }
 
   @Get('patients')
@@ -65,13 +62,5 @@ export class C6Controller {
   @ApiQuery({ name: 'periodo', required: false })
   getPatients(@CurrentTenant() tenant: TenantContextPayload, @Query('periodo') periodo?: string) {
     return this.c6Service.getPatients(tenant, periodo)
-  }
-
-  @Get('import/template')
-  @Header('Content-Type', 'text/csv; charset=utf-8')
-  @Header('Content-Disposition', 'attachment; filename="c6-template.csv"')
-  @ApiOperation({ summary: 'Download do template CSV para importação C6' })
-  getTemplate() {
-    return this.c6Service.getCsvTemplate()
   }
 }

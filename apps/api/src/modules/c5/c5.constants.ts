@@ -10,13 +10,8 @@ export const C5_CRITERION_POINTS: Record<C5CriterionId, number> = {
 }
 
 export const C5_CRITERION_LABELS: Record<C5CriterionId, string> = {
-  A: '≥ 1 consulta nos últimos 6 meses',
-  B: '≥ 1 aferição de PA nos últimos 6 meses',
+  A: '1 ou mais consultas nos últimos 6 meses',
+  B: '1 ou mais aferições de PA nos últimos 6 meses',
   C: 'Peso e altura registrados em 12 meses',
-  D: '≥ 2 visitas do ACS (intervalo ≥ 30d)',
+  D: '2 ou mais visitas do ACS com intervalo de 30 dias',
 }
-
-export const C5_CSV_TEMPLATE = `Nome,A,B,C,D
-Ana Costa,Sim,Sim,Sim,Não
-Pedro Alves,1,1,1,1
-Rosa Martins,true,false,true,true`

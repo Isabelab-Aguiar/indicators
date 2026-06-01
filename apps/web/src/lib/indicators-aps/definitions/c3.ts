@@ -20,7 +20,7 @@ export const C3: IndicatorDefinition = {
       id: 'B',
       points: 9,
       title: 'Mínimo de 7 consultas no pré-natal',
-      description: 'Consultas presenciais ou remotas por médica(o) ou enfermeira(o).',
+      description: 'Consultas presenciais ou remotas por médico ou enfermeiro.',
     },
     {
       id: 'C',
@@ -37,7 +37,7 @@ export const C3: IndicatorDefinition = {
     {
       id: 'E',
       points: 9,
-      title: 'Mínimo de 3 visitas domiciliares (ACS/TACS)',
+      title: 'Mínimo de 3 visitas domiciliares pelo ACS',
       description: 'Após a primeira consulta do pré-natal.',
     },
     {
@@ -49,21 +49,20 @@ export const C3: IndicatorDefinition = {
     {
       id: 'G',
       points: 9,
-      title: 'Testes/exames no 1º trimestre',
+      title: 'Testes e exames no 1º trimestre',
       description: 'Sífilis, HIV e hepatites B e C: todos realizados.',
     },
     {
       id: 'H',
       points: 9,
-      title: 'Testes/exames no 3º trimestre',
+      title: 'Testes e exames no 3º trimestre',
       description: 'Sífilis e HIV: ambos realizados.',
     },
     {
       id: 'I',
       points: 9,
-      title: 'Saúde bucal (mín. 1 atividade)',
-      description:
-        'Por cirurgiã(o) dentista ou TSB durante a gestação. (Equivale ao item K da PNAB)',
+      title: 'Saúde bucal: mínimo de 1 atividade',
+      description: 'Por cirurgião dentista ou TSB durante a gestação.',
     },
   ],
 }
