@@ -1,3 +1,4 @@
+export * from './access-requests'
 export * from './audit-logs'
 export * from './c2.schema'
 export * from './c4.schema'

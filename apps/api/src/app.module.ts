@@ -19,6 +19,8 @@ import { C4Module } from './modules/c4/c4.module'
 import { C5Module } from './modules/c5/c5.module'
 import { C6Module } from './modules/c6/c6.module'
 import { C7Module } from './modules/c7/c7.module'
+import { AdminModule } from './admin/admin.module'
+import { AccessRequestsModule } from './access-requests/access-requests.module'
 import { RATE_LIMIT } from '@repo/config'
 
 @Module({
@@ -48,6 +50,8 @@ import { RATE_LIMIT } from '@repo/config'
     C6Module,
     C7Module,
     HealthModule,
+    AdminModule,
+    AccessRequestsModule,
   ],
 })
 export class AppModule {}

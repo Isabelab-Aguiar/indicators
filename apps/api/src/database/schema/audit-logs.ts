@@ -14,6 +14,8 @@ export const auditActionEnum = pgEnum('audit_action', [
   'EXPORT',
   'PASSWORD_RESET',
   'INVITE_SENT',
+  'ACCESS_REQUEST_APPROVED',
+  'ACCESS_REQUEST_REJECTED',
 ])
 
 export const auditEntityEnum = pgEnum('audit_entity', [
@@ -22,6 +24,7 @@ export const auditEntityEnum = pgEnum('audit_entity', [
   'imports',
   'auth',
   'settings',
+  'access_request',
 ])
 
 export const auditLogs = pgTable('audit_logs', {

@@ -65,6 +65,7 @@ export class UsersService {
       role: dto.role as 'admin' | 'manager' | 'nurse' | 'doctor' | 'acs',
       status: 'pending_first_access',
       esfId: targetEsfId,
+      ...(dto.cpf ? { cpf: dto.cpf } : {}),
     })
 
     return { inviteId: invite.id, email: invite.email }

@@ -12,4 +12,10 @@ export class InviteUserDto {
   @IsOptional()
   @IsUUID()
   esfId?: string
+
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsString()
+  @Length(11, 11)
+  cpf?: string
 }
