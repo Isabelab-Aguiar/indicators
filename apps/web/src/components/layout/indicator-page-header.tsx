@@ -58,7 +58,6 @@ export function IndicatorPageHeader({
   return (
     <>
       <div className="border-border bg-background border-b px-4 py-4 sm:px-6">
-        {/* Mobile top bar */}
         <div className="mb-3 flex items-center justify-between lg:hidden">
           <button
             type="button"
@@ -79,10 +78,9 @@ export function IndicatorPageHeader({
             <ChevronRight className="h-3 w-3" />
             <span className="text-foreground font-medium">{indicator.shortLabel}</span>
           </nav>
-          <div className="w-8" /> {/* spacer para centralizar breadcrumb */}
+          <div className="w-8" />
         </div>
 
-        {/* Desktop breadcrumb */}
         <nav className="text-muted-foreground mb-2 hidden items-center gap-1 text-xs lg:flex">
           <Link href="/dashboard" className="hover:text-foreground transition-colors">
             Início
@@ -97,16 +95,13 @@ export function IndicatorPageHeader({
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <div className="mb-1.5 flex flex-wrap items-center gap-2">
-              <Badge variant="secondary" className="rounded-md font-mono text-xs">
-                {indicator.shortLabel}
-              </Badge>
-              {user?.esfName && (
+            {user?.esfName && (
+              <div className="mb-1.5">
                 <Badge variant="outline" className="rounded-md text-xs">
                   {user.esfName}
                 </Badge>
-              )}
-            </div>
+              </div>
+            )}
             <h1 className="text-foreground mt-2 text-base font-semibold sm:text-lg">
               {indicator.shortLabel} {indicator.title}
             </h1>

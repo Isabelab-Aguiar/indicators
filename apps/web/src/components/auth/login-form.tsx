@@ -49,7 +49,7 @@ export function LoginForm() {
                 id="identifier"
                 type="text"
                 inputMode={isCpf ? 'numeric' : 'email'}
-                placeholder="000.000.000-00 ou email@esf.gov.br"
+                placeholder="CPF ou e-mail"
                 autoComplete="username"
                 leftIcon={<UserRound className="h-3.5 w-3.5" />}
                 error={!!errors.identifier}
