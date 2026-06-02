@@ -1,4 +1,4 @@
-import type { UserRole, UserStatus } from './auth'
+import type { UserRole } from './auth'
 import type { Esf } from './esf'
 
 export type AccessRequestStatus = 'pending' | 'approved' | 'rejected'
