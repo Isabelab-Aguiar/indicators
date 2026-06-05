@@ -53,7 +53,6 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
     register,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),

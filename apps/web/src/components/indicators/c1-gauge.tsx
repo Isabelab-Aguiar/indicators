@@ -49,7 +49,6 @@ export function C1Gauge({ percent, hideValue = false }: C1GaugeProps) {
       if (t < 1) requestAnimationFrame(tick)
     }
     requestAnimationFrame(tick)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clamped])
 
   return (
