@@ -20,7 +20,10 @@ export interface C2PatientRow {
   name: string
   microarea: string
   acs: string
+  birthDate: string | null
+  ageInDays: number | null
   criteria: C2CriteriaResult
+  notApplicableCriteria: C2CriterionId[]
   score: number
   classification: C2Classification
   pendingCriteria: C2CriterionId[]

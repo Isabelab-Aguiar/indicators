@@ -22,8 +22,9 @@ export class AccessRequestsService {
         cpf: dto.cpf,
         role: dto.role as 'admin' | 'manager' | 'nurse' | 'doctor' | 'acs',
         esfId: dto.esfId ?? null,
-        esfName: dto.esfName,
+        esfName: dto.esfName ? dto.esfName.trim().toUpperCase() : undefined,
         cnes: dto.cnes,
+        ine: dto.ine,
         message: dto.message,
         status: 'pending',
       })

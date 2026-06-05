@@ -12,6 +12,7 @@ export interface CreateAccessRequestInput {
   esfId?: string
   esfName?: string
   cnes?: string
+  ine?: string
   message?: string
 }
 

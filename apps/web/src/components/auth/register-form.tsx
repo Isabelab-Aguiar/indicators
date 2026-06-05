@@ -21,6 +21,7 @@ import {
   OTHER_ESF,
   formatCpf,
 } from './register-form-schema'
+import { RegisterEsfOtherFields } from './register-esf-other-fields'
 
 interface RegisterFormProps {
   onSuccess: () => void
@@ -47,6 +48,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
       esfId: data.esfId !== OTHER_ESF ? data.esfId : undefined,
       esfName: data.esfId === OTHER_ESF ? data.esfName : undefined,
       cnes: data.cnes || undefined,
+      ine: data.esfId === OTHER_ESF ? data.ine || undefined : undefined,
       message: data.message,
     }
     create.mutate(payload, {
@@ -158,15 +160,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
       </div>
 
       {esfSelection === OTHER_ESF && (
-        <div className="space-y-1">
-          <label className="text-foreground text-xs font-medium">Nome da ESF</label>
-          <Input
-            placeholder="Nome completo da ESF"
-            error={!!errors.esfName}
-            {...register('esfName')}
-          />
-          {errors.esfName && <p className="text-destructive text-xs">{errors.esfName.message}</p>}
-        </div>
+        <RegisterEsfOtherFields register={register} setValue={setValue} errors={errors} />
       )}
 
       <div className="space-y-1">

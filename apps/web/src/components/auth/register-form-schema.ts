@@ -24,6 +24,11 @@ export const registerSchema = z
       .regex(/^\d{7}$/, 'CNES deve ter 7 dígitos')
       .optional()
       .or(z.literal('')),
+    ine: z
+      .string()
+      .regex(/^\d{10}$/, 'INE deve ter 10 dígitos')
+      .optional()
+      .or(z.literal('')),
     message: z.string().optional(),
   })
   .refine((d) => d.esfId !== OTHER_ESF || (d.esfName && d.esfName.trim().length >= 2), {

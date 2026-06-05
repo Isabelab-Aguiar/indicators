@@ -31,5 +31,10 @@ export class CreateAccessRequestDto {
 
   @IsOptional()
   @IsString()
+  @Length(10, 10)
+  ine?: string
+
+  @IsOptional()
+  @IsString()
   message?: string
 }
