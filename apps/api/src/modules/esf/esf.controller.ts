@@ -4,11 +4,19 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import { EsfService } from './esf.service'
 import { CreateEsfDto } from './dto/create-esf.dto'
 import { Roles } from '../../common/decorators/roles.decorator'
+import { Public } from '../auth/decorators/public.decorator'
 
 @ApiTags('ESF')
 @Controller({ path: 'esf', version: '1' })
 export class EsfController {
   constructor(private readonly esfService: EsfService) {}
+
+  @Public()
+  @Get('public')
+  @ApiOperation({ summary: 'Listar ESFs para formulário público' })
+  findAllPublic() {
+    return this.esfService.findAll()
+  }
 
   @Get()
   @Roles('admin', 'manager')

@@ -8,6 +8,7 @@ import { motion } from 'framer-motion'
 import { Card, CardContent, Button, Input } from '@repo/ui'
 import { loginSchema, type LoginInput } from '@repo/validations'
 import { useLogin } from '@/hooks/use-auth'
+import { RegisterModal } from './register-modal'
 
 function formatCpf(value: string): string {
   const digits = value.replace(/\D/g, '').slice(0, 11)
@@ -19,6 +20,7 @@ function formatCpf(value: string): string {
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
+  const [showRegister, setShowRegister] = useState(false)
   const login = useLogin()
 
   const {
@@ -105,9 +107,19 @@ export function LoginForm() {
             <Button type="submit" className="w-full" size="lg" loading={login.isPending}>
               Entrar
             </Button>
+
+            <button
+              type="button"
+              onClick={() => setShowRegister(true)}
+              className="text-muted-foreground hover:text-foreground w-full text-center text-xs transition-colors"
+            >
+              Não tem acesso? <span className="text-primary font-medium">Solicitar cadastro</span>
+            </button>
           </form>
         </CardContent>
       </Card>
+
+      {showRegister && <RegisterModal onClose={() => setShowRegister(false)} />}
     </motion.div>
   )
 }

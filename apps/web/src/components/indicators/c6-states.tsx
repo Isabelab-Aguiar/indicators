@@ -1,13 +1,12 @@
 'use client'
 
 import { PersonStanding, UploadCloud } from 'lucide-react'
-import Link from 'next/link'
 
 function SkeletonBlock({ className }: { className?: string }) {
   return <div className={`bg-muted animate-pulse rounded-2xl ${className ?? ''}`} />
 }
 
-export function C6EmptyState() {
+export function C6EmptyState({ onImport }: { onImport: () => void }) {
   return (
     <div className="border-border flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed py-24">
       <div className="bg-muted flex h-14 w-14 items-center justify-center rounded-2xl">
@@ -20,13 +19,14 @@ export function C6EmptyState() {
           cuidado.
         </p>
       </div>
-      <Link
-        href="#importar"
+      <button
+        type="button"
+        onClick={onImport}
         className="text-foreground bg-primary/8 hover:bg-primary/15 flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-colors"
       >
         <UploadCloud className="h-3.5 w-3.5" />
         Importar planilha
-      </Link>
+      </button>
     </div>
   )
 }

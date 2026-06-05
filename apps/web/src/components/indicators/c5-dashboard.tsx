@@ -45,7 +45,7 @@ function CriteriaHeader() {
   )
 }
 
-export function C5Dashboard() {
+export function C5Dashboard({ onImport }: { onImport: () => void }) {
   const { isLoading, isError, records } = useC5Analytics()
   const { filters, setMicroareaOptions } = useIndicatorFilters()
   const { quad, year, microarea } = filters
@@ -71,7 +71,7 @@ export function C5Dashboard() {
       <PopulationCard population={indicator.population} />
 
       {breakdown.total === 0 ? (
-        <C5EmptyState />
+        <C5EmptyState onImport={onImport} />
       ) : (
         <>
           <C5SummaryBar

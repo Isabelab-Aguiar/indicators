@@ -28,7 +28,7 @@ export function useLogin() {
         headers: { Authorization: `Bearer ${tokens.accessToken}` },
       })
       setAuth(meResponse.data.data, tokens.accessToken)
-      router.push('/dashboard')
+      router.push(meResponse.data.data.role === 'admin' ? '/admin' : '/dashboard')
     },
   })
 }

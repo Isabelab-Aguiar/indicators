@@ -72,7 +72,7 @@ export function C7Tabs() {
 
       <Tabs.Content value="analise" asChild>
         <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
-          <C7Dashboard />
+          <C7Dashboard onImport={() => setActiveTab('importar')} />
         </motion.div>
       </Tabs.Content>
 

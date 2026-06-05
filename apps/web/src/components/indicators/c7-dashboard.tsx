@@ -41,7 +41,7 @@ function CriteriaHeader() {
   )
 }
 
-export function C7Dashboard() {
+export function C7Dashboard({ onImport }: { onImport: () => void }) {
   const { isLoading, isError, women } = useC7Analytics()
   const { filters, setMicroareaOptions } = useIndicatorFilters()
   const { quad, year, microarea } = filters
@@ -67,7 +67,7 @@ export function C7Dashboard() {
       <PopulationCard population={indicator.population} />
 
       {breakdown.total === 0 ? (
-        <C7EmptyState />
+        <C7EmptyState onImport={onImport} />
       ) : (
         <>
           <C7SummaryBar

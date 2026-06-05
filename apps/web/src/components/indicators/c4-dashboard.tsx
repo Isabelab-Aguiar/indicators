@@ -45,7 +45,7 @@ function CriteriaHeader() {
   )
 }
 
-export function C4Dashboard() {
+export function C4Dashboard({ onImport }: { onImport: () => void }) {
   const { isLoading, isError, records } = useC4Analytics()
   const { filters, setMicroareaOptions } = useIndicatorFilters()
   const { quad, year, microarea } = filters
@@ -71,7 +71,7 @@ export function C4Dashboard() {
       <PopulationCard population={indicator.population} />
 
       {breakdown.total === 0 ? (
-        <C4EmptyState />
+        <C4EmptyState onImport={onImport} />
       ) : (
         <>
           <C4SummaryBar
