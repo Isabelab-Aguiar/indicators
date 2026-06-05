@@ -16,8 +16,18 @@ export class CreateAccessRequestDto {
   @IsEnum(['admin', 'manager', 'nurse', 'doctor', 'acs'])
   role: string
 
+  @IsOptional()
   @IsUUID()
-  esfId: string
+  esfId?: string
+
+  @IsOptional()
+  @IsString()
+  esfName?: string
+
+  @IsOptional()
+  @IsString()
+  @Length(7, 7)
+  cnes?: string
 
   @IsOptional()
   @IsString()

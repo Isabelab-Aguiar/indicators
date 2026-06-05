@@ -9,7 +9,9 @@ export interface CreateAccessRequestInput {
   email: string
   cpf: string
   role: string
-  esfId: string
+  esfId?: string
+  esfName?: string
+  cnes?: string
   message?: string
 }
 
@@ -26,10 +28,6 @@ export function usePublicEsfs() {
 
 export function useCreateAccessRequest() {
   return useMutation({
-    mutationFn: (data: CreateAccessRequestInput) =>
-      apiClient.post('/access-requests', {
-        ...data,
-        cpf: data.cpf.replace(/\D/g, ''),
-      }),
+    mutationFn: (data: CreateAccessRequestInput) => apiClient.post('/access-requests', data),
   })
 }

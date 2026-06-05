@@ -59,7 +59,7 @@ export function C7ImportacaoSection() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm font-semibold">Importar dados — C7</CardTitle>
+        <CardTitle className="text-sm font-semibold">Importar dados C7</CardTitle>
         <CardDescription className="mt-1 text-xs">
           Exporte o relatório <strong>Saúde da mulher</strong> do Acompanhamento de Condições de
           Saúde do e-SUS (faixa etária 9–69 anos, sexo feminino) e importe aqui.

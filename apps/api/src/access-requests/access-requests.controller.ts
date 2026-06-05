@@ -5,7 +5,7 @@ import { AccessRequestsService } from './access-requests.service'
 import { CreateAccessRequestDto } from './dto/create-access-request.dto'
 import type { AccessRequestRecord } from '../database/schema'
 
-@Controller('access-requests')
+@Controller({ path: 'access-requests', version: '1' })
 export class AccessRequestsController {
   constructor(private readonly accessRequestsService: AccessRequestsService) {}
 

@@ -65,7 +65,7 @@ export function C6ImportacaoSection() {
       <CardHeader>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <CardTitle className="text-sm font-semibold">Importar dados — C6</CardTitle>
+            <CardTitle className="text-sm font-semibold">Importar dados C6</CardTitle>
             <CardDescription className="mt-1 text-xs">
               CSV com colunas: Nome, A, B, C, D. A coluna Idade é opcional e permite filtrar por
               faixa etária.

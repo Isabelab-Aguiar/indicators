@@ -1,8 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import {
   Button,
   Input,
@@ -14,32 +14,13 @@ import {
 } from '@repo/ui'
 import { usePublicEsfs, useCreateAccessRequest } from '@/hooks/use-access-request'
 import { toast } from '@/hooks/use-toast'
-
-const ROLE_OPTIONS = [
-  { value: 'manager', label: 'Coordenador / Gerente' },
-  { value: 'nurse', label: 'Enfermeiro(a)' },
-  { value: 'doctor', label: 'Médico(a)' },
-  { value: 'acs', label: 'Agente Comunitário de Saúde' },
-]
-
-const schema = z.object({
-  name: z.string().min(2, 'Nome deve ter no mínimo 2 caracteres'),
-  email: z.string().email('E-mail inválido'),
-  cpf: z.string().regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, 'CPF inválido'),
-  role: z.enum(['manager', 'nurse', 'doctor', 'acs'], { required_error: 'Selecione uma função' }),
-  esfId: z.string().uuid('Selecione uma ESF'),
-  message: z.string().optional(),
-})
-
-type FormData = z.infer<typeof schema>
-
-function formatCpf(value: string): string {
-  const d = value.replace(/\D/g, '').slice(0, 11)
-  if (d.length <= 3) return d
-  if (d.length <= 6) return `${d.slice(0, 3)}.${d.slice(3)}`
-  if (d.length <= 9) return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6)}`
-  return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`
-}
+import {
+  registerSchema,
+  type RegisterFormData,
+  ROLE_OPTIONS,
+  OTHER_ESF,
+  formatCpf,
+} from './register-form-schema'
 
 interface RegisterFormProps {
   onSuccess: () => void
@@ -48,18 +29,27 @@ interface RegisterFormProps {
 export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const { data: esfs = [] } = usePublicEsfs()
   const create = useCreateAccessRequest()
+  const [esfSelection, setEsfSelection] = useState('')
 
   const {
     register,
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm<FormData>({
-    resolver: zodResolver(schema),
-  })
+  } = useForm<RegisterFormData>({ resolver: zodResolver(registerSchema) })
 
-  function onSubmit(data: FormData) {
-    create.mutate(data, {
+  function onSubmit(data: RegisterFormData) {
+    const payload = {
+      name: data.name,
+      email: data.email,
+      cpf: data.cpf.replace(/\D/g, ''),
+      role: data.role,
+      esfId: data.esfId !== OTHER_ESF ? data.esfId : undefined,
+      esfName: data.esfId === OTHER_ESF ? data.esfName : undefined,
+      cnes: data.cnes || undefined,
+      message: data.message,
+    }
+    create.mutate(payload, {
       onSuccess: () => {
         toast({ title: 'Solicitação enviada! Aguarde a aprovação do administrador.' })
         onSuccess()
@@ -103,7 +93,9 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         <div className="space-y-1">
           <label className="text-foreground text-xs font-medium">Função</label>
           <Select
-            onValueChange={(v) => setValue('role', v as FormData['role'], { shouldValidate: true })}
+            onValueChange={(v) =>
+              setValue('role', v as RegisterFormData['role'], { shouldValidate: true })
+            }
           >
             <SelectTrigger className={errors.role ? 'border-destructive' : ''}>
               <SelectValue placeholder="Selecione" />
@@ -120,24 +112,62 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         </div>
 
         <div className="space-y-1">
-          <label className="text-foreground text-xs font-medium">ESF</label>
-          <Select onValueChange={(v) => setValue('esfId', v, { shouldValidate: true })}>
-            <SelectTrigger className={errors.esfId ? 'border-destructive' : ''}>
-              <SelectValue placeholder="Selecione" />
-            </SelectTrigger>
-            <SelectContent>
-              {esfs
-                .filter((e) => e.code !== 'SISTEMA')
-                .map((esf) => (
-                  <SelectItem key={esf.id} value={esf.id} className="text-xs">
-                    {esf.name}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-          {errors.esfId && <p className="text-destructive text-xs">{errors.esfId.message}</p>}
+          <label className="text-foreground text-xs font-medium">CNES</label>
+          <Input
+            placeholder="0000000"
+            inputMode="numeric"
+            maxLength={7}
+            error={!!errors.cnes}
+            {...register('cnes')}
+            onChange={(e) =>
+              setValue('cnes', e.target.value.replace(/\D/g, '').slice(0, 7), {
+                shouldValidate: true,
+              })
+            }
+          />
+          {errors.cnes && <p className="text-destructive text-xs">{errors.cnes.message}</p>}
         </div>
       </div>
+
+      <div className="space-y-1">
+        <label className="text-foreground text-xs font-medium">ESF</label>
+        <Select
+          onValueChange={(v) => {
+            setEsfSelection(v)
+            setValue('esfId', v, { shouldValidate: true })
+            if (v !== OTHER_ESF) setValue('esfName', '')
+          }}
+        >
+          <SelectTrigger className={errors.esfId ? 'border-destructive' : ''}>
+            <SelectValue placeholder="Selecione a ESF" />
+          </SelectTrigger>
+          <SelectContent>
+            {esfs
+              .filter((e) => e.code !== 'SISTEMA')
+              .map((esf) => (
+                <SelectItem key={esf.id} value={esf.id} className="text-xs">
+                  {esf.name}
+                </SelectItem>
+              ))}
+            <SelectItem value={OTHER_ESF} className="text-xs">
+              Outra ESF (não listada)
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        {errors.esfId && <p className="text-destructive text-xs">{errors.esfId.message}</p>}
+      </div>
+
+      {esfSelection === OTHER_ESF && (
+        <div className="space-y-1">
+          <label className="text-foreground text-xs font-medium">Nome da ESF</label>
+          <Input
+            placeholder="Nome completo da ESF"
+            error={!!errors.esfName}
+            {...register('esfName')}
+          />
+          {errors.esfName && <p className="text-destructive text-xs">{errors.esfName.message}</p>}
+        </div>
+      )}
 
       <div className="space-y-1">
         <label className="text-foreground text-xs font-medium">

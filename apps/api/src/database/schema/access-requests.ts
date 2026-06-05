@@ -16,9 +16,9 @@ export const accessRequests = pgTable('access_requests', {
   email: text('email').notNull(),
   cpf: text('cpf').notNull(),
   role: userRoleEnum('role').notNull(),
-  esfId: uuid('esf_id')
-    .notNull()
-    .references(() => esfs.id),
+  esfId: uuid('esf_id').references(() => esfs.id),
+  esfName: text('esf_name'),
+  cnes: text('cnes'),
   status: accessRequestStatusEnum('status').notNull().default('pending'),
   message: text('message'),
   reviewedBy: uuid('reviewed_by').references(() => profiles.id),

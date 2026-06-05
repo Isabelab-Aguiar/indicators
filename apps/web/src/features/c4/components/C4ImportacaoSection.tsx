@@ -59,7 +59,7 @@ export function C4ImportacaoSection() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm font-semibold">Importar dados — C4</CardTitle>
+        <CardTitle className="text-sm font-semibold">Importar dados C4</CardTitle>
         <CardDescription className="mt-1 text-xs">
           Exporte o relatório de Acompanhamento de Condições de Saúde do e-SUS e importe aqui.
         </CardDescription>

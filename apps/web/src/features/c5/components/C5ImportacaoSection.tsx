@@ -59,7 +59,7 @@ export function C5ImportacaoSection() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm font-semibold">Importar dados — C5</CardTitle>
+        <CardTitle className="text-sm font-semibold">Importar dados C5</CardTitle>
         <CardDescription className="mt-1 text-xs">
           Exporte o relatório de Acompanhamento de Condições de Saúde do e-SUS e importe aqui.
         </CardDescription>

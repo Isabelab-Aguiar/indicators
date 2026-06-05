@@ -32,7 +32,7 @@ export function RegisterModal({ onClose }: RegisterModalProps) {
             <div>
               <p className="text-foreground text-sm font-semibold">Solicitar acesso</p>
               <p className="text-muted-foreground mt-0.5 text-xs">
-                Preencha os dados — o admin receberá sua solicitação para aprovação.
+                Preencha os dados. O admin receberá sua solicitação para aprovação.
               </p>
             </div>
             <button

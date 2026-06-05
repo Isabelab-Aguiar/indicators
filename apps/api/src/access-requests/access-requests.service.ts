@@ -21,7 +21,9 @@ export class AccessRequestsService {
         email: dto.email.toLowerCase(),
         cpf: dto.cpf,
         role: dto.role as 'admin' | 'manager' | 'nurse' | 'doctor' | 'acs',
-        esfId: dto.esfId,
+        esfId: dto.esfId ?? null,
+        esfName: dto.esfName,
+        cnes: dto.cnes,
         message: dto.message,
         status: 'pending',
       })
