@@ -3,10 +3,9 @@ import { C3_CRITERIA_DEF } from '@/hooks/use-c3-analytics'
 import type { CriterionResult, PatientDetailSection } from './patient-detail-modal'
 
 function examLabel(v: string): string {
-  if (v === 'negative') return 'Realizado — Negativo'
-  if (v === 'positive') return 'Realizado — Positivo'
+  if (v === 'negative' || v === 'positive') return 'Realizado'
   if (v === 'not_performed') return 'Não realizado'
-  if (v === 'pending') return 'Não se enquadra'
+  if (v === 'pending') return 'Pendente'
   return '—'
 }
 

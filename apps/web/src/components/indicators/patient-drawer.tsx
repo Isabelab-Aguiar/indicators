@@ -147,13 +147,14 @@ export function PatientDrawer({ stat, patients, achieved, color, onClose }: Pati
 
       {selected && (
         <PatientDetailModal
-          name={selected.name}
+          patient={selected}
           subtitle={`Microárea ${selected.microarea} · CPF ${selected.cpf}`}
           score={selected.pctScore}
           scoreLabel="pts%"
           classification={selected.classification}
           criteria={buildC3Criteria(selected)}
           sections={buildC3Sections(selected)}
+          c3EditData={selected}
           onClose={() => setSelected(null)}
         />
       )}
