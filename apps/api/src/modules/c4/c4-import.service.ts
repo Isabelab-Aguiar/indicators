@@ -1,9 +1,10 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common'
-import { and, eq } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { DATABASE_TOKEN } from '../../database/database.module'
 import { c4Scores } from '../../database/schema'
 import type * as schema from '../../database/schema'
+import type { NewC4Score } from '../../database/schema'
 import type { TenantContextPayload } from '../../common/tenant/tenant-context'
 import { C4_CRITERION_POINTS } from './c4.constants'
 import type { C4CriteriaResult, C4CriterionId } from '@repo/types'
@@ -14,13 +15,10 @@ const ESUS_SEPARATOR = ';'
 
 const ESUS_COL = {
   NOME: 'Nome',
-  DATA_NASCIMENTO: 'Data de nascimento',
-  QTD_CONSULTAS_36M: 'Consultas (últimos 36 meses)',
   DATA_ULTIMA_CONSULTA: 'Data da última consulta',
   ULTIMA_PA: 'Última medição de pressão arterial',
   DATA_ULTIMA_PA: 'Data da última medição de pressão arterial',
   DATA_PESO_ALTURA: 'Data da ultima medição de peso e altura',
-  QTD_VISITAS: 'Quantidade de visitas domiciliares',
   ULTIMAS_VISITAS: 'Últimas visitas domiciliares',
   HBA1C_AVALIACAO: 'Data da última avaliação de hemoglobina glicada',
   HBA1C_SOLICITACAO: 'Data da última solicitação de hemoglobina glicada',
@@ -60,10 +58,8 @@ function parseVisitDates(raw: string): Date[] {
 
 function deriveEsusCriteria(row: Record<string, string>): C4CriteriaResult {
   const now = new Date()
-
   const dataUltimaConsulta = parseDate(row[ESUS_COL.DATA_ULTIMA_CONSULTA] ?? '')
   const criteriaA = dataUltimaConsulta !== null && monthsBetween(dataUltimaConsulta, now) <= 6
-
   const dataUltimaPA = parseDate(row[ESUS_COL.DATA_ULTIMA_PA] ?? '')
   const ultimaPA = row[ESUS_COL.ULTIMA_PA]?.trim()
   const criteriaB =
@@ -71,10 +67,8 @@ function deriveEsusCriteria(row: Record<string, string>): C4CriteriaResult {
     ultimaPA !== '-' &&
     Boolean(ultimaPA) &&
     monthsBetween(dataUltimaPA, now) <= 6
-
   const dataPesoAltura = parseDate(row[ESUS_COL.DATA_PESO_ALTURA] ?? '')
   const criteriaC = dataPesoAltura !== null && monthsBetween(dataPesoAltura, now) <= 12
-
   const visitDates = parseVisitDates(row[ESUS_COL.ULTIMAS_VISITAS] ?? '')
   let criteriaD = false
   if (visitDates.length >= 2) {
@@ -82,23 +76,19 @@ function deriveEsusCriteria(row: Record<string, string>): C4CriteriaResult {
     const diffDays = Math.floor(
       (visitDates[visitDates.length - 1].getTime() - visitDates[0].getTime()) / 86_400_000,
     )
-    const allInLast12m = visitDates.every((d) => monthsBetween(d, now) <= 12)
-    criteriaD = allInLast12m && diffDays >= 30
+    criteriaD = visitDates.every((d) => monthsBetween(d, now) <= 12) && diffDays >= 30
   }
-
   const dataHba1cAvaliacao = parseDate(row[ESUS_COL.HBA1C_AVALIACAO] ?? '')
   const dataHba1cSolicitacao = parseDate(row[ESUS_COL.HBA1C_SOLICITACAO] ?? '')
   const criteriaE =
     (dataHba1cAvaliacao !== null && monthsBetween(dataHba1cAvaliacao, now) <= 12) ||
     (dataHba1cSolicitacao !== null && monthsBetween(dataHba1cSolicitacao, now) <= 12)
-
   const dataPes = parseDate(row[ESUS_COL.PES] ?? '')
   const criteriaF = dataPes !== null && monthsBetween(dataPes, now) <= 12
-
   return { A: criteriaA, B: criteriaB, C: criteriaC, D: criteriaD, E: criteriaE, F: criteriaF }
 }
 
-function parseEsusCsv(csvContent: string): Record<string, string>[] {
+export function parseEsusCsv(csvContent: string): Record<string, string>[] {
   const lines = csvContent.split('\n').map((l) => l.trimEnd())
   const headerLineIndex = lines.findIndex((l) => l.startsWith('Nome' + ESUS_SEPARATOR))
   if (headerLineIndex === -1) {
@@ -131,64 +121,53 @@ export class C4ImportService {
     if (rows.length === 0) throw new BadRequestException('CSV sem dados de pacientes')
 
     const errors: { row: number; field: string; message: string }[] = []
-    let imported = 0
-    let updated = 0
+    const values: NewC4Score[] = []
 
     for (let i = 0; i < rows.length; i++) {
-      const row = rows[i]
-      const nome = row[ESUS_COL.NOME]?.trim()
+      const nome = rows[i][ESUS_COL.NOME]?.trim()
       if (!nome) {
         errors.push({ row: i + 1, field: 'Nome', message: 'Nome vazio' })
         continue
       }
-
-      const criteria = deriveEsusCriteria(row)
+      const criteria = deriveEsusCriteria(rows[i])
       const score = computeScore(criteria)
-
-      const existing = await this.db.query.c4Scores.findFirst({
-        where: and(
-          eq(c4Scores.esfId, tenant.esfId),
-          eq(c4Scores.nome, nome),
-          eq(c4Scores.periodo, periodo),
-        ),
+      values.push({
+        esfId: tenant.esfId,
+        nome,
+        periodo,
+        consultationsLast6m: criteria.A ? 1 : 0,
+        bloodPressureLast6m: criteria.B ? 1 : 0,
+        weightHeightLast12m: criteria.C,
+        acsVisitsLast12m: criteria.D ? 2 : 0,
+        acsVisitsIntervalDays: criteria.D ? 30 : 0,
+        hba1cLast12m: criteria.E,
+        feetEvaluationLast12m: criteria.F,
+        score: String(score),
+        classification: classify(score),
       })
-
-      if (existing) {
-        await this.db
-          .update(c4Scores)
-          .set({
-            consultationsLast6m: criteria.A ? 1 : 0,
-            bloodPressureLast6m: criteria.B ? 1 : 0,
-            weightHeightLast12m: criteria.C,
-            acsVisitsLast12m: criteria.D ? 2 : 0,
-            acsVisitsIntervalDays: criteria.D ? 30 : 0,
-            hba1cLast12m: criteria.E,
-            feetEvaluationLast12m: criteria.F,
-            score: String(score),
-            classification: classify(score),
-            updatedAt: new Date(),
-          })
-          .where(eq(c4Scores.id, existing.id))
-        updated++
-      } else {
-        await this.db.insert(c4Scores).values({
-          esfId: tenant.esfId,
-          nome,
-          consultationsLast6m: criteria.A ? 1 : 0,
-          bloodPressureLast6m: criteria.B ? 1 : 0,
-          weightHeightLast12m: criteria.C,
-          acsVisitsLast12m: criteria.D ? 2 : 0,
-          acsVisitsIntervalDays: criteria.D ? 30 : 0,
-          hba1cLast12m: criteria.E,
-          feetEvaluationLast12m: criteria.F,
-          score: String(score),
-          classification: classify(score),
-          periodo,
-        })
-        imported++
-      }
     }
 
-    return { imported, updated, errors }
+    if (values.length > 0) {
+      await this.db
+        .insert(c4Scores)
+        .values(values)
+        .onConflictDoUpdate({
+          target: [c4Scores.esfId, c4Scores.nome, c4Scores.periodo],
+          set: {
+            consultationsLast6m: sql`excluded.consultations_last6m`,
+            bloodPressureLast6m: sql`excluded.blood_pressure_last6m`,
+            weightHeightLast12m: sql`excluded.weight_height_last12m`,
+            acsVisitsLast12m: sql`excluded.acs_visits_last12m`,
+            acsVisitsIntervalDays: sql`excluded.acs_visits_interval_days`,
+            hba1cLast12m: sql`excluded.hba1c_last12m`,
+            feetEvaluationLast12m: sql`excluded.feet_evaluation_last12m`,
+            score: sql`excluded.score`,
+            classification: sql`excluded.classification`,
+            updatedAt: new Date(),
+          },
+        })
+    }
+
+    return { processed: values.length, errors }
   }
 }

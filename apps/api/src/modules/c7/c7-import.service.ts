@@ -1,9 +1,10 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common'
-import { eq, and } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { DATABASE_TOKEN } from '../../database/database.module'
 import { c7Scores } from '../../database/schema'
 import type * as schema from '../../database/schema'
+import type { NewC7Score } from '../../database/schema'
 import type { TenantContextPayload } from '../../common/tenant/tenant-context'
 import { C7EligibilityService } from './c7-eligibility.service'
 import { parseEsusCsv, ESUS_COL } from './c7-csv.helpers'
@@ -30,13 +31,11 @@ export class C7ImportService {
 
     const errors: { row: number; field: string; message: string }[] = []
     const warnings: { row: number; message: string }[] = []
-    let imported = 0
-    let updated = 0
+    const values: NewC7Score[] = []
 
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i]
       const nome = row[ESUS_COL.NOME]?.trim()
-
       if (!nome) {
         errors.push({ row: i + 1, field: 'Nome', message: 'Nome vazio' })
         continue
@@ -53,53 +52,47 @@ export class C7ImportService {
       }
 
       const microarea = row[ESUS_COL.MICROAREA]?.trim() ?? null
-      const birthDateStr = birthDate.toISOString().split('T')[0]
       const eligibility = this.eligibilityService.checkEligibility(calcAge(birthDate))
       const criteria = deriveEsusCriteria(row)
       const { score, scoreMax, pct } = computeScore(criteria, eligibility)
 
-      const existing = await this.db.query.c7Scores.findFirst({
-        where: and(
-          eq(c7Scores.esfId, tenant.esfId),
-          eq(c7Scores.nome, nome),
-          eq(c7Scores.periodo, periodo),
-        ),
+      values.push({
+        esfId: tenant.esfId,
+        nome,
+        periodo,
+        birthDate: birthDate.toISOString().split('T')[0],
+        microarea,
+        cytologyLast36m: criteria.A,
+        hpvVaccineDose1: criteria.B,
+        sexualHealthLast12m: criteria.C,
+        mammographyLast24m: criteria.D,
+        score: String(score),
+        scoreMax: String(scoreMax),
+        classification: classify(pct),
       })
-
-      if (existing) {
-        await this.db
-          .update(c7Scores)
-          .set({
-            cytologyLast36m: criteria.A,
-            hpvVaccineDose1: criteria.B,
-            sexualHealthLast12m: criteria.C,
-            mammographyLast24m: criteria.D,
-            score: String(score),
-            scoreMax: String(scoreMax),
-            classification: classify(pct),
-            updatedAt: new Date(),
-          })
-          .where(eq(c7Scores.id, existing.id))
-        updated++
-      } else {
-        await this.db.insert(c7Scores).values({
-          esfId: tenant.esfId,
-          nome,
-          birthDate: birthDateStr,
-          microarea,
-          cytologyLast36m: criteria.A,
-          hpvVaccineDose1: criteria.B,
-          sexualHealthLast12m: criteria.C,
-          mammographyLast24m: criteria.D,
-          score: String(score),
-          scoreMax: String(scoreMax),
-          classification: classify(pct),
-          periodo,
-        })
-        imported++
-      }
     }
 
-    return { imported, updated, errors, warnings }
+    if (values.length > 0) {
+      await this.db
+        .insert(c7Scores)
+        .values(values)
+        .onConflictDoUpdate({
+          target: [c7Scores.esfId, c7Scores.nome, c7Scores.periodo],
+          set: {
+            birthDate: sql`excluded.birth_date`,
+            microarea: sql`excluded.microarea`,
+            cytologyLast36m: sql`excluded.cytology_last36m`,
+            hpvVaccineDose1: sql`excluded.hpv_vaccine_dose1`,
+            sexualHealthLast12m: sql`excluded.sexual_health_last12m`,
+            mammographyLast24m: sql`excluded.mammography_last24m`,
+            score: sql`excluded.score`,
+            scoreMax: sql`excluded.score_max`,
+            classification: sql`excluded.classification`,
+            updatedAt: new Date(),
+          },
+        })
+    }
+
+    return { processed: values.length, errors, warnings }
   }
 }

@@ -1,9 +1,10 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common'
-import { and, eq } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { DATABASE_TOKEN } from '../../database/database.module'
 import { c6Scores } from '../../database/schema'
 import type * as schema from '../../database/schema'
+import type { NewC6Score } from '../../database/schema'
 import type { TenantContextPayload } from '../../common/tenant/tenant-context'
 import { C6_CRITERION_POINTS } from './c6.constants'
 import type { C6CriteriaResult, C6CriterionId } from '@repo/types'
@@ -18,7 +19,6 @@ const ESUS_COL = {
   DATA_ULTIMA_CONSULTA: 'Data da última consulta',
   DATA_PESO_ALTURA: 'Data da ultima medição de peso e altura',
   ULTIMAS_VISITAS: 'Últimas visitas domiciliares',
-  QTD_VISITAS: 'Quantidade de visitas domiciliares',
   INFLUENZA: 'Influenza (últimos 12 meses)',
 } as const
 
@@ -55,13 +55,10 @@ function parseVisitDates(raw: string): Date[] {
 
 function deriveEsusCriteria(row: Record<string, string>): C6CriteriaResult {
   const now = new Date()
-
   const dataUltimaConsulta = parseDate(row[ESUS_COL.DATA_ULTIMA_CONSULTA] ?? '')
   const criteriaA = dataUltimaConsulta !== null && monthsBetween(dataUltimaConsulta, now) <= 12
-
   const dataPesoAltura = parseDate(row[ESUS_COL.DATA_PESO_ALTURA] ?? '')
   const criteriaB = dataPesoAltura !== null && monthsBetween(dataPesoAltura, now) <= 12
-
   const visitDates = parseVisitDates(row[ESUS_COL.ULTIMAS_VISITAS] ?? '')
   let criteriaC = false
   if (visitDates.length >= 2) {
@@ -69,13 +66,10 @@ function deriveEsusCriteria(row: Record<string, string>): C6CriteriaResult {
     const diffDays = Math.floor(
       (visitDates[visitDates.length - 1].getTime() - visitDates[0].getTime()) / 86_400_000,
     )
-    const allInLast12m = visitDates.every((d) => monthsBetween(d, now) <= 12)
-    criteriaC = allInLast12m && diffDays >= 30
+    criteriaC = visitDates.every((d) => monthsBetween(d, now) <= 12) && diffDays >= 30
   }
-
   const influenza = row[ESUS_COL.INFLUENZA]?.trim()
   const criteriaD = Boolean(influenza) && influenza !== '-' && influenza !== 'Sem registro'
-
   return { A: criteriaA, B: criteriaB, C: criteriaC, D: criteriaD }
 }
 
@@ -112,64 +106,52 @@ export class C6ImportService {
     if (rows.length === 0) throw new BadRequestException('CSV sem dados de pacientes')
 
     const errors: { row: number; field: string; message: string }[] = []
-    let imported = 0
-    let updated = 0
+    const values: NewC6Score[] = []
 
     for (let i = 0; i < rows.length; i++) {
-      const row = rows[i]
-      const nome = row[ESUS_COL.NOME]?.trim()
+      const nome = rows[i][ESUS_COL.NOME]?.trim()
       if (!nome) {
         errors.push({ row: i + 1, field: 'Nome', message: 'Nome vazio' })
         continue
       }
-
-      const birthDate = parseDate(row[ESUS_COL.DATA_NASCIMENTO] ?? '')
-      const birthDateStr = birthDate?.toISOString().split('T')[0]
-
-      const criteria = deriveEsusCriteria(row)
+      const birthDate = parseDate(rows[i][ESUS_COL.DATA_NASCIMENTO] ?? '')
+      const criteria = deriveEsusCriteria(rows[i])
       const score = computeScore(criteria)
-
-      const existing = await this.db.query.c6Scores.findFirst({
-        where: and(
-          eq(c6Scores.esfId, tenant.esfId),
-          eq(c6Scores.nome, nome),
-          eq(c6Scores.periodo, periodo),
-        ),
+      values.push({
+        esfId: tenant.esfId,
+        nome,
+        periodo,
+        birthDate: birthDate?.toISOString().split('T')[0],
+        consultationsLast12m: criteria.A ? 1 : 0,
+        weightHeightLast12m: criteria.B,
+        acsVisitsLast12m: criteria.C ? 2 : 0,
+        acsVisitsIntervalDays: criteria.C ? 30 : 0,
+        influenzaVaccineLast12m: criteria.D,
+        score: String(score),
+        classification: classify(score),
       })
-
-      if (existing) {
-        await this.db
-          .update(c6Scores)
-          .set({
-            consultationsLast12m: criteria.A ? 1 : 0,
-            weightHeightLast12m: criteria.B,
-            acsVisitsLast12m: criteria.C ? 2 : 0,
-            acsVisitsIntervalDays: criteria.C ? 30 : 0,
-            influenzaVaccineLast12m: criteria.D,
-            score: String(score),
-            classification: classify(score),
-            updatedAt: new Date(),
-          })
-          .where(eq(c6Scores.id, existing.id))
-        updated++
-      } else {
-        await this.db.insert(c6Scores).values({
-          esfId: tenant.esfId,
-          nome,
-          birthDate: birthDateStr,
-          consultationsLast12m: criteria.A ? 1 : 0,
-          weightHeightLast12m: criteria.B,
-          acsVisitsLast12m: criteria.C ? 2 : 0,
-          acsVisitsIntervalDays: criteria.C ? 30 : 0,
-          influenzaVaccineLast12m: criteria.D,
-          score: String(score),
-          classification: classify(score),
-          periodo,
-        })
-        imported++
-      }
     }
 
-    return { imported, updated, errors, warnings: [] }
+    if (values.length > 0) {
+      await this.db
+        .insert(c6Scores)
+        .values(values)
+        .onConflictDoUpdate({
+          target: [c6Scores.esfId, c6Scores.nome, c6Scores.periodo],
+          set: {
+            birthDate: sql`excluded.birth_date`,
+            consultationsLast12m: sql`excluded.consultations_last12m`,
+            weightHeightLast12m: sql`excluded.weight_height_last12m`,
+            acsVisitsLast12m: sql`excluded.acs_visits_last12m`,
+            acsVisitsIntervalDays: sql`excluded.acs_visits_interval_days`,
+            influenzaVaccineLast12m: sql`excluded.influenza_vaccine_last12m`,
+            score: sql`excluded.score`,
+            classification: sql`excluded.classification`,
+            updatedAt: new Date(),
+          },
+        })
+    }
+
+    return { processed: values.length, errors, warnings: [] }
   }
 }

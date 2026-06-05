@@ -1,9 +1,10 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common'
-import { and, eq } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { DATABASE_TOKEN } from '../../database/database.module'
 import { c5Scores } from '../../database/schema'
 import type * as schema from '../../database/schema'
+import type { NewC5Score } from '../../database/schema'
 import type { TenantContextPayload } from '../../common/tenant/tenant-context'
 import { C5_CRITERION_POINTS } from './c5.constants'
 import type { C5CriteriaResult, C5CriterionId } from '@repo/types'
@@ -18,7 +19,6 @@ const ESUS_COL = {
   ULTIMA_PA: 'Última medição de pressão arterial',
   DATA_ULTIMA_PA: 'Data da última medição de pressão arterial',
   DATA_PESO_ALTURA: 'Data da ultima medição de peso e altura',
-  QTD_VISITAS: 'Quantidade de visitas domiciliares',
   ULTIMAS_VISITAS: 'Últimas visitas domiciliares',
 } as const
 
@@ -55,10 +55,8 @@ function parseVisitDates(raw: string): Date[] {
 
 function deriveEsusCriteria(row: Record<string, string>): C5CriteriaResult {
   const now = new Date()
-
   const dataUltimaConsulta = parseDate(row[ESUS_COL.DATA_ULTIMA_CONSULTA] ?? '')
   const criteriaA = dataUltimaConsulta !== null && monthsBetween(dataUltimaConsulta, now) <= 6
-
   const dataUltimaPA = parseDate(row[ESUS_COL.DATA_ULTIMA_PA] ?? '')
   const ultimaPA = row[ESUS_COL.ULTIMA_PA]?.trim()
   const criteriaB =
@@ -66,10 +64,8 @@ function deriveEsusCriteria(row: Record<string, string>): C5CriteriaResult {
     ultimaPA !== '-' &&
     Boolean(ultimaPA) &&
     monthsBetween(dataUltimaPA, now) <= 6
-
   const dataPesoAltura = parseDate(row[ESUS_COL.DATA_PESO_ALTURA] ?? '')
   const criteriaC = dataPesoAltura !== null && monthsBetween(dataPesoAltura, now) <= 12
-
   const visitDates = parseVisitDates(row[ESUS_COL.ULTIMAS_VISITAS] ?? '')
   let criteriaD = false
   if (visitDates.length >= 2) {
@@ -77,10 +73,8 @@ function deriveEsusCriteria(row: Record<string, string>): C5CriteriaResult {
     const diffDays = Math.floor(
       (visitDates[visitDates.length - 1].getTime() - visitDates[0].getTime()) / 86_400_000,
     )
-    const allInLast12m = visitDates.every((d) => monthsBetween(d, now) <= 12)
-    criteriaD = allInLast12m && diffDays >= 30
+    criteriaD = visitDates.every((d) => monthsBetween(d, now) <= 12) && diffDays >= 30
   }
-
   return { A: criteriaA, B: criteriaB, C: criteriaC, D: criteriaD }
 }
 
@@ -117,60 +111,49 @@ export class C5ImportService {
     if (rows.length === 0) throw new BadRequestException('CSV sem dados de pacientes')
 
     const errors: { row: number; field: string; message: string }[] = []
-    let imported = 0
-    let updated = 0
+    const values: NewC5Score[] = []
 
     for (let i = 0; i < rows.length; i++) {
-      const row = rows[i]
-      const nome = row[ESUS_COL.NOME]?.trim()
+      const nome = rows[i][ESUS_COL.NOME]?.trim()
       if (!nome) {
         errors.push({ row: i + 1, field: 'Nome', message: 'Nome vazio' })
         continue
       }
-
-      const criteria = deriveEsusCriteria(row)
+      const criteria = deriveEsusCriteria(rows[i])
       const score = computeScore(criteria)
-
-      const existing = await this.db.query.c5Scores.findFirst({
-        where: and(
-          eq(c5Scores.esfId, tenant.esfId),
-          eq(c5Scores.nome, nome),
-          eq(c5Scores.periodo, periodo),
-        ),
+      values.push({
+        esfId: tenant.esfId,
+        nome,
+        periodo,
+        consultationsLast6m: criteria.A ? 1 : 0,
+        bloodPressureLast6m: criteria.B ? 1 : 0,
+        weightHeightLast12m: criteria.C,
+        acsVisitsLast12m: criteria.D ? 2 : 0,
+        acsVisitsIntervalDays: criteria.D ? 30 : 0,
+        score: String(score),
+        classification: classify(score),
       })
-
-      if (existing) {
-        await this.db
-          .update(c5Scores)
-          .set({
-            consultationsLast6m: criteria.A ? 1 : 0,
-            bloodPressureLast6m: criteria.B ? 1 : 0,
-            weightHeightLast12m: criteria.C,
-            acsVisitsLast12m: criteria.D ? 2 : 0,
-            acsVisitsIntervalDays: criteria.D ? 30 : 0,
-            score: String(score),
-            classification: classify(score),
-            updatedAt: new Date(),
-          })
-          .where(eq(c5Scores.id, existing.id))
-        updated++
-      } else {
-        await this.db.insert(c5Scores).values({
-          esfId: tenant.esfId,
-          nome,
-          consultationsLast6m: criteria.A ? 1 : 0,
-          bloodPressureLast6m: criteria.B ? 1 : 0,
-          weightHeightLast12m: criteria.C,
-          acsVisitsLast12m: criteria.D ? 2 : 0,
-          acsVisitsIntervalDays: criteria.D ? 30 : 0,
-          score: String(score),
-          classification: classify(score),
-          periodo,
-        })
-        imported++
-      }
     }
 
-    return { imported, updated, errors, warnings: [] }
+    if (values.length > 0) {
+      await this.db
+        .insert(c5Scores)
+        .values(values)
+        .onConflictDoUpdate({
+          target: [c5Scores.esfId, c5Scores.nome, c5Scores.periodo],
+          set: {
+            consultationsLast6m: sql`excluded.consultations_last6m`,
+            bloodPressureLast6m: sql`excluded.blood_pressure_last6m`,
+            weightHeightLast12m: sql`excluded.weight_height_last12m`,
+            acsVisitsLast12m: sql`excluded.acs_visits_last12m`,
+            acsVisitsIntervalDays: sql`excluded.acs_visits_interval_days`,
+            score: sql`excluded.score`,
+            classification: sql`excluded.classification`,
+            updatedAt: new Date(),
+          },
+        })
+    }
+
+    return { processed: values.length, errors, warnings: [] }
   }
 }
