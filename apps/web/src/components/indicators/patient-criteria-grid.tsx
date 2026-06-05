@@ -1,6 +1,6 @@
 'use client'
 
-import { CheckCircle2, XCircle } from 'lucide-react'
+import { CheckCircle2, XCircle, Clock } from 'lucide-react'
 import type { CriterionResult } from './patient-detail-modal'
 
 interface PatientCriteriaGridProps {
@@ -9,12 +9,13 @@ interface PatientCriteriaGridProps {
 
 export function PatientCriteriaGrid({ criteria }: PatientCriteriaGridProps) {
   const achieved = criteria.filter((c) => c.achieved)
-  const pending = criteria.filter((c) => !c.achieved)
+  const pending = criteria.filter((c) => !c.achieved && !c.notApplicable)
+  const notApplicable = criteria.filter((c) => c.notApplicable)
 
-  if (achieved.length === 0 && pending.length === 0) return null
+  if (criteria.length === 0) return null
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
+    <div className="space-y-3">
       {achieved.length > 0 && (
         <div className="space-y-2">
           <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
@@ -34,6 +35,7 @@ export function PatientCriteriaGrid({ criteria }: PatientCriteriaGridProps) {
           </div>
         </div>
       )}
+
       {pending.length > 0 && (
         <div className="space-y-2">
           <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-red-500">
@@ -45,6 +47,23 @@ export function PatientCriteriaGrid({ criteria }: PatientCriteriaGridProps) {
               <div key={c.id} className="bg-red-500/8 flex items-start gap-2 rounded-lg px-3 py-2">
                 <XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-400" />
                 <span className="text-foreground text-xs leading-snug">{c.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {notApplicable.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-muted-foreground flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide">
+            <Clock className="h-3.5 w-3.5" />
+            Prazo não vencido ({notApplicable.length})
+          </p>
+          <div className="space-y-1.5">
+            {notApplicable.map((c) => (
+              <div key={c.id} className="bg-muted/60 flex items-start gap-2 rounded-lg px-3 py-2">
+                <Clock className="text-muted-foreground mt-0.5 h-3.5 w-3.5 shrink-0" />
+                <span className="text-muted-foreground text-xs leading-snug">{c.label}</span>
               </div>
             ))}
           </div>

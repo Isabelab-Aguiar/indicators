@@ -1,5 +1,6 @@
 import {
   boolean,
+  date,
   index,
   integer,
   numeric,
@@ -20,6 +21,7 @@ export const c2Scores = pgTable(
       .notNull()
       .references(() => esfs.id),
     nome: varchar('nome', { length: 255 }).notNull(),
+    birthDate: date('birth_date'),
     firstConsultUntilDay30: boolean('first_consult_until_day30').notNull().default(false),
     prenatalConsults: integer('prenatal_consults').notNull().default(0),
     weightHeightRecords: integer('weight_height_records').notNull().default(0),

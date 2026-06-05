@@ -6,7 +6,7 @@ import { c2Scores } from '../../database/schema'
 import type * as schema from '../../database/schema'
 import type { TenantContextPayload } from '../../common/tenant/tenant-context'
 import { parseEsusCsv, ESUS_COL } from './c2-csv.helpers'
-import { classify, computeScore, deriveEsusCriteria } from './c2-criteria.helpers'
+import { classify, computeScore, deriveEsusCriteria, parseDate } from './c2-criteria.helpers'
 
 type Database = NodePgDatabase<typeof schema>
 
@@ -34,6 +34,8 @@ export class C2ImportService {
 
       const criteria = deriveEsusCriteria(row)
       const score = computeScore(criteria)
+      const birthDateParsed = parseDate(row[ESUS_COL.DATA_NASCIMENTO] ?? '')
+      const birthDateStr = birthDateParsed ? birthDateParsed.toISOString().split('T')[0] : null
 
       const existing = await this.db.query.c2Scores.findFirst({
         where: and(
@@ -47,6 +49,7 @@ export class C2ImportService {
         await this.db
           .update(c2Scores)
           .set({
+            birthDate: birthDateStr,
             firstConsultUntilDay30: criteria.A,
             prenatalConsults: criteria.B ? 9 : 0,
             weightHeightRecords: criteria.C ? 9 : 0,
@@ -63,6 +66,7 @@ export class C2ImportService {
         await this.db.insert(c2Scores).values({
           esfId: tenant.esfId,
           nome,
+          birthDate: birthDateStr,
           firstConsultUntilDay30: criteria.A,
           prenatalConsults: criteria.B ? 9 : 0,
           weightHeightRecords: criteria.C ? 9 : 0,

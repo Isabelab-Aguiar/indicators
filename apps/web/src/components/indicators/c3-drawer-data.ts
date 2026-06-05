@@ -14,6 +14,7 @@ export function buildC3Criteria(patient: C3PatientRow): CriterionResult[] {
     id: def.id,
     label: def.label,
     achieved: patient.criteriaMet.includes(def.id),
+    notApplicable: patient.criteriaNotApplicable.includes(def.id),
   }))
 }
 

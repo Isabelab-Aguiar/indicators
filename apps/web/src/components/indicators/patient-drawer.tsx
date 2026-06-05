@@ -148,7 +148,15 @@ export function PatientDrawer({ stat, patients, achieved, color, onClose }: Pati
       {selected && (
         <PatientDetailModal
           patient={selected}
-          subtitle={`Microárea ${selected.microarea} · CPF ${selected.cpf}`}
+          subtitle={[
+            selected.gestationalAgeWeeks !== null
+              ? `${selected.gestationalAgeWeeks} semanas`
+              : null,
+            `Microárea ${selected.microarea}`,
+            `CPF ${selected.cpf}`,
+          ]
+            .filter(Boolean)
+            .join(' · ')}
           score={selected.pctScore}
           scoreLabel="pts%"
           classification={selected.classification}

@@ -19,6 +19,7 @@ export interface CriterionResult {
   id: string
   label: string
   achieved: boolean
+  notApplicable?: boolean
 }
 
 export interface DetailField {

@@ -19,6 +19,7 @@ export interface C3PatientRow {
   name: string
   cpf: string
   microarea: string
+  gestationalAgeWeeks: number | null
   prenatalConsultations: number
   consultationsUpTo12Weeks: number
   bloodPressureMeasurements: number
@@ -33,7 +34,9 @@ export interface C3PatientRow {
   hivExam3rdTrimester: string
   syphilisExam3rdTrimester: string
   criteriaMet: C3CriterionId[]
+  criteriaNotApplicable: C3CriterionId[]
   score: number
+  scoreMax: number
   pctScore: number
   classification: C3Classification
 }
